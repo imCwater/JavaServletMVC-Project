@@ -27,6 +27,22 @@ Servers/
 RemoteSystemsTempFiles/
 .recommenders/
 
+# PC마다 달라질 수 있는 Eclipse classpath
+.classpath
+**/.classpath
+
+# .project는 Dynamic Web Project 인식을 위해 Git에 유지
+!.project
+!**/.project
+
+# .settings는 대부분 개인 환경 파일이 생길 수 있으므로 일부만 유지
+.settings/*
+!.settings/
+!.settings/org.eclipse.wst.common.component
+!.settings/org.eclipse.wst.common.project.facet.core.xml
+!.settings/org.eclipse.jdt.core.prefs
+!.settings/org.eclipse.core.resources.prefs
+
 # Eclipse local runtime caches
 *.launch
 
