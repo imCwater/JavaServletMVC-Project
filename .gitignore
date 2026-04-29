@@ -1,0 +1,85 @@
+# =========================
+# API key / local config
+# =========================
+config.properties
+**/config.properties
+src/main/resources/config.properties
+**/src/main/resources/config.properties
+
+# 샘플 설정 파일은 올려야 함
+!config.example.properties
+!**/config.example.properties
+
+# =========================
+# Java build output
+# =========================
+bin/
+build/
+target/
+out/
+*.class
+
+# =========================
+# Eclipse workspace / local settings
+# =========================
+.metadata/
+Servers/
+RemoteSystemsTempFiles/
+.recommenders/
+
+# Eclipse local runtime caches
+*.launch
+
+# =========================
+# Tomcat local/server files
+# =========================
+apache-tomcat-*/
+tomcat.*/
+work/
+temp/
+logs/
+
+# =========================
+# IntelliJ
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Local DB / test files
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# JAR files
+# 팀에서 jar를 GitHub에 올리지 않기로 했다면 유지
+# 단, WEB-INF/lib에 꼭 필요한 jar를 공유해야 하면 이 부분은 조정 필요
+# =========================
+*.jar
+**/WEB-INF/lib/*.jar
+
+# =========================
+# Generated WAR
+# =========================
+*.war
+*.ear
