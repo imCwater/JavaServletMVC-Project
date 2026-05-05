@@ -15,14 +15,14 @@ public class AppConfig {
 
             if (input == null) {
                 throw new RuntimeException(
-                    "config.properties 파일을 찾을 수 없습니다. src/main/resources에 생성했는지 확인하세요."
+                    "config.properties file was not found. Create it under src/main/resources."
                 );
             }
 
             props.load(input);
 
         } catch (IOException e) {
-            throw new RuntimeException("config.properties 읽기 실패", e);
+            throw new RuntimeException("Failed to read config.properties", e);
         }
     }
 
@@ -32,5 +32,21 @@ public class AppConfig {
 
     public static String getKmdbApiUrl() {
         return props.getProperty("KMDB_API_URL");
+    }
+
+    public static String getDbDriver() {
+        return props.getProperty("DB_DRIVER");
+    }
+
+    public static String getDbUrl() {
+        return props.getProperty("DB_URL");
+    }
+
+    public static String getDbUser() {
+        return props.getProperty("DB_USER");
+    }
+
+    public static String getDbPassword() {
+        return props.getProperty("DB_PASSWORD");
     }
 }
