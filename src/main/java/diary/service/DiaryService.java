@@ -1,256 +1,145 @@
 package diary.service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.tomcat.dbcp.dbcp2.SQLExceptionList;
 
 import diary.dao.DiaryDAO;
 import diary.dto.DiaryDTO;
 import diary.dto.DiaryStatDTO;
 
 /*
-  [DiaryService]
-  다이어리 비즈니스 로직 처리
-  - DB 연결 관리 (Connection 획득/해제, 트랜잭션 처리)
-  - 뱃지 동적 집계 로직 포함 (DB 저장 없이 Java 조건 판단)
- 
-  ※ DBUtil.getConnection() 경로는 확인하기(팀 설정)
-     예: common.DBUtil, util.DBUtil, db.DBUtil 등
+  DiaryService
+  필름 다이어리 비즈니스 로직 담당
+  - DAO 호출 + 뱃지 집계 + 통계 조합
  */
 
 public class DiaryService {
-	
-	private DiaryDAO diaryDAO = new DiaryDAO();
-	
-	// ════════════════════════════════════════════════════════
-    // DB 연결 헬퍼 (팀 공통 DBUtil 경로에 맞게 수정)
-    // ════════════════════════════════════════════════════════
-	private Connection getConnection() throws SQLException {		
-		// TODO: 팀 프로젝트의 실제 DBUtil 경로로 변경
-        // 예: return common.DBUtil.getConnection();
-        //     return util.DBUtil.getConnection();
-		
-		try {
-			return common.DBUtil.getConnection();
-		} catch (Exception e) {
-			// TODO: handle exception
-			throw new SQLException("DB 연결 실패: " + e.getMessage());
+
+	private final DiaryDAO diaryDAO = new DiaryDAO();
+
+	// ─────────────────────────────────────────────────────────────
+	// 1. 다이어리 목록 조회 (태그 목록도 같이 붙여서 반환)
+	// ─────────────────────────────────────────────────────────────
+
+	public List<DiaryDTO> getDiaryList(int memberId, String year, String sort) throws Exception {
+		List<DiaryDTO> list = diaryDAO.getDiaryList(memberId, year, sort);
+		// 각 다이어리에 태그 목록 붙이기
+		for (DiaryDTO dto : list) {
+			List<String> tags = diaryDAO.getTagsByDiaryId(dto.getDiaryId());
+			dto.setTagList(tags);
 		}
-	
+		return list;
 	}
-	
-	// ════════════════════════════════════════════════════════
-    // 1. 다이어리 목록 조회 (각 항목에 태그 목록도 세팅)
-    // ════════════════════════════════════════════════════════
-    public List<DiaryDTO> getDiaryList(int memberId, int year, String sort) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            List<DiaryDTO> list = diaryDAO.getDiaryList(conn, memberId, year, sort);
 
-            // 각 다이어리에 태그 목록 세팅
-            for (DiaryDTO dto : list) {
-                List<String> tags = diaryDAO.getTagsByDiaryId(conn, dto.getDiaryId());
-                dto.setTagNames(tags);
-            }
+	// ─────────────────────────────────────────────────────────────
+	// 2. 달력용 데이터 조회 (AJAX JSON 응답)
+	// ─────────────────────────────────────────────────────────────
+	public List<DiaryDTO> getDiaryByMonth(int memberId, String year, String month) throws Exception {
+		return diaryDAO.getDiaryByMonth(memberId, year, month);
+	}
 
-            return list;
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
-    
- // ════════════════════════════════════════════════════════
-    // 2. 달력 데이터 조회 (AJAX - 월 단위)
-    // ════════════════════════════════════════════════════════
-    
-    public List<DiaryDTO> getDiaryByMonth(int memberId, int year, int month) throws SQLException {
-    	Connection conn = null;
-    	try {
-			conn = getConnection();
-			return diaryDAO.getDiaryByMonth(conn, memberId, year, month);
-		} finally {
-			if(conn != null)conn.close();
+	// ─────────────────────────────────────────────────────────────
+	// 3. 다이어리 상세 (태그 목록 붙여서 반환)
+	// ─────────────────────────────────────────────────────────────
+	public DiaryDTO getDiaryDetail(int diaryId) throws Exception {
+		DiaryDTO dto = diaryDAO.getDiaryDetail(diaryId);
+		if (dto != null) {
+			dto.setTagList(diaryDAO.getTagsByDiaryId(diaryId));
 		}
-    }
-    
-    // ════════════════════════════════════════════════════════
-    // 3. 다이어리 상세 조회 (태그 포함)
-    //    - 본인 여부는 Servlet에서 확인 후 호출
-    // ════════════════════════════════════════════════════════
-    
-    public DiaryDTO getDiaryDetail(int diaryId) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            DiaryDTO dto = diaryDAO.getDiaryDetail(conn, diaryId);
-            if (dto != null) {
-                List<String> tags = diaryDAO.getTagsByDiaryId(conn, diaryId);
-                dto.setTagNames(tags);
-            }
-            return dto;
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
-    
- // ════════════════════════════════════════════════════════
-    // 4. 태그 수정 (트랜잭션: 삭제 후 INSERT)
-    //    - tagIds: 선택된 태그 ID 목록 (빈 리스트면 전체 삭제)
-    // ════════════════════════════════════════════════════════
-    public void updateTags(int diaryId, List<Integer> tagIds) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            conn.setAutoCommit(false); // 트랜잭션 시작
+		return dto;
+	}
 
-            // 기존 태그 전체 삭제
-            diaryDAO.deleteTagsByDiaryId(conn, diaryId);
+	// ─────────────────────────────────────────────────────────────
+	// 4. 전체 태그 목록 조회 (태그 선택 UI용)
+	// ─────────────────────────────────────────────────────────────
+	public List<Map<String, Object>> getAllTags() throws Exception {
+		return diaryDAO.getAllTags();
+	}
 
-            // 새 태그 INSERT
-            for (int tagId : tagIds) {
-                diaryDAO.insertDiaryTag(conn, diaryId, tagId);
-            }
+	// ─────────────────────────────────────────────────────────────
+	// 5. 감정 태그 + 별점 등록/수정
+	// ─────────────────────────────────────────────────────────────
+	public void updateTagsAndStar(int diaryId, int[] tagIds, double starRating) throws Exception {
+		diaryDAO.updateTags(diaryId, tagIds);
+		if (starRating > 0) {
+			diaryDAO.updateStarRating(diaryId, starRating);
+		}
+	}
 
-            conn.commit(); // 커밋
-        } catch (SQLException e) {
-            if (conn != null) conn.rollback(); // 롤백
-            throw e;
-        } finally {
-            if (conn != null) {
-                conn.setAutoCommit(true);
-                conn.close();
-            }
-        }
-    }
+	// ─────────────────────────────────────────────────────────────
+	// 6. 다이어리 자동 등록 (예매 완료 후 ReservationService에서 호출)
+	// - reservation_id UNIQUE → 중복 등록 자동 방지
+	// ─────────────────────────────────────────────────────────────
+	public int insertDiary(DiaryDTO dto) throws Exception {
+		return diaryDAO.insertDiary(dto);
+	}
 
-    // ════════════════════════════════════════════════════════
-    // 5. 다이어리 자동 등록 (예매 완료 시 호출)
-    //    - ReservationService에서 conn을 넘겨받아 트랜잭션 통합 관리하거나
-    //      별도 트랜잭션으로 처리 가능
-    // ════════════════════════════════════════════════════════
-    public void insertDiary(DiaryDTO dto) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            diaryDAO.insertDiary(conn, dto);
-            conn.commit();
-        } catch (SQLException e) {
-            if (conn != null) conn.rollback();
-            throw e;
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
+	// ─────────────────────────────────────────────────────────────
+	// 7. 연도 목록 (사이드바 폴더 구조)
+	// ─────────────────────────────────────────────────────────────
+	public List<String> getYearList(int memberId) throws Exception {
+		return diaryDAO.getYearList(memberId);
+	}
 
-    // ════════════════════════════════════════════════════════
-    // 6. 별점 + 리뷰 연동 수정
-    // ════════════════════════════════════════════════════════
-    public void updateStarAndReview(int diaryId, double starRating, int reviewId) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            diaryDAO.updateStarAndReview(conn, diaryId, starRating, reviewId);
-            conn.commit();
-        } catch (SQLException e) {
-            if (conn != null) conn.rollback();
-            throw e;
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
+	// ─────────────────────────────────────────────────────────────
+	// 8. 연간 통계 조회 + 뱃지 집계
+	// ─────────────────────────────────────────────────────────────
+	@SuppressWarnings("unchecked")
+	public DiaryStatDTO getStat(int memberId, int year) throws Exception {
+		Map<String, Object> data = diaryDAO.getStatData(memberId, year);
 
-    // ════════════════════════════════════════════════════════
-    // 7. 연도 목록 조회 (사이드바용)
-    // ════════════════════════════════════════════════════════
-    public List<Integer> getYearList(int memberId) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            return diaryDAO.getYearList(conn, memberId);
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
+		DiaryStatDTO stat = new DiaryStatDTO();
+		stat.setYear(year);
 
-    // ════════════════════════════════════════════════════════
-    // 8. 전체 태그 Map 조회 (filmDiary.jsp 태그 선택 팝업용)
-    // ════════════════════════════════════════════════════════
-    public Map<Integer, String> getAllTagMap() throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            return diaryDAO.getAllTagMap(conn);
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
+		// 총 관람 편수
+		int total = (int) data.getOrDefault("totalCount", 0);
+		stat.setTotalCount(total);
 
-    // ════════════════════════════════════════════════════════
-    // 9. 연간 통계 조회 + 뱃지 동적 집계
-    // ════════════════════════════════════════════════════════
-    public DiaryStatDTO getDiaryStat(int memberId, int year) throws SQLException {
-        Connection conn = null;
-        try {
-            conn = getConnection();
+		// 평균 별점
+		stat.setAvgStarRating((double) data.getOrDefault("avgStarRating", 0.0));
 
-            DiaryStatDTO stat = new DiaryStatDTO();
-            stat.setYear(year);
+		// 가장 많이 간 극장
+		stat.setTopTheater((String) data.getOrDefault("topTheater", "정보 없음"));
 
-            // 총 관람 편수
-            int total = diaryDAO.getTotalCountByYear(conn, memberId, year);
-            stat.setTotalCount(total);
+		// 월별 카운트
+		stat.setMonthlyCount((int[]) data.getOrDefault("monthlyCount", new int[12]));
 
-            // 평균 별점 (소수점 1자리 반올림)
-            double avg = diaryDAO.getAvgStarByYear(conn, memberId, year);
-            stat.setAvgStarRating(Math.round(avg * 10) / 10.0);
+		// 감정 태그 빈도
+		stat.setTagFreqList((List<Map.Entry<String, Integer>>) data.getOrDefault("tagFreqList", new ArrayList<>()));
 
-            // 월별 관람 편수
-            stat.setMonthlyCount(diaryDAO.getMonthlyCountByYear(conn, memberId, year));
+		// ── 뱃지 집계 (동적 집계, DB 저장 없이 Java 조건 판단) ──
+		stat.setEarnedBadges(calcBadges(memberId, total));
 
-            // 감정 태그 빈도
-            List<Map.Entry<String, Integer>> tagFreq = diaryDAO.getTagFrequencyByYear(conn, memberId, year);
-            stat.setTagFrequency(tagFreq);
+		return stat;
+	}
 
-            // 장르 TOP3 (MOVIE 테이블에 genre 컬럼이 있다면 조회, 없으면 빈 리스트)
-            // ※ 현재 DB 설계에 genre 컬럼 없음 → 추후 추가 시 구현
-            stat.setGenreTop3(new ArrayList<>());
+	// ─────────────────────────────────────────────────────────────
+	// 9. 뱃지 조건 판단 (DB 저장 없이 Java에서 동적 집계)
+	// - 뱃지 코드 목록 반환 (JSP에서 아이콘/이름 매핑)
+	// ─────────────────────────────────────────────────────────────
+	private List<String> calcBadges(int memberId, int totalCount) throws Exception {
+		List<String> badges = new ArrayList<>();
 
-            // ── 뱃지 동적 집계 (DB 저장 없이 Java 조건 판단) ──────
-            int totalAll = diaryDAO.getTotalCountAll(conn, memberId); // 전체 누적 편수
-            List<String> badges = new ArrayList<>();
+		// 🎬 첫 관람: 총 관람 1편 이상
+		if (totalCount >= 1)
+			badges.add("FIRST_MOVIE");
 
-            if (totalAll >= 1)   badges.add("🎬 첫 기록"); // 첫 다이어리 등록
-            if (totalAll >= 10)  badges.add("🎟️ 10편 달성");
-            if (totalAll >= 30)  badges.add("🍿 30편 달성");
-            if (totalAll >= 50)  badges.add("🏆 50편 달성");
-            if (totalAll >= 100) badges.add("🌟 100편 달성");
+		// 🎟 단골 관객: 10편 이상
+		if (totalCount >= 10)
+			badges.add("REGULAR");
 
-            // 해당 연도에서 평균 별점 4.5 이상
-            if (avg >= 4.5 && total > 0) badges.add("⭐ 별점왕");
+		// 🍿 시네마 마니아: 50편 이상
+		if (totalCount >= 50)
+			badges.add("MANIA");
 
-            // 감정 태그를 10개 이상 사용
-            int tagUsedCount = tagFreq.stream().mapToInt(Map.Entry::getValue).sum();
-            if (tagUsedCount >= 10) badges.add("🏷️ 태그 마니아");
+		// 🌟 혹평가: 별점 1점을 5회 이상 부여 (전체 기간)
+		// (별점 1.0 기준으로 COUNT)
+		// 이 조건은 전체 기간 데이터가 필요하므로 DiaryDAO에서 별도 조회 필요 시 추가
+		// 지금은 단순화하여 생략 가능 (필요 시 DiaryDAO.countLowRating() 추가)
 
-            // 한 달에 5편 이상 본 달이 있는지 확인
-            int[] monthly = stat.getMonthlyCount();
-            for (int cnt : monthly) {
-                if (cnt >= 5) { badges.add("📅 월 5편 달성"); break; }
-            }
-
-            stat.setEarnedBadges(badges);
-
-            return stat;
-
-        } finally {
-            if (conn != null) conn.close();
-        }
-    }
-    
+		return badges;
+	}
 
 }

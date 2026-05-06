@@ -1,154 +1,130 @@
 package diary.dto;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /*
-  [DiayryDTO]
-  DIARY_ENTRY 테이블 + TAG 정보 + MOVIE 정보를 함께 담는 DTO
-  필름 다이어리 목록/상세/달력/태그 수정에 모두 사용
-   
-
-
-*/
+  DiaryDTO
+  DIARY_ENTRY 테이블 + 조인 결과(영화명, 포스터, 태그 목록 등)를 담는 DTO
+  - star_rating: 별점 (1.0 ~ 5.0, 0.5 단위)
+  - review_id: 리뷰 연동 FK (NULL 가능)
+  - tagList: DIARY_TAG 조인 결과 (태그명 목록)
+ */
 public class DiaryDTO {
 	
-	// ── DIARY_ENTRY 컬럼 ──────────────────────────────────────
-    private int diaryId;          // diary_id (PK)
-    private int memberId;         // member_id (FK → MEMBER)
-    private int movieId;          // movie_id  (FK → MOVIE)
-    private int reservationId;    // reservation_id (FK → RESERVATION, NULL 가능)
-    private int reviewId;         // review_id (FK → REVIEW, NULL 가능 - 리뷰 연동 선택)
-    private String watchDate;     // watch_date (관람일, "yyyy-MM-dd" 형태로 사용)
-    private double starRating;    // star_rating (별점 1.0~5.0, 0.5단위, NULL 가능 → 0.0으로 처리)
-    private String createdAt;     // created_at (등록일시)
+	// ── DIARY_ENTRY 기본 컬럼 ─────────────────────────────
+    private int    diaryId;        // diary_id (PK)
+    private int    memberId;       // member_id (FK)
+    private int    movieId;        // movie_id (FK)
+    private Integer reservationId;  // reservation_id (FK, NULL 가능)
+    private Integer reviewId;       // review_id (FK, NULL 가능 - 리뷰 연동 선택)
+    private Date   watchDate;      // watch_date (관람일)
+    private double starRating;     // star_rating (1.0~5.0, 0.5 단위)
+    private Timestamp createdAt;   // created_at
 
-    // ── MOVIE 조인 컬럼 (목록/달력 출력용) ─────────────────────
-    private String title;         // movie.title (영화 제목)
-    private String posterUrl;     // movie.poster_url (포스터 이미지 URL)
-    private String genre;         // movie.genre (장르 - 통계용)
+    // ── 조인 결과 (MOVIE 테이블 조인) ────────────────────
+    private String movieTitle;     // MOVIE.title
+    private String posterUrl;      // MOVIE.poster_url
+    private int    runtime;        // MOVIE.runtime (분)
 
-    // ── TAG 조인 컬럼 (다이어리에 붙은 감정 태그 목록) ─────────
-    private List<String> tagNames; // 감정 태그명 리스트 (DIARY_TAG JOIN TAG)
-    private List<Integer> tagIds;  // 태그 ID 리스트 (tagUpdate 시 사용)
+    // ── 조인 결과 (TAG, DIARY_TAG 조인) ──────────────────
+    private List<String> tagList;  // 선택된 감정 태그명 목록
 
-    // ── 기본 생성자 ───────────────────────────────────────────
-    public DiaryDTO() {
-		// TODO Auto-generated constructor stub
-	}
+    // ── 조인 결과 (SCHEDULE, SCREEN, THEATER) ────────────
+    private String theaterName;    // 극장명 (예매 기반 다이어리에서 표시용)
+    private String screenName;     // 상영관명
     
-    // ── Getter / Setter ───────────────────────────────────────
-
+    
+    // ─────────────────────────────────────────────────────
+    // Getters & Setters
+    // ─────────────────────────────────────────────────────
+    
 	public int getDiaryId() {
 		return diaryId;
 	}
-
 	public void setDiaryId(int diaryId) {
 		this.diaryId = diaryId;
 	}
-
 	public int getMemberId() {
 		return memberId;
 	}
-
 	public void setMemberId(int memberId) {
 		this.memberId = memberId;
 	}
-
 	public int getMovieId() {
 		return movieId;
 	}
-
 	public void setMovieId(int movieId) {
 		this.movieId = movieId;
 	}
-
-	public int getReservationId() {
+	public Integer getReservationId() {
 		return reservationId;
 	}
-
-	public void setReservationId(int reservationId) {
+	public void setReservationId(Integer reservationId) {
 		this.reservationId = reservationId;
 	}
-
-	public int getReviewId() {
+	public Integer getReviewId() {
 		return reviewId;
 	}
-
-	public void setReviewId(int reviewId) {
+	public void setReviewId(Integer reviewId) {
 		this.reviewId = reviewId;
 	}
-
-	public String getWatchDate() {
+	public Date getWatchDate() {
 		return watchDate;
 	}
-
-	public void setWatchDate(String watchDate) {
+	public void setWatchDate(Date watchDate) {
 		this.watchDate = watchDate;
 	}
-
 	public double getStarRating() {
 		return starRating;
 	}
-
 	public void setStarRating(double starRating) {
 		this.starRating = starRating;
 	}
-
-	public String getCreatedAt() {
+	public Timestamp getCreatedAt() {
 		return createdAt;
 	}
-
-	public void setCreatedAt(String createdAt) {
+	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
-
-	public String getTitle() {
-		return title;
+	public String getMovieTitle() {
+		return movieTitle;
 	}
-
-	public void setTitle(String title) {
-		this.title = title;
+	public void setMovieTitle(String movieTitle) {
+		this.movieTitle = movieTitle;
 	}
-
 	public String getPosterUrl() {
 		return posterUrl;
 	}
-
 	public void setPosterUrl(String posterUrl) {
 		this.posterUrl = posterUrl;
 	}
-
-	public String getGenre() {
-		return genre;
+	public int getRuntime() {
+		return runtime;
+	}
+	public void setRuntime(int runtime) {
+		this.runtime = runtime;
+	}
+	public List<String> getTagList() {
+		return tagList;
+	}
+	public void setTagList(List<String> tagList) {
+		this.tagList = tagList;
+	}
+	public String getTheaterName() {
+		return theaterName;
+	}
+	public void setTheaterName(String theaterName) {
+		this.theaterName = theaterName;
+	}
+	public String getScreenName() {
+		return screenName;
+	}
+	public void setScreenName(String screenName) {
+		this.screenName = screenName;
 	}
 
-	public void setGenre(String genre) {
-		this.genre = genre;
-	}
-
-	public List<String> getTagNames() {
-		return tagNames;
-	}
-
-	public void setTagNames(List<String> tagNames) {
-		this.tagNames = tagNames;
-	}
-
-	public List<Integer> getTagIds() {
-		return tagIds;
-	}
-
-	public void setTagIds(List<Integer> tagIds) {
-		this.tagIds = tagIds;
-	}
-
-	@Override
-	public String toString() {
-		return "DiaryDTO [diaryId=" + diaryId + ", memberId=" + memberId + ", movieId=" + movieId + ", reservationId="
-				+ reservationId + ", reviewId=" + reviewId + ", watchDate=" + watchDate + ", starRating=" + starRating
-				+ ", createdAt=" + createdAt + ", title=" + title + ", posterUrl=" + posterUrl + ", genre=" + genre
-				+ ", tagNames=" + tagNames + ", tagIds=" + tagIds + "]";
-	}
     
     
 
