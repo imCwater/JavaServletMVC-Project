@@ -3,7 +3,7 @@ package member.service;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import common.db.DBUtil;
+import common.DBUtil;
 import common.util.Sha256Util;
 import member.dao.MemberDAO;
 import member.dto.MemberDTO;

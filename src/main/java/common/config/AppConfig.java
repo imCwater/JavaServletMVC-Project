@@ -33,20 +33,4 @@ public class AppConfig {
     public static String getKmdbApiUrl() {
         return props.getProperty("KMDB_API_URL");
     }
-
-    public static String getDbDriver() {
-        return props.getProperty("DB_DRIVER");
-    }
-
-    public static String getDbUrl() {
-        return props.getProperty("DB_URL");
-    }
-
-    public static String getDbUser() {
-        return props.getProperty("DB_USER");
-    }
-
-    public static String getDbPassword() {
-        return props.getProperty("DB_PASSWORD");
-    }
 }
