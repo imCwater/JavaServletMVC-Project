@@ -1,6 +1,5 @@
 package review.dto;
 
-//DB에서 꺼낸 데이터를 이 클래스에 담아서 Service → Controller → JSP로 전달
 public class ReviewDTO {
 
     private int reviewId;
@@ -18,7 +17,7 @@ public class ReviewDTO {
 
     private String publicYn;
     // 공개/비공개 여부 - DB: PUBLIC_YN
-    // 'Y' = 전체 공개, 'N' = 친구만 공개
+    // 'Y' = 전체 공개, 'F' = 친구공개
 
     private String content;
     // 리뷰 본문 내용 - DB: CONTENT

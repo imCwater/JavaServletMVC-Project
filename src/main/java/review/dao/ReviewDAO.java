@@ -18,7 +18,8 @@ public class ReviewDAO {
     // 리뷰 목록 조회 (영화별)
 
     /**
-     * 특정 영화의 공개 리뷰 목록 가져오기
+     * 특정 영화의 공개/친구공개 리뷰 목록 가져오기
+     * public_yn = 'Y'(공개) 또는 'F'(친구공개)만 조회
      * @param movieId 조회할 영화 번호
      * @return 리뷰 목록 (최신순 정렬)
      */
@@ -27,12 +28,12 @@ public class ReviewDAO {
         List<ReviewDTO> list = new ArrayList<>();
 
         // REVIEW + MEMBER 테이블 JOIN → 작성자 이름도 함께 가져옴
-        // public_yn = 'Y' 인 것만 (공개 리뷰만 조회)
-        String sql = "SELECT r.review_id, r.movie_id, r.member_id, r.fresh_yn, " +
-                     "r.public_yn, r.content, r.created_at, r.updated_at, m.member_name " +
-                     "FROM review r JOIN member m ON r.member_id = m.member_id " +
-                     "WHERE r.movie_id = ? AND r.public_yn = 'Y' " +
-                     "ORDER BY r.created_at DESC"; // 최신순 정렬
+        // public_yn IN ('Y','F') : 공개 + 친구공개만 조회
+        String sql = "SELECT r.review_id, r.movie_id, r.member_id, r.fresh_yn, " + 
+        			 "       r.public_yn, r.content, r.created_at, r.updated_at, m.member_name " +      
+        			 "FROM review r JOIN member m ON r.member_id = m.member_id " +           
+        			 "WHERE r.movie_id = ? AND r.public_yn IN ('Y', 'F') " +            
+        			 "ORDER BY r.created_at DESC";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -109,6 +110,7 @@ public class ReviewDAO {
     
     /**
      * 새 리뷰 DB에 저장
+     * public_yn 은 'Y' 또는 'F'만 허용 (비공개 없음)
      * @param dto 저장할 리뷰 데이터
      * @return 성공 1, 실패 0
      */
@@ -118,16 +120,16 @@ public class ReviewDAO {
 
         // review_id는 시퀀스 자동증가이므로 INSERT에서 제외
         // created_at, updated_at은 DEFAULT SYSTIMESTAMP 사용
-        String sql = "INSERT INTO review (movie_id, member_id, fresh_yn, public_yn, content) " +
-                     "VALUES (?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO review (movie_id, member_id, fresh_yn, public_yn, content) " +            
+        			 "VALUES (?, ?, ?, ?, ?)";
+        
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, dto.getMovieId());
             ps.setInt(2, dto.getMemberId());
             ps.setString(3, dto.getBurstYn()); // DB 컬럼명은 fresh_yn 그대로
-            ps.setString(4, dto.getPublicYn());
+            ps.setString(4, dto.getPublicYn()); // 'Y' 또는 'F'만 저장
             ps.setString(5, dto.getContent());
             result = ps.executeUpdate();
 
@@ -141,7 +143,8 @@ public class ReviewDAO {
     // 리뷰 수정
     
     /**
-     * 리뷰 내용 수정
+     * 리뷰 내용 수정(본인만 가능)
+     * public_yn 은 'Y' 또는 'F'만 허용 (비공개 없음)
      * @param dto 수정할 데이터 (reviewId, memberId 필수!)
      * @return 성공 1, 실패 0
      */
@@ -159,7 +162,7 @@ public class ReviewDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
         	ps.setString(1, dto.getBurstYn()); // DB 컬럼명은 fresh_yn 그대로
-            ps.setString(2, dto.getPublicYn());
+            ps.setString(2, dto.getPublicYn()); // 'Y' 또는 'F'만 저장
             ps.setString(3, dto.getContent());
             ps.setInt(4, dto.getReviewId());
             ps.setInt(5, dto.getMemberId()); // 본인 확인
@@ -175,7 +178,7 @@ public class ReviewDAO {
     // 리뷰 삭제
 
     /**
-     * 리뷰 삭제
+     * 리뷰 삭제(본인만 가능)
      * @param reviewId 삭제할 리뷰 번호
      * @param memberId 삭제 요청한 회원 번호 (본인 확인용)
      * @return 성공 1, 실패 0
@@ -205,6 +208,7 @@ public class ReviewDAO {
     
     /**
      * 로그인한 회원의 내 리뷰 목록 가져오기
+     * 내 페이지는 Y, F 모두 조회
      * @param memberId 로그인한 회원 번호
      * @return 내 리뷰 목록 (최신순)
      */
@@ -214,8 +218,9 @@ public class ReviewDAO {
 
         // 내 리뷰는 비공개 포함 전부 보임 (public_yn 조건 없음)
         String sql = "SELECT r.*, m.member_name " +
-                     "FROM review r JOIN member m ON r.member_id = m.member_id " +
-                     "WHERE r.member_id = ? ORDER BY r.created_at DESC";
+        			 "FROM review r JOIN member m ON r.member_id = m.member_id " +    
+        			 "WHERE r.member_id = ? AND r.public_yn IN ('Y', 'F') " +       
+        			 "ORDER BY r.created_at DESC";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -247,6 +252,7 @@ public class ReviewDAO {
     
     /**
      * 특정 영화의 터졌다 통계 가져오기
+     * public_yn IN ('Y','F') : 공개 + 친구공개 기준 통계
      * @param movieId 통계 낼 영화 번호
      * @return ReviewDTO에 통계 필드 채워서 반환
      */
@@ -254,9 +260,10 @@ public class ReviewDAO {
         ReviewDTO stat = new ReviewDTO();
 
      // SQL 컬럼명은 fresh_yn 그대로 사용
-        String sql = "SELECT COUNT(*) AS total_count, " +
-                     "SUM(CASE WHEN fresh_yn='Y' THEN 1 ELSE 0 END) AS fresh_count " +
-                     "FROM review WHERE movie_id=? AND public_yn='Y'";
+        //fresh_count 별칭으로 조회 후 burstCount에 매핑
+        String sql = "SELECT COUNT(*) AS total_count, " +     
+        			 "       SUM(CASE WHEN fresh_yn='Y' THEN 1 ELSE 0 END) AS fresh_count " +      
+        			 "FROM review WHERE movie_id=? AND public_yn IN ('Y', 'F')";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -266,7 +273,7 @@ public class ReviewDAO {
 
             if (rs.next()) {
                 int total = rs.getInt("total_count");
-                int burst = rs.getInt("burst_count");
+                int burst = rs.getInt("fresh_count");
 
                 stat.setMovieId(movieId);
                 stat.setTotalCount(total);
