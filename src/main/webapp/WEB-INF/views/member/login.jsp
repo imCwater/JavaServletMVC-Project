@@ -121,6 +121,38 @@
         cursor: pointer;
     }
 
+    .social-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 22px 0 16px;
+        color: #777;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .social-divider::before,
+    .social-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #eadfcf;
+    }
+
+    .naver-btn {
+        width: 100%;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: #03c75a;
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
     .sub-link {
         margin-top: 18px;
         text-align: center;
@@ -194,6 +226,9 @@
             </div>
 
             <button class="submit-btn" type="submit">로그인</button>
+
+            <div class="social-divider">또는</div>
+            <a class="naver-btn" href="${pageContext.request.contextPath}/member/naverLogin.do">네이버로 로그인</a>
 
             <div class="sub-link">
                 아직 계정이 없다면 <a href="${pageContext.request.contextPath}/join.do">회원가입</a>
