@@ -5,43 +5,30 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import common.DBUtil;
+import diary.dto.DiaryDTO;
+import diary.service.DiaryService;
+import movie.dao.MovieDAO;
 import movie.dto.MovieDTO;
 import reservation.dao.ReservationDAO;
 import reservation.dto.ReservationDTO;
+import schedule.dao.ScheduleDAO;
 import schedule.dto.ScheduleDTO;
 
+// 예매 비즈니스 로직과 트랜잭션 처리를 담당하는 서비스 클래스
 public class ReservationService {
-	/*
-	 * 예매가 가능한지 검사하고 여러 insert를 하나의 트랜잭션으로 묶는 역할
-	 *
-	 * DB 연결 가져오기
-	 * schedule_id가 실제로 있는지 확인
-	 * 선택 좌석이 비어있는지 확인
-	 * 이미 예매된 좌석인지 확인
-	 * ReservationDTO 만들기
-	 * reservation insert
-	 * reservation_seat insert 반복
-	 * commit / rollback 처리
-	 *
-	 *
-	 * reservationId가 양수 -> 예매 성공
-	 *                 0  -> 상영 일정 없음
-	 *                -1  -> 좌석 선택 안 함
-	 *                -2  -> 이미 예매된 좌석 있음
-	 *                -3  -> 예매 저장 실패
-	 *                -4  -> 예매 좌석 저장 실패
-	 *
-	 * 서블릿에서 반환값으로 메시지 처리
-	 */
 	private ReservationDAO reservationDAO = new ReservationDAO();
+	private MovieDAO movieDAO = new MovieDAO();
+	private ScheduleDAO scheduleDAO = new ScheduleDAO();
+	private SeatService seatService = new SeatService();
+	private DiaryService diaryService = new DiaryService();
 
-	// 상영 일정 1건 조회
+	// schedule_id로 상영 일정 1건을 조회한다.
 	public ScheduleDTO getScheduleById(int scheduleId) throws SQLException {
 		Connection con = null;
 
 		try {
 			con = DBUtil.getConnection();
-			return reservationDAO.getScheduleById(con, scheduleId);
+			return scheduleDAO.getScheduleById(con, scheduleId);
 		} finally {
 			if (con != null) {
 				con.close();
@@ -49,13 +36,13 @@ public class ReservationService {
 		}
 	}
 
-	// 영화 1건 조회
+	// movie_id로 영화 1건을 조회한다.
 	public MovieDTO getMovieById(int movieId) throws SQLException {
 		Connection con = null;
 
 		try {
 			con = DBUtil.getConnection();
-			return reservationDAO.getMovieById(con, movieId);
+			return movieDAO.getMovieById(con, movieId);
 		} finally {
 			if (con != null) {
 				con.close();
@@ -63,67 +50,74 @@ public class ReservationService {
 		}
 	}
 
-	// 같은 영화의 상영 일정 목록 조회
+	// 선택한 영화의 전체 상영 일정 목록을 조회한다.
 	public ArrayList<ScheduleDTO> getScheduleListByMovieId(int movieId) throws SQLException {
 		Connection con = null;
 
 		try {
 			con = DBUtil.getConnection();
-			return reservationDAO.getScheduleListByMovieId(con, movieId);
+			return scheduleDAO.getScheduleListByMovieId(con, movieId);
 		} finally {
 			if (con != null) {
 				con.close();
 			}
 		}
 	}
-	
-	public int reserve(int memberId, int scheduleId, ArrayList<String> seatCodes) throws SQLException {
+
+	// 예매 기본 정보와 선택 좌석 정보를 하나의 트랜잭션으로 저장한다.
+	public int reserve(int memberId, int scheduleId, ArrayList<Integer> seatIds) throws SQLException {
 		Connection con = null;
-		
+
 		try {
 			con = DBUtil.getConnection();
 			con.setAutoCommit(false);
-			
-			ScheduleDTO schedule = reservationDAO.getScheduleById(con, scheduleId);
+
+			// 예매 저장 전에 상영 일정이 실제로 존재하는지 확인한다.
+			ScheduleDTO schedule = scheduleDAO.getScheduleById(con, scheduleId);
 			if (schedule == null) {
 				con.rollback();
 				return 0;
 			}
-			
-			if (seatCodes == null || seatCodes.size() == 0) {
+
+			// 좌석은 최소 1개 이상 선택해야 한다.
+			if (seatIds == null || seatIds.size() == 0) {
 				con.rollback();
 				return -1;
 			}
-			
-			ArrayList<String> reservedSeatCodes = reservationDAO.getReservationSeatCodes(con, scheduleId);
-			for (String seatCode : seatCodes) {
-				if (reservedSeatCodes.contains(seatCode)) {
+
+			// DB UNIQUE 제약에 걸리기 전에 이미 예매된 좌석인지 검사한다.
+			ArrayList<Integer> reservedSeatIds = seatService.getReservedSeatIds(con, scheduleId);
+			for (Integer seatId : seatIds) {
+				if (reservedSeatIds.contains(seatId)) {
 					con.rollback();
 					return -2;
 				}
 			}
-			
+
+			// reservation 테이블에 예매 기본 정보를 저장한다.
 			ReservationDTO reservationDTO = new ReservationDTO();
 			reservationDTO.setMember_id(memberId);
 			reservationDTO.setSchedule_id(scheduleId);
-			reservationDTO.setHeadcount(seatCodes.size());
+			reservationDTO.setHeadcount(seatIds.size());
 			reservationDTO.setStatus('Y');
-			
+
 			int reservationId = reservationDAO.insertReservation(con, reservationDTO);
 			if (reservationId == 0) {
 				con.rollback();
 				return -3;
 			}
-			
-			for (String seatCode : seatCodes) {
-				int result = reservationDAO.insertReservationSeat(con, reservationId, scheduleId, seatCode);
+
+			// 선택한 좌석마다 reservation_seat 행을 저장한다.
+			for (Integer seatId : seatIds) {
+				int result = reservationDAO.insertReservationSeat(con, reservationId, scheduleId, seatId);
 				if (result == 0) {
 					con.rollback();
 					return -4;
 				}
 			}
-			
+
 			con.commit();
+			insertDiaryAfterReservation(memberId, reservationId, schedule);
 			return reservationId;
 		} catch (SQLException e) {
 			if (con != null) {
@@ -137,27 +131,27 @@ public class ReservationService {
 			}
 		}
 	}
-	
-	// 이미 예매된 좌석 조회
-	public ArrayList<String> getReservedSeatCodes(int scheduleId) throws SQLException {
-	    Connection con = null;
-	    ArrayList<String> list = null;
-	    try {
-	        con = DBUtil.getConnection();
-	        list = reservationDAO.getReservationSeatCodes(con, scheduleId);
-	    } finally {
-	        if (con != null) {
-	            con.close();
-	        }
-	    }
-	    return list;
+
+	// 예매 트랜잭션 커밋 후 다이어리 자동 등록을 시도한다.
+	private void insertDiaryAfterReservation(int memberId, int reservationId, ScheduleDTO schedule) {
+		try {
+			DiaryDTO diaryDTO = new DiaryDTO();
+			diaryDTO.setMemberId(memberId);
+			diaryDTO.setMovieId(schedule.getMovie_id());
+			diaryDTO.setReservationId(reservationId);
+			diaryDTO.setWatchDate(schedule.getStart_time());
+
+			diaryService.insertDiary(diaryDTO);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
-	// 내 예매 목록 조회
+
+	// 로그인 회원의 예매 목록을 조회한다.
 	public ArrayList<ReservationDTO> getReservationListByMember(int memberId) throws SQLException {
 		Connection con = null;
 		ArrayList<ReservationDTO> list = null;
-		
+
 		try {
 			con = DBUtil.getConnection();
 			list = reservationDAO.getReservationListByMember(con, memberId);
@@ -168,22 +162,123 @@ public class ReservationService {
 		}
 		return list;
 	}
-	
-	// 예매 취소
-	public int cancelReservation(int reservationId, int memberId) throws SQLException {
+
+	// 해당 회원에게 속한 예매 상세 1건만 조회한다.
+	public ReservationDTO getReservationDetail(int reservationId, int memberId) throws SQLException {
 		Connection con = null;
-		
+
+		try {
+			con = DBUtil.getConnection();
+			return reservationDAO.getReservationDetailByIdAndMember(con, reservationId, memberId);
+		} finally {
+			if (con != null) {
+				con.close();
+			}
+		}
+	}
+
+	// 예매 변경 화면에서 기존 선택 좌석을 표시하기 위한 seat_id 목록을 조회한다.
+	public ArrayList<Integer> getReservationSeatIds(int reservationId, int memberId) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBUtil.getConnection();
+			return reservationDAO.getSeatIdsByReservation(con, reservationId, memberId);
+		} finally {
+			if (con != null) {
+				con.close();
+			}
+		}
+	}
+
+	// 활성 예매의 선택 좌석을 교체하고 인원수를 갱신한다.
+	public int updateReservation(int reservationId, int memberId, ArrayList<Integer> seatIds) throws SQLException {
+		Connection con = null;
+
 		try {
 			con = DBUtil.getConnection();
 			con.setAutoCommit(false);
-			
+
+			// 본인의 활성 예매만 변경할 수 있다.
+			ReservationDTO reservation = reservationDAO.getReservationByIdAndMember(con, reservationId, memberId);
+			if (reservation == null) {
+				con.rollback();
+				return 0;
+			}
+
+			if (seatIds == null || seatIds.size() == 0) {
+				con.rollback();
+				return -1;
+			}
+
+			// 현재 예매의 기존 좌석은 제외하고 다른 예매 좌석만 중복 검사한다.
+			ArrayList<Integer> reservedSeatIds = seatService.getReservedSeatIdsExceptReservation(
+					con, reservation.getSchedule_id(), reservationId);
+			for (Integer seatId : seatIds) {
+				if (reservedSeatIds.contains(seatId)) {
+					con.rollback();
+					return -2;
+				}
+			}
+
+			// 기존 좌석 행을 삭제하고 새로 선택한 좌석 행을 다시 저장한다.
+			reservationDAO.deleteReservationSeats(con, reservationId);
+			for (Integer seatId : seatIds) {
+				int result = reservationDAO.insertReservationSeat(
+						con, reservationId, reservation.getSchedule_id(), seatId);
+				if (result == 0) {
+					con.rollback();
+					return -3;
+				}
+			}
+
+			int updateResult = reservationDAO.updateReservationHeadcount(
+					con, reservationId, memberId, seatIds.size());
+			if (updateResult == 0) {
+				con.rollback();
+				return -4;
+			}
+
+			con.commit();
+			return updateResult;
+		} catch (SQLException e) {
+			if (con != null) {
+				con.rollback();
+			}
+			throw e;
+		} finally {
+			if (con != null) {
+				con.setAutoCommit(true);
+				con.close();
+			}
+		}
+	}
+
+	// 활성 예매를 취소하고 좌석을 다시 예매 가능 상태로 풀어준다.
+	public int cancelReservation(int reservationId, int memberId) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBUtil.getConnection();
+			con.setAutoCommit(false);
+
+			// 본인의 활성 예매만 취소할 수 있다.
+			ReservationDTO reservation = reservationDAO.getReservationByIdAndMember(con, reservationId, memberId);
+			if (reservation == null) {
+				con.rollback();
+				return 0;
+			}
+
+			// 같은 좌석을 다시 예매할 수 있도록 reservation_seat 행을 먼저 삭제한다.
+			reservationDAO.deleteReservationSeats(con, reservationId);
+
 			int result = reservationDAO.cancelReservation(con, reservationId, memberId);
 			if (result > 0) {
 				con.commit();
 			} else {
 				con.rollback();
 			}
-			
+
 			return result;
 		} catch (SQLException e) {
 			if (con != null) {

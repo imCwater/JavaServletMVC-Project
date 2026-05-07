@@ -10,53 +10,54 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import member.dto.MemberDTO;
 import reservation.service.ReservationService;
 
-//DB를 직접 만지지 않고, 요청값을 받아서 Service 에 넘긴 뒤 목록으로 돌려보내는 역할
-
 @WebServlet("/reservation/cancel.do")
-public class ReservationCancelServlet extends HttpServlet{
-    private ReservationService reservationService = new ReservationService();
+// 예매 취소 컨트롤러
+// POST 요청으로 reservationId를 받아 본인 예매를 취소한다.
+public class ReservationCancelServlet extends HttpServlet {
 
-    //취소는 데이터 상태를 바꾸는 요청이기 때문에 doPost
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    	req.setCharacterEncoding("utf-8");
+	private ReservationService reservationService = new ReservationService();
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.setCharacterEncoding("utf-8");
 		resp.setContentType("text/html; charset=utf-8");
-		
-		// 임시 테스트용: 로그인 기능 연결 전까지 로그인 검사는 주석 처리
-		// HttpSession session = req.getSession();
-		 
-		// if (session == null || session.getAttribute("loginMember") == null) {
-		// 	resp.sendRedirect(req.getContextPath() + "/login.do");
-		// 	return;
-		// }
-		
+
+		// 취소는 본인 예매만 가능하므로 로그인 회원을 확인한다.
+		HttpSession session = req.getSession(false);
+		MemberDTO loginMember = session == null
+				? null
+				: (MemberDTO) session.getAttribute("loginMember");
+
+		if (loginMember == null) {
+			resp.sendRedirect(req.getContextPath() + "/login.do");
+			return;
+		}
+
 		String reservationIdParameter = req.getParameter("reservationId");
-		
-		if(reservationIdParameter == null || reservationIdParameter.trim().isEmpty()) {
+
+		if (reservationIdParameter == null || reservationIdParameter.trim().isEmpty()) {
 			resp.sendRedirect(req.getContextPath() + "/reservation/myList.do");
 			return;
 		}
-		
+
 		int reservationId = Integer.parseInt(reservationIdParameter);
-		
-		// TODO: 회원 파트 완성 후 loginMember 에서 memberId 를 꺼내는 방식으로 수정
-		// 임시 테스트용 회원 번호. MEMBER 테이블에 member_id = 1 데이터가 있어야 함.
-		int memberId = 1;
-		
+		int memberId = loginMember.getMemberId();
+
 		try {
+			// Service에서 좌석 행 삭제와 reservation 상태 변경을 트랜잭션으로 처리한다.
 			int result = reservationService.cancelReservation(reservationId, memberId);
-			
-			if(result > 0) {
+
+			if (result > 0) {
 				resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?cancel=success");
 			} else {
 				resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?cancel=fail");
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			resp.sendError(500);
 		}
-    }
+	}
 }
