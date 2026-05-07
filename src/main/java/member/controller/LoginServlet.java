@@ -19,6 +19,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Object naverLoginError = request.getSession().getAttribute("naverLoginError");
+        if (naverLoginError != null) {
+            request.setAttribute("errorMsg", naverLoginError);
+            request.getSession().removeAttribute("naverLoginError");
+        }
+
         request.getRequestDispatcher("/WEB-INF/views/member/login.jsp")
                .forward(request, response);
     }

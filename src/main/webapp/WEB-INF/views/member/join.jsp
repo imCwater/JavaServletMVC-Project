@@ -125,6 +125,11 @@
         border-color: #ffad1f;
     }
 
+    .field input[readonly] {
+        color: #666;
+        background: #f5f2ed;
+    }
+
     .id-row {
         display: grid;
         grid-template-columns: 1fr 112px;
@@ -170,6 +175,17 @@
         border-radius: 6px;
         background: #fff0ef;
         color: #c0392b;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .social-message {
+        margin-bottom: 18px;
+        padding: 12px 13px;
+        border-radius: 6px;
+        background: #ecfdf5;
+        border: 1px solid #9de9bd;
+        color: #11643b;
         font-size: 13px;
         font-weight: 700;
     }
@@ -267,6 +283,12 @@
                 <div class="message"><c:out value="${errorMsg}" /></div>
             </c:if>
 
+            <c:if test="${not empty sessionScope.naverProfile}">
+                <div class="social-message">
+                    네이버 계정 확인이 완료되었습니다. POPFLEX에서 사용할 아이디를 입력해 주세요.
+                </div>
+            </c:if>
+
             <input type="hidden" id="idCheckPassed" name="idCheckPassed" value="false">
             <input type="hidden" id="checkedUserId" name="checkedUserId" value="">
 
@@ -285,25 +307,37 @@
                 <div class="field-note" id="idCheckMessage"></div>
             </div>
 
-            <div class="field">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" name="password" minlength="4" autocomplete="new-password" required>
-            </div>
+            <c:if test="${empty sessionScope.naverProfile}">
+                <div class="field">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" minlength="4" autocomplete="new-password" required>
+                </div>
 
-            <div class="field">
-                <label for="passwordConfirm">비밀번호 확인</label>
-                <input type="password" id="passwordConfirm" autocomplete="new-password" required>
-                <div class="field-note" id="passwordMessage"></div>
-            </div>
+                <div class="field">
+                    <label for="passwordConfirm">비밀번호 확인</label>
+                    <input type="password" id="passwordConfirm" autocomplete="new-password" required>
+                    <div class="field-note" id="passwordMessage"></div>
+                </div>
+            </c:if>
 
             <div class="field">
                 <label for="name">이름</label>
-                <input type="text" id="name" name="name" value="${fn:escapeXml(member.name)}" required>
+                <input type="text"
+                       id="name"
+                       name="name"
+                       value="${not empty sessionScope.naverProfile ? fn:escapeXml(sessionScope.naverProfile.name) : fn:escapeXml(member.name)}"
+                       ${not empty sessionScope.naverProfile ? 'readonly' : ''}
+                       required>
             </div>
 
             <div class="field">
                 <label for="email">이메일</label>
-                <input type="email" id="email" name="email" value="${fn:escapeXml(member.email)}" required>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       value="${not empty sessionScope.naverProfile ? fn:escapeXml(sessionScope.naverProfile.email) : fn:escapeXml(member.email)}"
+                       ${not empty sessionScope.naverProfile ? 'readonly' : ''}
+                       required>
             </div>
 
             <button class="submit-btn" type="submit">가입하기</button>
@@ -326,6 +360,7 @@
     const passwordInput = document.getElementById('password');
     const passwordConfirmInput = document.getElementById('passwordConfirm');
     const passwordMessage = document.getElementById('passwordMessage');
+    const naverJoin = ${not empty sessionScope.naverProfile};
 
     function setIdCheckMessage(text, passed) {
         idCheckMessage.textContent = text;
@@ -375,6 +410,10 @@
     });
 
     function validatePassword() {
+        if (naverJoin) {
+            return true;
+        }
+
         if (!passwordConfirmInput.value) {
             passwordMessage.textContent = '';
             passwordMessage.className = 'field-note';
@@ -387,8 +426,10 @@
         return matched;
     }
 
-    passwordInput.addEventListener('input', validatePassword);
-    passwordConfirmInput.addEventListener('input', validatePassword);
+    if (!naverJoin) {
+        passwordInput.addEventListener('input', validatePassword);
+        passwordConfirmInput.addEventListener('input', validatePassword);
+    }
 
     joinForm.addEventListener('submit', function (event) {
         if (idCheckPassed.value !== 'true' || checkedUserId.value !== userIdInput.value.trim()) {
@@ -400,7 +441,9 @@
 
         if (!validatePassword()) {
             event.preventDefault();
-            passwordConfirmInput.focus();
+            if (passwordConfirmInput) {
+                passwordConfirmInput.focus();
+            }
         }
     });
 </script>

@@ -11,9 +11,9 @@ public class MemberDAO {
 
     public int insertMember(Connection conn, MemberDTO member) throws SQLException {
         String sql = "INSERT INTO MEMBER ("
-                + "USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE"
+                + "USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE, SOCIAL_TYPE"
                 + ") VALUES ("
-                + "?, ?, ?, ?, 'U', 'Y'"
+                + "?, ?, ?, ?, 'U', 'Y', 'LOCAL'"
                 + ")";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -26,8 +26,27 @@ public class MemberDAO {
         }
     }
 
+    public int insertNaverMember(Connection conn, MemberDTO member) throws SQLException {
+        String sql = "INSERT INTO MEMBER ("
+                + "USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE, SOCIAL_TYPE, SOCIAL_ID"
+                + ") VALUES ("
+                + "?, ?, ?, ?, 'U', 'Y', 'NAVER', ?"
+                + ")";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, member.getUserId());
+            pstmt.setString(2, member.getPassword());
+            pstmt.setString(3, member.getName());
+            pstmt.setString(4, member.getEmail());
+            pstmt.setString(5, member.getSocialId());
+
+            return pstmt.executeUpdate();
+        }
+    }
+
     public MemberDTO selectByUserId(Connection conn, String userId) throws SQLException {
-        String sql = "SELECT MEMBER_ID, USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE, CREATED_AT "
+        String sql = "SELECT MEMBER_ID, USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE, "
+                + "SOCIAL_TYPE, SOCIAL_ID, CREATED_AT "
                 + "FROM MEMBER "
                 + "WHERE USER_ID = ?";
 
@@ -44,8 +63,30 @@ public class MemberDAO {
         return null;
     }
 
+    public MemberDTO selectBySocial(Connection conn, String socialType, String socialId) throws SQLException {
+        String sql = "SELECT MEMBER_ID, USER_ID, PASSWORD, NAME, EMAIL, ROLE, IS_USE, "
+                + "SOCIAL_TYPE, SOCIAL_ID, CREATED_AT "
+                + "FROM MEMBER "
+                + "WHERE SOCIAL_TYPE = ? "
+                + "AND SOCIAL_ID = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, socialType);
+            pstmt.setString(2, socialId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapMemberWithPassword(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
     public MemberDTO selectByMemberId(Connection conn, int memberId) throws SQLException {
-        String sql = "SELECT MEMBER_ID, USER_ID, NAME, EMAIL, ROLE, IS_USE, CREATED_AT "
+        String sql = "SELECT MEMBER_ID, USER_ID, NAME, EMAIL, ROLE, IS_USE, "
+                + "SOCIAL_TYPE, SOCIAL_ID, CREATED_AT "
                 + "FROM MEMBER "
                 + "WHERE MEMBER_ID = ?";
 
@@ -134,6 +175,8 @@ public class MemberDAO {
         member.setEmail(rs.getString("EMAIL"));
         member.setRole(rs.getString("ROLE"));
         member.setIsUse(rs.getString("IS_USE"));
+        member.setSocialType(rs.getString("SOCIAL_TYPE"));
+        member.setSocialId(rs.getString("SOCIAL_ID"));
         member.setCreatedAt(rs.getTimestamp("CREATED_AT"));
         return member;
     }
