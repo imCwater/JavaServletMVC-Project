@@ -60,13 +60,13 @@ public class MovieApiService {
         }
     }
 
-    // 기존 코드 호환용 검색 메서드
-public ArrayList<MovieDTO> searchMovies(String query) {
-    return searchMovies(query, 1, 12).getMovies();
-}
+    	// 기존 코드 호환용 검색 메서드
+    	public ArrayList<MovieDTO> searchMovies(String query) {
+    		return searchMovies(query, 1, 12).getMovies();
+    	}
 
-// 페이징을 적용한 영화 검색 메서드
-public MovieApiSearchResultDTO searchMovies(String query, int page, int pageSize) {
+    	// 페이징을 적용한 영화 검색 메서드
+    	public MovieApiSearchResultDTO searchMovies(String query, int page, int pageSize) {
     ArrayList<MovieDTO> list = new ArrayList<MovieDTO>();
     int totalCount = 0;
 
@@ -133,10 +133,10 @@ public MovieApiSearchResultDTO searchMovies(String query, int page, int pageSize
     }
 
     return new MovieApiSearchResultDTO(list, totalCount);
-}
+    	}
 
-    // 2. 영화 상세 조회
-    public MovieDTO findMovieDetail(String kmdbMovieId, String kmdbMovieSeq) {
+    	// 2. 영화 상세 조회
+    	public MovieDTO findMovieDetail(String kmdbMovieId, String kmdbMovieSeq) {
         MovieDTO movie = null;
 
         try {
