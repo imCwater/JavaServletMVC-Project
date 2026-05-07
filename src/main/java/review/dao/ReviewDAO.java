@@ -47,13 +47,13 @@ public class ReviewDAO {
                 dto.setReviewId(rs.getInt("review_id"));
                 dto.setMovieId(rs.getInt("movie_id"));
                 dto.setMemberId(rs.getInt("member_id"));
-                dto.setFreshYn(rs.getString("fresh_yn"));
+                dto.setBurstYn(rs.getString("fresh_yn")); // DB 컬럼명은 fresh_yn 그대로
                 dto.setPublicYn(rs.getString("public_yn"));
                 dto.setContent(rs.getString("content"));
                 dto.setCreatedAt(rs.getString("created_at"));
                 dto.setUpdatedAt(rs.getString("updated_at"));
-                dto.setMemberName(rs.getString("member_name")); // JOIN 결과
-                list.add(dto); // 리스트에 추가
+                dto.setMemberName(rs.getString("member_name")); 
+                list.add(dto); 
             }
 
         } catch (Exception e) {
@@ -84,13 +84,13 @@ public class ReviewDAO {
             ps.setInt(1, reviewId);
             ResultSet rs = ps.executeQuery();
 
-            // 결과가 있으면 DTO에 담기
+            
             if (rs.next()) {
                 dto = new ReviewDTO();
                 dto.setReviewId(rs.getInt("review_id"));
                 dto.setMovieId(rs.getInt("movie_id"));
                 dto.setMemberId(rs.getInt("member_id"));
-                dto.setFreshYn(rs.getString("fresh_yn"));
+                dto.setBurstYn(rs.getString("fresh_yn")); // DB 컬럼명은 fresh_yn 그대로
                 dto.setPublicYn(rs.getString("public_yn"));
                 dto.setContent(rs.getString("content"));
                 dto.setCreatedAt(rs.getString("created_at"));
@@ -107,7 +107,6 @@ public class ReviewDAO {
     
     // 리뷰 등록
     
-
     /**
      * 새 리뷰 DB에 저장
      * @param dto 저장할 리뷰 데이터
@@ -127,7 +126,7 @@ public class ReviewDAO {
 
             ps.setInt(1, dto.getMovieId());
             ps.setInt(2, dto.getMemberId());
-            ps.setString(3, dto.getFreshYn());
+            ps.setString(3, dto.getBurstYn()); // DB 컬럼명은 fresh_yn 그대로
             ps.setString(4, dto.getPublicYn());
             ps.setString(5, dto.getContent());
             result = ps.executeUpdate();
@@ -141,7 +140,6 @@ public class ReviewDAO {
     
     // 리뷰 수정
     
-
     /**
      * 리뷰 내용 수정
      * @param dto 수정할 데이터 (reviewId, memberId 필수!)
@@ -151,7 +149,7 @@ public class ReviewDAO {
 
         int result = 0;
 
-        // AND member_id=? → 본인 리뷰만 수정 가능하도록 보안 처리
+        // AND member_id=? -> 본인 리뷰만 수정 가능하도록 보안 처리
         // updated_at은 수정 시 현재 시간으로 자동 갱신
         String sql = "UPDATE review " +
                      "SET fresh_yn=?, public_yn=?, content=?, updated_at=SYSTIMESTAMP " +
@@ -160,7 +158,7 @@ public class ReviewDAO {
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, dto.getFreshYn());
+        	ps.setString(1, dto.getBurstYn()); // DB 컬럼명은 fresh_yn 그대로
             ps.setString(2, dto.getPublicYn());
             ps.setString(3, dto.getContent());
             ps.setInt(4, dto.getReviewId());
@@ -175,7 +173,6 @@ public class ReviewDAO {
 
     
     // 리뷰 삭제
-    
 
     /**
      * 리뷰 삭제
@@ -187,7 +184,7 @@ public class ReviewDAO {
 
         int result = 0;
 
-        // AND member_id=? → 본인 리뷰만 삭제 가능
+        // AND member_id=? -> 본인 리뷰만 삭제 가능
         String sql = "DELETE FROM review WHERE review_id=? AND member_id=?";
 
         try (Connection con = getConnection();
@@ -206,7 +203,6 @@ public class ReviewDAO {
     
     // 내 리뷰 목록 조회
     
-
     /**
      * 로그인한 회원의 내 리뷰 목록 가져오기
      * @param memberId 로그인한 회원 번호
@@ -232,7 +228,7 @@ public class ReviewDAO {
                 dto.setReviewId(rs.getInt("review_id"));
                 dto.setMovieId(rs.getInt("movie_id"));
                 dto.setMemberId(rs.getInt("member_id"));
-                dto.setFreshYn(rs.getString("fresh_yn"));
+                dto.setBurstYn(rs.getString("fresh_yn")); // DB 컬럼명은 fresh_yn 그대로
                 dto.setPublicYn(rs.getString("public_yn"));
                 dto.setContent(rs.getString("content"));
                 dto.setCreatedAt(rs.getString("created_at"));
@@ -249,15 +245,15 @@ public class ReviewDAO {
     
     // 리뷰 통계 조회
     
-
     /**
-     * 특정 영화의 신선도 통계 가져오기
+     * 특정 영화의 터졌다 통계 가져오기
      * @param movieId 통계 낼 영화 번호
      * @return ReviewDTO에 통계 필드 채워서 반환
      */
     public ReviewDTO getReviewStat(int movieId) {
         ReviewDTO stat = new ReviewDTO();
 
+     // SQL 컬럼명은 fresh_yn 그대로 사용
         String sql = "SELECT COUNT(*) AS total_count, " +
                      "SUM(CASE WHEN fresh_yn='Y' THEN 1 ELSE 0 END) AS fresh_count " +
                      "FROM review WHERE movie_id=? AND public_yn='Y'";
@@ -270,14 +266,14 @@ public class ReviewDAO {
 
             if (rs.next()) {
                 int total = rs.getInt("total_count");
-                int fresh = rs.getInt("fresh_count");
+                int burst = rs.getInt("burst_count");
 
                 stat.setMovieId(movieId);
                 stat.setTotalCount(total);
-                stat.setFreshCount(fresh);
-                stat.setNotFreshCount(total - fresh); // 비신선 = 전체 - 신선
-                // 리뷰가 0개면 0.0으로 처리 (0으로 나누기 방지)
-                stat.setFreshRate(total > 0 ? (fresh * 100.0 / total) : 0);
+                stat.setBurstCount(burst);                
+                stat.setNotBurstCount(total - burst); // 안터졌다 = 전체 - 터졌다                
+                // 리뷰가 0개면 0.0으로 처리 (0으로 나누기 방지)                
+                stat.setBurstRate(total > 0 ? (burst * 100.0 / total) : 0);
             }
 
         } catch (Exception e) {

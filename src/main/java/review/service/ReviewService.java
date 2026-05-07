@@ -89,7 +89,7 @@ public class ReviewService {
     
     // 리뷰 통계
     /**
-     * 특정 영화의 신선도 통계 반환
+     * 특정 영화의 터졌다 통계 반환
      */
     public ReviewDTO getReviewStat(int movieId) {
         return dao.getReviewStat(movieId);
