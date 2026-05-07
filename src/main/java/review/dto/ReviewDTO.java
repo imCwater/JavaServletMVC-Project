@@ -12,9 +12,9 @@ public class ReviewDTO {
     private int memberId;
     // 누가 쓴 리뷰인지 작성자 번호 (FK) - DB: MEMBER_ID
 
-    private String freshYn;
-    // 신선한 리뷰 여부 - DB: FRESH_YN
-    // 'Y' = 신선(좋아요), 'N' = 비신선(별로)
+    private String burstYn;    
+    // 터졌다 여부 - DB: FRESH_YN (컬럼명 그대로)    
+    // 'Y' = 터졌다, 'N' = 안터졌다
 
     private String publicYn;
     // 공개/비공개 여부 - DB: PUBLIC_YN
@@ -32,7 +32,7 @@ public class ReviewDTO {
     
 
     
-    // JOIN용 추가 필드 (DB 컬럼 아님!)
+    // JOIN용 추가 필드 (DB 컬럼 아님)
     // SQL에서 JOIN해서 가져온 데이터를 담는 용도
 
     private String memberName;
@@ -53,62 +53,61 @@ public class ReviewDTO {
     // 해당 영화의 전체 리뷰 개수
     // SQL의 COUNT(*) 결과를 담음
 
-    private int freshCount;
-    // 신선 리뷰만 센 개수
+    private int burstCount;    
+    // 터졌다 리뷰만 센 개수    
     // SQL의 SUM(CASE WHEN fresh_yn='Y' THEN 1 ELSE 0 END) 결과
 
-    private int notFreshCount;
-    // 비신선 리뷰만 센 개수
-    // Java에서 (totalCount - freshCount)로 계산
+    private int notBurstCount;    
+    // 안터졌다 리뷰만 센 개수    
+    // Java에서 (totalCount - burstCount)로 계산
 
-    private double freshRate;
-    // 신선도 비율 (%)
-    // Java에서 (freshCount * 100.0 / totalCount)로 계산
-    // 예: 리뷰 10개 중 신선 7개 → 70.0
-
+    private double burstRate;    // 터졌다 비율 (%)    
+    // Java에서 (burstCount * 100.0 / totalCount)로 계산    
+    // 예: 리뷰 10개 중 터졌다 7개 → 70.0
     
     
     
     // Getter/Setter
-    public int getReviewId() { return reviewId; }
+    public int getReviewId() { return reviewId; }    
     public void setReviewId(int reviewId) { this.reviewId = reviewId; }
-
-    public int getMovieId() { return movieId; }
+    
+    public int getMovieId() { return movieId; }    
     public void setMovieId(int movieId) { this.movieId = movieId; }
-
-    public int getMemberId() { return memberId; }
+    
+    public int getMemberId() { return memberId; }    
     public void setMemberId(int memberId) { this.memberId = memberId; }
-
-    public String getFreshYn() { return freshYn; }
-    public void setFreshYn(String freshYn) { this.freshYn = freshYn; }
-
-    public String getPublicYn() { return publicYn; }
+    
+    public String getBurstYn() { return burstYn; }    
+    public void setBurstYn(String burstYn) { this.burstYn = burstYn; }
+    
+    public String getPublicYn() { return publicYn; }    
     public void setPublicYn(String publicYn) { this.publicYn = publicYn; }
-
-    public String getContent() { return content; }
+    
+    public String getContent() { return content; }    
     public void setContent(String content) { this.content = content; }
-
-    public String getCreatedAt() { return createdAt; }
+    
+    public String getCreatedAt() { return createdAt; }    
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
-
-    public String getUpdatedAt() { return updatedAt; }
+    
+    public String getUpdatedAt() { return updatedAt; }    
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
-
-    public String getMemberName() { return memberName; }
+    
+    public String getMemberName() { return memberName; }    
     public void setMemberName(String memberName) { this.memberName = memberName; }
-
-    public String getMovieTitle() { return movieTitle; }
+    
+    public String getMovieTitle() { return movieTitle; }    
     public void setMovieTitle(String movieTitle) { this.movieTitle = movieTitle; }
-
-    public int getTotalCount() { return totalCount; }
+    
+    public int getTotalCount() { return totalCount; }    
     public void setTotalCount(int totalCount) { this.totalCount = totalCount; }
+    
+    public int getBurstCount() { return burstCount; }    
+    public void setBurstCount(int burstCount) { this.burstCount = burstCount; }
+    
+    public int getNotBurstCount() { return notBurstCount; }    
+    public void setNotBurstCount(int notBurstCount) { this.notBurstCount = notBurstCount; }
+    
+    public double getBurstRate() { return burstRate; }    
+    public void setBurstRate(double burstRate) { this.burstRate = burstRate; }
 
-    public int getFreshCount() { return freshCount; }
-    public void setFreshCount(int freshCount) { this.freshCount = freshCount; }
-
-    public int getNotFreshCount() { return notFreshCount; }
-    public void setNotFreshCount(int notFreshCount) { this.notFreshCount = notFreshCount; }
-
-    public double getFreshRate() { return freshRate; }
-    public void setFreshRate(double freshRate) { this.freshRate = freshRate; }
 }
