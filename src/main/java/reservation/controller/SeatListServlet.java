@@ -14,8 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import reservation.dto.SeatDTO;
-import reservation.service.ReservationService;
-import schedule.dto.ScheduleDTO;
 import reservation.service.SeatService;
 
 @WebServlet("/seat/list.do")
@@ -23,7 +21,6 @@ import reservation.service.SeatService;
 // scheduleId 기준으로 전체 좌석과 이미 예매된 좌석 상태를 함께 반환한다.
 public class SeatListServlet extends HttpServlet {
 
-    private ReservationService reservationService = new ReservationService();
     private SeatService seatService = new SeatService();
 
     @Override
@@ -36,9 +33,9 @@ public class SeatListServlet extends HttpServlet {
         try {
             // AJAX 요청에서 전달된 상영 일정 번호를 확인한다.
             int scheduleId = Integer.parseInt(req.getParameter("scheduleId"));
-            ScheduleDTO schedule = reservationService.getScheduleById(scheduleId);
+            ArrayList<SeatDTO> seatList = seatService.getSeatListByScheduleId(scheduleId);
 
-            if (schedule == null) {
+            if (seatList == null) {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 json.put("success", false);
                 json.put("message", "상영 일정이 존재하지 않습니다.");
@@ -47,7 +44,6 @@ public class SeatListServlet extends HttpServlet {
             }
 
             // SEAT 테이블의 전체 좌석과 해당 상영 일정의 예약 좌석을 조회한다.
-            ArrayList<SeatDTO> seatList = seatService.getSeatList();
             ArrayList<Integer> reservedSeatIds = seatService.getReservedSeatIds(scheduleId);
             JSONArray seats = new JSONArray();
 

@@ -1,217 +1,174 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>예매</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-}
-.movie {
-    margin-bottom: 24px;
-}
-.poster {
-    width: 120px;
-    display: block;
-    margin-bottom: 12px;
-}
-.schedule-list {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 720px;
-}
-.schedule-list th,
-.schedule-list td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-.btn {
-    display: inline-block;
-    padding: 8px 12px;
-    background: #222;
-    color: #fff;
-    border: 0;
-    text-decoration: none;
-    cursor: pointer;
-}
-.error {
-    color: #c00;
-}
-.seat-section {
-    margin-top: 32px;
-}
-.screen {
-    width: 360px;
-    padding: 10px;
-    margin: 20px 0;
-    background: #eee;
-    text-align: center;
-}
-.seat-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 42px);
-    gap: 8px;
-    margin-bottom: 24px;
-}
-.seat {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 36px;
-    border: 1px solid #888;
-}
-.seat.reserved {
-    background: #ddd;
-    color: #777;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popflix 예매</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="${ctx}/css/reservation/scheduleList.css">
 </head>
-<body>
-    <h1>예매</h1>
+<body data-context-path="${ctx}">
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="${ctx}/main.do">
+        <img src="${ctx}/img/Logo.png" alt="Popflix">
+        <span>POPFLIX</span>
+      </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="${ctx}/reservation/myList.do">내 예매내역</a>
+        <a href="#">내 친구</a>
+        <a href="#">내 리뷰</a>
+        <a href="#">등록 디자이너</a>
+        <a href="${ctx}/member/mypage.do">마이페이지</a>
+        <a href="${ctx}/logout.do">로그아웃</a>
+      </nav>
+    </header>
 
-    <c:if test="${not empty errorMsg}">
-        <p class="error">${errorMsg}</p>
-    </c:if>
+    <main>
+      <c:if test="${not empty errorMsg}">
+        <p class="notice">${errorMsg}</p>
+      </c:if>
 
-    <c:if test="${not empty movie}">
-        <div class="movie">
-            <c:if test="${not empty movie.posterUrl}">
-                <img class="poster" src="${movie.posterUrl}" alt="${movie.title}">
-            </c:if>
-            <h2>${movie.title}</h2>
-            <p>영화 DB 번호: ${movie.movieId}</p>
-            <p>감독: ${movie.directorNm}</p>
-            <p>상영시간: ${movie.runtime}</p>
+      <section class="movie" aria-label="영화 정보">
+        <div class="poster" aria-label="영화 포스터 이미지 영역"></div>
+
+        <div class="movie-info">
+          <div class="movie-title-row">
+            <h1>${movie.title}</h1>
+            <span class="badge">${movie.genre}</span>
+          </div>
+          <div class="rating">
+            <span class="rating-mark">${movie.ratingGrade}</span>
+            <span>${movie.rating}</span>
+          </div>
+          <p class="description">${movie.plot}</p>
+          <div class="like">♡ <span>찜 13개</span></div>
+          <div class="movie-actions">
+            <c:choose>
+              <c:when test="${not empty movie.vodUrl}">
+                <a class="btn" href="${movie.vodUrl}" target="_blank" rel="noopener">예고편 보러 가기</a>
+              </c:when>
+              <c:otherwise>
+                <button type="button" class="btn" disabled>예고편 보러 가기</button>
+              </c:otherwise>
+            </c:choose>
+            <c:choose>
+              <c:when test="${not empty scheduleList}">
+                <button type="button" class="btn" id="openBookingButton">예매하기</button>
+              </c:when>
+              <c:otherwise>
+                <button type="button" class="btn" id="openBookingButton" disabled>예매하기</button>
+              </c:otherwise>
+            </c:choose>
+          </div>
         </div>
-    </c:if>
 
-    <c:choose>
+        <aside class="meta" aria-label="상세 정보">
+          <dl>
+            <dt>감독</dt>
+            <dd>${movie.directorNm}</dd>
+            <dt>배급</dt>
+            <dd>${movie.company}</dd>
+            <dt>개봉일</dt>
+            <dd>${movie.releaseDate}</dd>
+          </dl>
+        </aside>
+      </section>
+
+      <div class="divider"></div>
+
+      <c:choose>
         <c:when test="${not empty scheduleList}">
-            <table class="schedule-list">
-                <thead>
-                    <tr>
-                        <th>상영 번호</th>
-                        <th>시작 시간</th>
-                        <th>종료 시간</th>
-                        <th>선택</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="schedule" items="${scheduleList}">
-                        <tr>
-                            <td>${schedule.schedule_id}</td>
-                            <td>${schedule.start_time}</td>
-                            <td>${schedule.end_time}</td>
-                            <td>
-                                <button class="btn" type="button" data-schedule-id="${schedule.schedule_id}">좌석 선택</button>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
+          <form id="reservationForm" action="${ctx}/reservation/insert.do" method="post">
+            <section class="controls" id="bookingControls" aria-label="예매 조건 선택" hidden>
+              <label class="field">
+                <span>날짜</span>
+                <select id="dateSelect" aria-label="날짜 선택">
+                  <c:forEach var="schedule" items="${scheduleList}">
+                    <option value="${schedule.schedule_id}">
+                      <fmt:formatDate value="${schedule.start_time}" pattern="yyyy년 MM월 dd일" />
+                    </option>
+                  </c:forEach>
+                </select>
+              </label>
+              <label class="field">
+                <span>시간</span>
+                <select id="scheduleSelect" name="scheduleId" aria-label="시간 선택">
+                  <c:forEach var="schedule" items="${scheduleList}">
+                    <option value="${schedule.schedule_id}">
+                      <fmt:formatDate value="${schedule.start_time}" pattern="HH:mm" />
+                    </option>
+                  </c:forEach>
+                </select>
+              </label>
+              <label class="field">
+                <span>인원</span>
+                <select id="peopleSelect" aria-label="인원 선택">
+                  <option value="">선택</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="booking" id="bookingSection" aria-label="좌석 예매" hidden>
+              <div>
+                <div class="schedule">
+                  <div>날짜: <strong><span id="dateText">-</span></strong></div>
+                  <div>시간: <strong><span id="timeText">-</span></strong></div>
+                  <div>인원: <strong><span id="peopleText">0</span></strong></div>
+                  <div>좌석: <strong><span id="seatText">-</span></strong></div>
+                </div>
+                <button type="submit" class="btn reserve-btn" id="submitBookingButton" disabled>예매하기</button>
+              </div>
+
+              <div class="seat-panel">
+                <div class="screen"></div>
+                <div class="seat-map" id="seatMap" aria-label="좌석 선택"></div>
+                <div class="legend">
+                  <span class="legend-item">이미 예매된 좌석 <span class="legend-chip reserved" style="background: var(--reserved);"></span></span>
+                  <span class="legend-item">예매 가능 <span class="legend-chip"></span></span>
+                </div>
+                <div class="notice" id="seatNotice">인원을 먼저 선택해 주세요.</div>
+              </div>
+            </section>
+
+            <div id="selectedSeatInputs"></div>
+          </form>
         </c:when>
         <c:otherwise>
-            <p>등록된 상영 일정이 없습니다.</p>
+          <p class="notice">등록된 상영 일정이 없습니다.</p>
         </c:otherwise>
-    </c:choose>
+      </c:choose>
+    </main>
 
-    <section class="seat-section" id="seatSection" hidden>
-        <h2>좌석 선택</h2>
-        <p id="seatMessage"></p>
-        <div class="screen">SCREEN</div>
-        <form action="${pageContext.request.contextPath}/reservation/insert.do" method="post">
-            <input type="hidden" name="scheduleId" id="selectedScheduleId">
-            <div class="seat-grid" id="seatGrid"></div>
-            <button class="btn" type="submit">예매하기</button>
-        </form>
-    </section>
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="contact">
+          <div class="contact-title">문의 시간 &gt;</div>
+          <strong>010-xxxx-xxxx</strong>
+          <div>평일 09:00 - 18:00<br>주말/공휴일 휴무</div>
+        </div>
+        <div class="footer-links">
+          <span>회사소개</span>
+          <span>이용약관</span>
+          <span>개인정보처리방침</span>
+          <span>제휴문의</span>
+        </div>
+      </div>
+    </footer>
+  </div>
 
-<script>
-const contextPath = '${pageContext.request.contextPath}';
-const seatSection = document.getElementById('seatSection');
-const seatGrid = document.getElementById('seatGrid');
-const seatMessage = document.getElementById('seatMessage');
-const selectedScheduleId = document.getElementById('selectedScheduleId');
-
-async function checkSeat(scheduleId, seatId, checkbox) {
-    const response = await fetch(contextPath + '/seat/check.do?scheduleId=' + scheduleId + '&seatId=' + seatId);
-    if (!response.ok) {
-        checkbox.checked = false;
-        seatMessage.textContent = '좌석 상태 확인에 실패했습니다. 로그인 상태와 서버 로그를 확인해주세요.';
-        return;
-    }
-
-    const data = await response.json();
-
-    if (!data.available) {
-        checkbox.checked = false;
-        checkbox.disabled = true;
-        checkbox.closest('label').classList.add('reserved');
-        seatMessage.textContent = '이미 예매된 좌석입니다.';
-    }
-}
-
-async function loadSeats(scheduleId) {
-    selectedScheduleId.value = scheduleId;
-    seatGrid.innerHTML = '';
-    seatMessage.textContent = '좌석 목록을 불러오는 중입니다.';
-    seatSection.hidden = false;
-
-    try {
-        const response = await fetch(contextPath + '/seat/list.do?scheduleId=' + scheduleId);
-        if (!response.ok) {
-            seatMessage.textContent = '좌석 목록을 불러오지 못했습니다. 로그인 상태와 /seat/list.do 응답을 확인해주세요.';
-            return;
-        }
-
-        const data = await response.json();
-
-        if (!data.success) {
-            seatMessage.textContent = data.message || '좌석 목록을 불러오지 못했습니다.';
-            return;
-        }
-
-        if (!data.seats || data.seats.length === 0) {
-            seatMessage.textContent = '등록된 좌석이 없습니다. SEAT 테이블 데이터를 확인해주세요.';
-            return;
-        }
-
-        seatMessage.textContent = '';
-        data.seats.forEach((seat) => {
-            const label = document.createElement('label');
-            label.className = 'seat';
-            if (seat.reserved) {
-                label.classList.add('reserved');
-            }
-
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.name = 'seatId';
-            input.value = seat.seatId;
-            input.disabled = seat.reserved;
-            input.addEventListener('change', () => {
-                if (input.checked) {
-                    checkSeat(scheduleId, seat.seatId, input);
-                }
-            });
-
-            label.appendChild(input);
-            label.appendChild(document.createTextNode(seat.seatName));
-            seatGrid.appendChild(label);
-        });
-    } catch (error) {
-        seatMessage.textContent = '좌석 목록 응답을 처리하지 못했습니다. /seat/list.do가 JSON을 반환하는지 확인해주세요.';
-    }
-}
-
-document.querySelectorAll('[data-schedule-id]').forEach((button) => {
-    button.addEventListener('click', () => loadSeats(button.dataset.scheduleId));
-});
-</script>
+  <script src="${ctx}/js/reservation/scheduleList.js"></script>
 </body>
 </html>
