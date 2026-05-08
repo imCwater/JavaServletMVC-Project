@@ -1,13 +1,16 @@
 package reservation.dto;
 
+// SEAT 테이블 한 행을 담는 DTO
+// 좌석 ID와 화면 표시용 행/열 정보를 가진다.
 public class SeatDTO {
-	String seat_code;
+	
+	int seat_id;
 	String row_label;
 	int col_num;
 	
-	public SeatDTO(String seat_code, String row_label, int col_num) {
+	public SeatDTO(int seat_id, String row_label, int col_num) {
 		super();
-		this.seat_code = seat_code;
+		this.seat_id = seat_id;
 		this.row_label = row_label;
 		this.col_num = col_num;
 	}
@@ -17,15 +20,15 @@ public class SeatDTO {
 	
 	@Override
 	public String toString() {
-		return "SeatDTO [seat_code=" + seat_code + ", row_label=" + row_label + ", col_num="
+		return "SeatDTO [seat_id=" + seat_id + ", row_label=" + row_label + ", col_num="
 				+ col_num + "]";
 	}
 	
-	public String getSeat_code() {
-		return seat_code;
+	public int getSeat_id() {
+		return seat_id;
 	}
-	public void setSeat_code(String seat_code) {
-		this.seat_code = seat_code;
+	public void setSeat_id(int seat_id) {
+		this.seat_id = seat_id;
 	}
 	public String getRow_label() {
 		return row_label;
