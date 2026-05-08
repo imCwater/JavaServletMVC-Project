@@ -7,8 +7,11 @@ import common.DBUtil;
 import common.util.Sha256Util;
 import member.dao.MemberDAO;
 import member.dto.MemberDTO;
+import member.dto.NaverProfileDTO;
 
 public class MemberService {
+
+    private static final String SOCIAL_PASSWORD_DUMMY = "SOCIAL_LOGIN_DUMMY_PASSWORD";
 
     private final MemberDAO memberDAO = new MemberDAO();
 
@@ -73,6 +76,73 @@ public class MemberService {
             return member;
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to login.", e);
+        }
+    }
+
+    public MemberDTO loginByNaver(String socialId) {
+        socialId = trim(socialId);
+
+        if (isBlank(socialId)) {
+            return null;
+        }
+
+        try (Connection conn = DBUtil.getConnection()) {
+            MemberDTO member = memberDAO.selectBySocial(conn, "NAVER", socialId);
+
+            if (member == null || !member.isActive()) {
+                return null;
+            }
+
+            member.setPassword(null);
+            return member;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to login by naver.", e);
+        }
+    }
+
+    public boolean joinNaver(String userId, NaverProfileDTO profile) {
+        userId = trim(userId);
+
+        if (profile == null) {
+            return false;
+        }
+
+        String socialId = trim(profile.getSocialId());
+        String name = trim(profile.getName());
+        String email = trim(profile.getEmail());
+
+        if (isBlank(userId) || isBlank(socialId) || isBlank(name) || isBlank(email)) {
+            return false;
+        }
+
+        if (userId.length() > 30) {
+            return false;
+        }
+
+        try (Connection conn = DBUtil.getConnection()) {
+            if (memberDAO.countByUserId(conn, userId) > 0) {
+                return false;
+            }
+
+            if (memberDAO.countByEmail(conn, email) > 0) {
+                return false;
+            }
+
+            if (memberDAO.selectBySocial(conn, "NAVER", socialId) != null) {
+                return false;
+            }
+
+            MemberDTO member = new MemberDTO();
+            member.setUserId(userId);
+            member.setPassword(Sha256Util.sha256(SOCIAL_PASSWORD_DUMMY + ":" + socialId));
+            member.setName(name);
+            member.setEmail(email);
+            member.setSocialType("NAVER");
+            member.setSocialId(socialId);
+
+            return memberDAO.insertNaverMember(conn, member) == 1;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to join naver member.", e);
         }
     }
 
