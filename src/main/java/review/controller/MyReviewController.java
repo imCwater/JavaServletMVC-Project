@@ -12,7 +12,7 @@ import member.dto.MemberDTO;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/review/myReview")
+@WebServlet("/review/myReview.do")
 public class MyReviewController extends HttpServlet {
 
     private ReviewService service = new ReviewService();

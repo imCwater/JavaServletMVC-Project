@@ -11,7 +11,7 @@ import member.dto.MemberDTO;
 
 import java.io.IOException;
 
-@WebServlet("/review/update")
+@WebServlet("/review/update.do")
 public class ReviewUpdateController extends HttpServlet {
 
     private ReviewService service = new ReviewService();
@@ -35,7 +35,7 @@ public class ReviewUpdateController extends HttpServlet {
         //2.reviewId 받기
         String reviewIdParam = req.getParameter("reviewId");      
         if (reviewIdParam == null) {     
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview");    
+        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");    
         	return;    
         }
         
@@ -46,7 +46,7 @@ public class ReviewUpdateController extends HttpServlet {
         
         // 리뷰가 없거나 본인 리뷰가 아니면 차단     
         if (dto == null || dto.getMemberId() != loginMember.getMemberId()) {
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview");   
+        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");   
         	return;      
         }
     
@@ -92,10 +92,10 @@ public class ReviewUpdateController extends HttpServlet {
 
         if (result == 1) {           
         	// 성공 → 내 리뷰 목록으로    
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview");      
+        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");      
         } else if (result == -1) {        
         	// 권한 없음     
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview");
+        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");
         } else {
             // 수정 실패 → 에러 메시지 전달 후 다시 폼으로
             req.setAttribute("errorMsg", "리뷰 수정에 실패했습니다. 다시 시도해주세요.");

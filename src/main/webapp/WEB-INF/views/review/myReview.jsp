@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -418,7 +417,7 @@
 
                                     <c:if test="${isMyPage}">
                                         <div class="overlay-btn-wrap">
-                                            <a href="${pageContext.request.contextPath}/review/update?reviewId=${review.reviewId}"
+                                            <a href="${pageContext.request.contextPath}/review/update.do?reviewId=${review.reviewId}"
                                                class="overlay-btn btn-edit">수정</a>
 
                                             <form action="${pageContext.request.contextPath}/review/delete"

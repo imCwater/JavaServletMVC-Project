@@ -11,7 +11,7 @@ import member.dto.MemberDTO;
 
 import java.io.IOException;
 
-@WebServlet("/review/insert")
+@WebServlet("/review/insert.do")
 public class ReviewInsertController extends HttpServlet {
 
     private ReviewService service = new ReviewService();
@@ -82,7 +82,7 @@ public class ReviewInsertController extends HttpServlet {
 
         if (result > 0) {
         	// 성공 → 해당 영화 상세페이지로 이동            
-        	resp.sendRedirect(req.getContextPath() + "/movie/detail?movieId=" + movieId);
+        	resp.sendRedirect(req.getContextPath() + "/movie/detail.do?movieId=" + movieId);
         } else {
             // 등록 실패 → 에러 메시지 전달 후 다시 폼으로
             req.setAttribute("errorMsg", "리뷰 등록에 실패했습니다. 다시 시도해주세요.");
