@@ -349,6 +349,71 @@ public class MovieDAO {
         return movie;
     }
     
+ // 외부에서 받은 Connection으로 MOVIE_ID 기준 영화 조회
+ // 주의: con은 호출한 쪽에서 관리하므로 여기서 닫지 않는다.
+ public MovieDTO getMovieById(Connection con, int movieId) {
+     MovieDTO dto = null;
+
+     String sql = "SELECT MOVIE_ID, KMDB_MOVIE_ID, KMDB_MOVIE_SEQ, DOCID, TITLE, "
+                + "DIRECTOR_NAME, COMPANY, PLOT, RUNTIME, RATING, GENRE, RATING_GRADE, "
+                + "RELEASE_DATE, POSTER_URL, VOD_URL "
+                + "FROM MOVIE "
+                + "WHERE MOVIE_ID = ?";
+
+     PreparedStatement pst = null;
+     ResultSet rs = null;
+
+     try {
+         pst = con.prepareStatement(sql);
+         pst.setInt(1, movieId);
+         rs = pst.executeQuery();
+
+         if (rs.next()) {
+             dto = new MovieDTO();
+
+             dto.setMovieId(rs.getInt("MOVIE_ID"));
+             dto.setKmdbMovieId(rs.getString("KMDB_MOVIE_ID"));
+             dto.setKmdbMovieSeq(rs.getString("KMDB_MOVIE_SEQ"));
+             dto.setDocid(rs.getString("DOCID"));
+             dto.setTitle(rs.getString("TITLE"));
+             dto.setDirectorNm(rs.getString("DIRECTOR_NAME"));
+             dto.setCompany(rs.getString("COMPANY"));
+             dto.setPlot(rs.getString("PLOT"));
+
+             int runtime = rs.getInt("RUNTIME");
+             if (!rs.wasNull()) {
+                 dto.setRuntime(String.valueOf(runtime));
+             }
+
+             dto.setRating(rs.getString("RATING"));
+             dto.setGenre(rs.getString("GENRE"));
+             dto.setRatingGrade(rs.getString("RATING_GRADE"));
+
+             Date releaseDate = rs.getDate("RELEASE_DATE");
+             if (releaseDate != null) {
+                 dto.setReleaseDate(String.valueOf(releaseDate));
+             }
+
+             dto.setPosterUrl(rs.getString("POSTER_URL"));
+             dto.setVodUrl(rs.getString("VOD_URL"));
+         }
+
+     } catch (SQLException e) {
+         e.printStackTrace();
+     } finally {
+         try {
+             if (rs != null) rs.close();
+             if (pst != null) pst.close();
+         } catch (SQLException e) {
+             e.printStackTrace();
+         }
+     }
+
+     return dto;
+ }
+    
+    
+    
 
     private void close(ResultSet rs, PreparedStatement pst, Connection con) {
         try {
