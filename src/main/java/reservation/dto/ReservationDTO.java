@@ -2,13 +2,21 @@ package reservation.dto;
 
 import java.sql.Timestamp;
 
+// RESERVATION 테이블 기본 정보와 목록/상세 화면에 필요한 조인 결과를 담는 DTO
 public class ReservationDTO {
+	// RESERVATION 테이블 컬럼
 	int reservation_id;
 	int member_id;
 	int schedule_id;
 	int headcount;
 	char status;
 	Timestamp reserved_at;
+
+	// 목록/상세 화면 표시용 조인 컬럼
+	String movieTitle;
+	Timestamp startTime;
+	Timestamp endTime;
+	String seatNames;
 	public ReservationDTO(int reservation_id, int member_id, int schedule_id, int headcount, char status,
 			Timestamp reserved_at) {
 		super();
@@ -64,6 +72,30 @@ public class ReservationDTO {
 	}
 	public void setReserved_at(Timestamp reserved_at) {
 		this.reserved_at = reserved_at;
+	}
+	public String getMovieTitle() {
+		return movieTitle;
+	}
+	public void setMovieTitle(String movieTitle) {
+		this.movieTitle = movieTitle;
+	}
+	public Timestamp getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
+	}
+	public Timestamp getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
+	}
+	public String getSeatNames() {
+		return seatNames;
+	}
+	public void setSeatNames(String seatNames) {
+		this.seatNames = seatNames;
 	}
 	
 }
