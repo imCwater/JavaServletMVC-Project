@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -9,920 +8,1507 @@
 <meta charset="UTF-8">
 <title>필름 다이어리 - 팝플릭스</title>
 <style>
-/* ── 기본 리셋 및 폰트 ── */
-* {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-}
-
+/* ══════════════════════════════════════════════════
+   리셋 & 기본
+══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
-	font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic',
-		sans-serif;
-	background: #f0ece4;
-	color: #1a1816;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  background: #faf6ee;
+  color: #1a1816;
+  min-height: 100vh;
 }
 
-/* ── 커버 오프닝 애니메이션 ── */
+/* ══════════════════════════════════════════════════
+   커버 오프닝
+══════════════════════════════════════════════════ */
 #cover-overlay {
-	position: fixed;
-	inset: 0;
-	z-index: 9999;
-	background: #1a1816;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	animation: coverFadeOut 0.6s ease 2.4s forwards;
+  position: fixed; inset: 0; z-index: 9999;
+  background: #faf6ee;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.7s ease;
+}
+#cover-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.diary-book {
+  display: flex;
+  width: 480px; height: 620px;
+  border-radius: 4px 16px 16px 4px;
+  box-shadow: -6px 0 20px rgba(0,0,0,0.3), 8px 8px 40px rgba(0,0,0,0.25);
+  animation: bookAppear 0.9s cubic-bezier(0.34,1.3,0.64,1) 0.2s both;
+}
+@keyframes bookAppear {
+  from { transform: scale(0.82) rotateY(-15deg); opacity: 0; }
+  to   { transform: scale(1) rotateY(0deg); opacity: 1; }
+}
+.book-spine {
+  width: 48px; background: linear-gradient(to right, #111 0%, #1e1a14 100%);
+  border-radius: 4px 0 0 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.book-spine::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0.08), transparent);
+}
+.spine-text {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  color: rgba(255,255,255,0.25); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+}
+.book-front {
+  flex: 1;
+  background: linear-gradient(155deg, #1e1c18 0%, #252018 50%, #1a1814 100%);
+  border-radius: 0 16px 16px 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; padding: 48px 44px; position: relative; overflow: hidden;
+}
+.book-front::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.008) 4px, rgba(255,255,255,0.008) 8px);
+  pointer-events: none;
+}
+.lens-wrap {
+  width: 172px; height: 172px; border-radius: 50%;
+  background: radial-gradient(circle at 50%, #3a3424, #1e1c14);
+  border: 4px solid #302c20;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 10px #1e1c16, 0 0 0 13px #2a2620;
+  animation: fadeUp 0.6s ease 1.0s both;
+}
+.lens-mid {
+  width: 124px; height: 124px; border-radius: 50%;
+  background: radial-gradient(circle, #2c2818, #1c1a12);
+  border: 2px solid #3a3624;
+  display: flex; align-items: center; justify-content: center;
+}
+.lens-inner {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #3a3624, #22201a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+}
+.book-divider {
+  width: 60%; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+  animation: fadeUp 0.5s ease 1.2s both;
+}
+.book-main-title {
+  color: #fff; font-size: 28px; font-weight: 900;
+  letter-spacing: 0.12em; text-align: center; line-height: 1.3;
+  animation: fadeUp 0.6s ease 1.1s both;
+}
+.book-sub {
+  color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 0.04em;
+  animation: fadeUp 0.5s ease 1.3s both;
+}
+.book-year {
+  color: #e8a838; font-size: 13px; letter-spacing: 0.22em;
+  animation: fadeUp 0.5s ease 1.5s both;
+}
+.book-dots {
+  color: rgba(232,168,56,0.5); font-size: 9px; letter-spacing: 10px;
+  animation: fadeUp 0.5s ease 1.7s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
 }
 
-#cover-overlay.skip {
-	display: none;
+/* ══════════════════════════════════════════════════
+   책 외부 래퍼 (크래프트지 커버 + 페이지 스택)
+══════════════════════════════════════════════════ */
+.book-outer {
+  position: relative;
+  max-width: min(1440px, calc(100vw - 40px));
+  margin: 36px auto 52px;
+  padding-bottom: 20px;
 }
 
-.cover-title {
-	color: #e8a838;
-	font-size: 36px;
-	font-weight: 900;
-	letter-spacing: -1px;
-	overflow: hidden;
-	white-space: nowrap;
-	border-right: 3px solid #e8a838;
-	animation: typing 1.8s steps(15) 0.3s forwards, blinkCaret 0.5s step-end
-		2.1s forwards;
+/* 크래프트지 책 커버 */
+.book-cover {
+  position: absolute;
+  top: -14px; bottom: -28px; left: -18px; right: -18px;
+  background:
+    repeating-linear-gradient(135deg, transparent, transparent 3px,
+      rgba(0,0,0,0.02) 3px, rgba(0,0,0,0.02) 6px),
+    linear-gradient(145deg, #ca9560 0%, #a07030 28%, #b88448 60%, #c29460 100%);
+  border-radius: 24px;
+  box-shadow:
+    0 24px 80px rgba(0,0,0,0.35),
+    0 10px 28px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -2px 8px rgba(0,0,0,0.14);
+  z-index: 0;
+}
+.book-cover::after {
+  content: '';
+  position: absolute;
+  top: 10px; bottom: 10px;
+  left: calc(50% - 2px); width: 4px;
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.12), rgba(0,0,0,0.22) 40%, rgba(0,0,0,0.12));
+  border-radius: 2px;
 }
 
-.cover-icons {
-	color: #888;
-	font-size: 22px;
-	margin-bottom: 20px;
-	animation: fadeInUp 0.8s ease 0.1s both;
+/* 페이지 스택 레이어 — 상하좌우 모두 삐져나오도록 */
+.page-layer-3 {
+  position: absolute;
+  top: 12px; left: -7px; right: -7px; bottom: -22px;
+  background: #ccc4ba;
+  border-radius: 18px;
+  z-index: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+.page-layer-2 {
+  position: absolute;
+  top: 8px; left: -5px; right: -5px; bottom: -15px;
+  background: #dbd2c8;
+  border-radius: 17px;
+  z-index: 2;
+}
+.page-layer-1 {
+  position: absolute;
+  top: 4px; left: -3px; right: -3px; bottom: -8px;
+  background: #ede7de;
+  border-radius: 16px;
+  z-index: 3;
 }
 
-@
-keyframes typing {from { width:0;
-	
-}
-
-to {
-	width: 100%;
-}
-
-}
-@
-keyframes blinkCaret {to { border-color:transparent;
-	
-}
-
-}
-@
-keyframes coverFadeOut {to { opacity:0;
-	pointer-events: none;
-}
-
-}
-@
-keyframes fadeInUp {from { opacity:0;
-	transform: translateY(12px);
-}
-
-to {
-	opacity: 1;
-	transform: none;
-}
-
-}
-
-/* ── 레이아웃 ── */
+/* ══════════════════════════════════════════════════
+   전체 레이아웃
+══════════════════════════════════════════════════ */
 .page-wrap {
-	display: flex;
-	min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  position: relative;
+  z-index: 10;
 }
 
-/* ── 사이드바 (연도 폴더) ── */
+/* ══════════════════════════════════════════════════
+   사이드바 (왼쪽 페이지)
+══════════════════════════════════════════════════ */
 .sidebar {
-	width: 200px;
-	min-width: 200px;
-	background: #fff;
-	border-right: 1px solid #e2ddd8;
-	padding: 24px 0;
-	position: sticky;
-	top: 0;
-	height: 100vh;
-	overflow-y: auto;
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border-radius: 14px 0 0 14px;
+  border: 1px solid #e6e0d8; border-right: none;
+  padding: 28px 24px 24px;
+  position: relative;
+  align-self: stretch;
+  box-shadow: none;
+  z-index: 10;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 27px,
+    rgba(200,190,180,0.13) 27px, rgba(200,190,180,0.13) 28px
+  );
+  background-position: 0 68px;
 }
-
-.sidebar-title {
-	padding: 0 18px 12px;
-	font-size: 11px;
-	font-weight: 700;
-	color: #aaa;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+.sidebar::before { display: none; }
+.sidebar-page-title {
+  font-size: 11px; font-weight: 900; letter-spacing: 0.25em;
+  color: #c8bfb4; text-align: center; margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #f0ece4;
+  text-transform: uppercase;
 }
-
+.sidebar-label {
+  padding: 0 20px 12px;
+  font-size: 10px; font-weight: 700; color: #b8b0a4;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
 .sidebar a {
-	display: block;
-	padding: 8px 18px;
-	text-decoration: none;
-	color: #5a534c;
-	font-size: 14px;
-	font-weight: 600;
-	border-left: 3px solid transparent;
-	transition: all 0.15s;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 20px; text-decoration: none; color: #5a534c;
+  font-size: 13px; font-weight: 600;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
 }
-
 .sidebar a:hover, .sidebar a.active {
-	background: #fff3dc;
-	border-left-color: #e8a838;
-	color: #1a1816;
+  background: #fff8ed; border-left-color: #e8a838; color: #1a1816;
 }
-
-.sidebar .stat-link {
-	margin-top: 20px;
-	border-top: 1px solid #e2ddd8;
-	padding-top: 12px;
+.year-badge {
+  background: #f0ece4; color: #999; font-size: 11px;
+  border-radius: 9px; padding: 1px 7px; font-weight: 700;
 }
-
-.sidebar .stat-link a {
-	color: #2c7be5;
+.sidebar a.active .year-badge { background: #e8a838; color: #fff; }
+.sidebar-hr { border: none; border-top: 1px solid #ede8e0; margin: 12px 0; }
+.monthly-box { padding: 0 20px; }
+.monthly-title {
+  font-size: 10px; font-weight: 700; color: #b8b0a4;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
 }
-
-/* ── 메인 콘텐츠 ── */
-.main-content {
-	flex: 1;
-	padding: 32px;
-	max-width: 960px;
+.monthly-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px dashed #ede8e0;
 }
-
-/* ── 스프링노트 헤더 ── */
-.notebook-header {
-	background: #fff;
-	border-radius: 12px 12px 0 0;
-	border: 1px solid #e2ddd8;
-	border-bottom: none;
-	padding: 20px 28px 16px;
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	position: relative;
+.monthly-row:last-child { border-bottom: none; }
+.monthly-lbl { font-size: 12px; color: #a09890; }
+.monthly-val { font-size: 13px; font-weight: 700; }
+.stat-link {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 12px; padding: 9px 14px;
+  background: #fff8ed; border-radius: 8px;
+  text-decoration: none; color: #c07a10;
+  font-size: 12px; font-weight: 700;
+  transition: background 0.15s;
 }
+.stat-link:hover { background: #ffecc8; }
 
-.spring-rings {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	margin-right: 8px;
+/* ══════════════════════════════════════════════════
+   스프링 바인딩 (중앙)
+══════════════════════════════════════════════════ */
+.spring-col {
+  width: 28px; min-width: 28px;
+  background: #fff;
+  border: none;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 0; gap: 0;
+  position: relative; align-self: stretch;
+  z-index: 8;   /* 페이지(z-index:10)보다 낮음 → 페이지가 링 끝을 자연스럽게 덮어줌 */
+  overflow: visible;
 }
-
+.spring-col::before { display: none; }
+/* 링: 앞면 호만 보이는 링 (뒷면 호 완전 제거) */
 .ring {
-	width: 18px;
-	height: 18px;
-	border-radius: 50%;
-	border: 3px solid #c0b8b0;
-	background: #f0ece4;
+  position: relative;
+  width: 56px; height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  border: 3px solid #a0a09a;
+  border-top-color: transparent;   /* 반대편(뒷면) 호 완전 제거 */
+  border-bottom-color: #3a3835;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.32);
+  margin: 6px 0; flex-shrink: 0;
+  z-index: 2;
+}
+/* 페이지가 링 끝을 덮어주므로 별도 커버 불필요 */
+.ring::before { display: none; }
+.ring::after { display: none; }
+
+/* ══════════════════════════════════════════════════
+   노트 본문 (오른쪽 페이지)
+══════════════════════════════════════════════════ */
+.notebook-body {
+  flex: 1;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  overflow: visible; /* 인덱스 탭이 밖으로 나오도록 */
+}
+.notebook-body::after { display: none; }
+/* 실제 노트 내용 영역 (overflow:hidden + border-radius 클리핑) */
+.nb-content {
+  flex: 1;
+  background: #fff;
+  border-radius: 0 14px 14px 0;
+  border: 1px solid #e6e0d8; border-left: none;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 27px,
+    rgba(200,190,180,0.18) 27px, rgba(200,190,180,0.18) 28px
+  );
+  background-position: 0 52px;
+  display: flex;
+  flex-direction: column;
+}
+/* ── 인덱스 탭 (오른쪽 가장자리) ── */
+.index-tabs {
+  position: absolute;
+  right: -42px;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 20;
+}
+.index-tab {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 42px; height: 54px;
+  background: linear-gradient(to right, #b07838, #986428);
+  border-radius: 0 10px 10px 0;
+  text-decoration: none; color: rgba(255,255,255,0.9);
+  font-size: 17px;
+  box-shadow: 3px 2px 10px rgba(0,0,0,0.22);
+  transition: all 0.15s;
+  border-left: 3px solid rgba(0,0,0,0.12);
+}
+.index-tab span {
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 0.03em; margin-top: 2px;
+  opacity: 0.85;
+}
+.index-tab:hover { background: linear-gradient(to right, #c88840, #a87430); transform: translateX(4px); }
+.index-tab.active {
+  background: linear-gradient(to right, #e8a838, #d09020);
+  color: #fff;
+  box-shadow: 4px 2px 14px rgba(0,0,0,0.28);
+}
+/* ── 왼쪽 포스터 포토카드 ── */
+.poster-display {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px;
+  min-height: 220px;
+}
+.poster-date-lbl {
+  font-size: 11px; font-weight: 700; color: #c8bfb4;
+  margin-bottom: 14px; letter-spacing: 0.06em;
+}
+.photocard-stack {
+  position: relative;
+  width: 150px; height: 210px;
+}
+.photocard {
+  position: absolute;
+  width: 136px; height: 196px;
+  border-radius: 8px; object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.1);
+}
+.photocard:nth-child(1) { transform: rotate(-5deg); left: 0; top: 0; z-index: 1; }
+.photocard:nth-child(2) { transform: rotate(-1.5deg); left: 7px; top: 5px; z-index: 2; }
+.photocard:nth-child(3) { transform: rotate(3deg); left: 12px; top: 10px; z-index: 3; }
+.photocard-ph {
+  position: absolute; left: 7px; top: 5px;
+  width: 136px; height: 196px;
+  border-radius: 8px;
+  background: #f0ece4; border: 2px dashed #d8d0c8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; color: #c8bfb4;
 }
 
-.notebook-title {
-	font-size: 22px;
-	font-weight: 900;
-	color: #1a1816;
+/* ══════════════════════════════════════════════════
+   달력 헤더
+══════════════════════════════════════════════════ */
+.cal-header {
+  background: #e8a838;
+  padding: 14px 24px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  background-image: none;
 }
-
-.notebook-sub {
-	font-size: 13px;
-	color: #aaa;
+.cal-month-en {
+  font-size: 30px; font-weight: 900; color: #fff;
+  letter-spacing: 0.08em; line-height: 1;
 }
-
-.notebook-actions {
-	margin-left: auto;
-	display: flex;
-	gap: 8px;
+.cal-year-sm {
+  font-size: 13px; color: rgba(255,255,255,0.65);
+  margin-top: 4px; letter-spacing: 0.06em;
 }
-
-.btn-stat {
-	background: #e8a838;
-	color: white;
-	border: none;
-	border-radius: 20px;
-	padding: 7px 16px;
-	font-size: 13px;
-	font-weight: 700;
-	cursor: pointer;
-	text-decoration: none;
-	display: inline-block;
-}
-
-.btn-stat:hover {
-	background: #d4942a;
-}
-
-/* ── 달력 영역 ── */
-.calendar-wrap {
-	background: #fff;
-	border: 1px solid #e2ddd8;
-	border-top: none;
-	padding: 24px 28px;
-	border-radius: 0;
-}
-
 .cal-nav {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-bottom: 18px;
+  background: rgba(255,255,255,0.22); border: none;
+  border-radius: 50%; width: 38px; height: 38px;
+  color: #fff; font-size: 22px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; line-height: 1;
 }
+.cal-nav:hover { background: rgba(255,255,255,0.38); }
 
-.cal-nav button {
-	background: none;
-	border: 1px solid #e2ddd8;
-	border-radius: 6px;
-	padding: 5px 12px;
-	cursor: pointer;
-	font-size: 16px;
-	color: #888;
+/* ══════════════════════════════════════════════════
+   달력 그리드
+══════════════════════════════════════════════════ */
+.cal-wrap {
+  padding: 10px 16px 12px;
+  background: #fff;
+  background-image: none;
+  max-height: 600px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1),
+              opacity 0.35s ease,
+              padding 0.35s ease;
 }
-
-.cal-nav button:hover {
-	background: #f5f3ef;
+.cal-wrap.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
-
-.cal-month {
-	font-size: 20px;
-	font-weight: 800;
-	color: #1a1816;
+.cal-dow-row {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
 }
-
-.cal-grid {
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	gap: 2px;
+.cal-dow {
+  text-align: center; font-size: 11px; font-weight: 700;
+  color: #b0a898; padding: 4px 0;
 }
+.cal-dow:first-child { color: #e05050; }
+.cal-dow:last-child  { color: #4a82d8; }
 
-.cal-day-header {
-	text-align: center;
-	font-size: 11px;
-	font-weight: 700;
-	color: #aaa;
-	padding: 6px 0;
+.cal-grid-body {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
 }
-
-.cal-day-header:first-child {
-	color: #e25c5c;
-}
-
-.cal-day-header:last-child {
-	color: #2c7be5;
-}
-
 .cal-cell {
-	min-height: 80px;
-	background: #fafaf8;
-	border: 1px solid #eee;
-	border-radius: 6px;
-	padding: 6px;
-	cursor: pointer;
-	position: relative;
-	transition: background 0.15s;
+  min-height: 60px;
+  background: #fafaf8;
+  border: 1px solid #eeebe6; border-radius: 8px;
+  padding: 5px 4px 3px;
+  cursor: pointer; position: relative;
+  transition: background 0.12s, border-color 0.12s;
+  overflow: hidden;
+}
+.cal-cell:hover       { background: #fff8ee; border-color: #e8c870; }
+.cal-cell.today       { border-color: #e8a838; background: #fffbf2; }
+.cal-cell.selected    { border-color: #e8a838; border-width: 2px; background: #fff4d0; }
+.cal-cell.other-month { opacity: 0.25; pointer-events: none; background: #f8f6f2; }
+.cal-date-num {
+  font-size: 11px; font-weight: 700; color: #5a534c;
+  line-height: 1; margin-bottom: 3px;
+}
+.cal-cell.sun .cal-date-num { color: #e05050; }
+.cal-cell.sat .cal-date-num { color: #4a82d8; }
+.cal-cell.today .cal-date-num {
+  background: #e8a838; color: #fff;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
 }
 
-.cal-cell:hover {
-	background: #fff3dc;
+/* 달력 셀 안 티켓 썸네일 */
+.cell-tickets { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.cell-ticket {
+  display: flex; align-items: center; gap: 3px;
+  background: linear-gradient(135deg, #1e1c18, #2e2820);
+  border-radius: 4px; padding: 2px 4px;
+  cursor: pointer; position: relative;
+  overflow: hidden;
+}
+.cell-ticket::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  background: #e8a838;
+}
+.cell-ticket-img {
+  width: 16px; height: 22px;
+  object-fit: cover; border-radius: 2px; flex-shrink: 0;
+}
+.cell-ticket-title {
+  color: #e8c870; font-size: 8px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1;
+}
+.cell-ticket:nth-child(2) { transform: translateY(-2px); opacity: 0.8; z-index: 1; }
+.cell-ticket:nth-child(3) { transform: translateY(-4px); opacity: 0.65; z-index: 0; }
+.cell-more {
+  font-size: 8px; color: #e8a838; font-weight: 700;
+  text-align: right; padding-right: 2px; margin-top: 1px;
 }
 
-.cal-cell.today {
-	border-color: #e8a838;
-	background: #fffbf0;
+/* ══════════════════════════════════════════════════
+   스크롤 힌트 (달력 하단)
+══════════════════════════════════════════════════ */
+.scroll-hint {
+  text-align: center;
+  padding: 4px 0 0;
+  color: #e8a838;
+  font-size: 22px;
+  animation: bounce 1.5s ease infinite;
+  background: #fff;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
 }
 
-.cal-cell.other-month {
-	opacity: 0.35;
+/* ══════════════════════════════════════════════════
+   오렌지 물결 + 주간 strip 섹션
+   ★ 피그마: 달력 아래에서 오렌지가 위로 솟는 물결
+   ★ sticky 제거 - 자연스러운 스크롤
+══════════════════════════════════════════════════ */
+.orange-section {
+  background: linear-gradient(180deg, #f0a028 0%, #e89030 100%);
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.cal-date {
-	font-size: 12px;
-	font-weight: 700;
-	color: #5a534c;
+/* 달력 하단 → 오렌지 물결이 위로 솟아오름 */
+.wave-top {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  /* 위쪽은 흰색 배경 (달력 배경) */
+  background: #fff;
+  margin-bottom: 0;
+}
+.wave-top svg { display: block; }
+
+/* 주간 스트립 */
+.week-strip {
+  padding: 4px 20px 10px;
+}
+.week-nav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.week-nav-lbl {
+  font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.9);
+  letter-spacing: 0.04em;
+}
+.week-nav-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.75); font-size: 24px; font-weight: 700;
+  cursor: pointer; padding: 0 4px; line-height: 1;
+  transition: color 0.15s;
+}
+.week-nav-btn:hover { color: #fff; }
+
+.week-days-row {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+.week-day-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.week-day-lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); }
+.week-day-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8);
+  cursor: pointer; transition: all 0.15s;
+}
+.week-day-num:hover { background: rgba(255,255,255,0.2); }
+.week-day-num.sel {
+  background: #fff; color: #e89030; font-weight: 900;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+}
+.week-day-num.other { color: rgba(255,255,255,0.3); pointer-events: none; }
+.week-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+}
+.week-dot.none { visibility: hidden; }
+
+/* ══════════════════════════════════════════════════
+   날짜별 기록 섹션
+══════════════════════════════════════════════════ */
+.dated-section {
+  background: transparent;
+  padding: 0 0 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.cal-cell.sunday .cal-date {
-	color: #e25c5c;
+.dated-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 10px;
+}
+.dated-heading {
+  font-size: 20px; font-weight: 800; color: #fff;
+}
+.dated-count-badge {
+  background: rgba(255,255,255,0.24); color: #fff;
+  font-size: 12px; font-weight: 700;
+  border-radius: 20px; padding: 4px 12px;
 }
 
-.cal-cell.saturday .cal-date {
-	color: #2c7be5;
+/* 빈 상태 */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 32px 0;
+  flex: 1;
+  text-align: center;
+}
+.empty-icon { font-size: 52px; }
+.empty-title { font-size: 16px; font-weight: 700; color: #fff; }
+.empty-sub   { font-size: 13px; color: rgba(255,255,255,0.72); }
+
+/* 티켓 카드 (날짜별 목록) */
+.dated-list-inner {
+  padding: 0 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.ticket-card {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: #fff; border-radius: 12px;
+  padding: 14px; margin-bottom: 10px;
+  text-decoration: none; color: inherit;
+  position: relative; overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.ticket-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.14); }
+/* 왼쪽 오렌지 줄 */
+.ticket-card::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 4px;
+  background: #e8a838;
+}
+/* 오른쪽 날짜 세로 텍스트 */
+.ticket-date-side {
+  position: absolute; right: 10px; top: 0; bottom: 0;
+  display: flex; align-items: center;
+  writing-mode: vertical-rl;
+  font-size: 10px; font-weight: 700; color: #ccc4b8;
+  letter-spacing: 0.05em;
+}
+/* 점선 구분 */
+.ticket-card::after {
+  content: ''; position: absolute;
+  right: 30px; top: 10px; bottom: 10px; width: 1px;
+  background: repeating-linear-gradient(to bottom, #e0dbd4 0px, #e0dbd4 4px, transparent 4px, transparent 8px);
+}
+.ticket-poster {
+  width: 58px; height: 86px; object-fit: cover;
+  border-radius: 6px; flex-shrink: 0;
+}
+.ticket-poster-ph {
+  width: 58px; height: 86px; border-radius: 6px;
+  background: #e8e2da; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.ticket-info { flex: 1; min-width: 0; padding-right: 42px; }
+.ticket-title { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.ticket-genre-badge {
+  display: inline-block;
+  background: #e8a838; color: #fff;
+  font-size: 10px; font-weight: 700;
+  border-radius: 4px; padding: 1px 6px;
+  margin-bottom: 5px;
+}
+.ticket-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+.ticket-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.ticket-tag {
+  background: #fff3dc; border: 1px solid #f0c848;
+  border-radius: 10px; padding: 1px 7px;
+  font-size: 10px; color: #7a5800; font-weight: 600;
+}
+.ticket-actions { display: flex; gap: 6px; margin-top: 8px; }
+.ticket-btn {
+  background: #f5f3ef; border: 1px solid #e2ddd8;
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 11px; color: #5a534c; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 3px;
+  transition: background 0.15s;
+}
+.ticket-btn:hover { background: #ede8e0; }
+/* 신선도 배지 */
+.fresh-badge {
+  position: absolute; top: 14px; right: 42px;
+  padding: 2px 10px; border-radius: 10px;
+  font-size: 11px; font-weight: 700;
+  background: #e8f5e9; color: #2e7d32;
+}
+.fresh-badge.bad { background: #fce4ec; color: #c62828; }
+
+/* ══════════════════════════════════════════════════
+   이달 요약 바 — 티켓 카드 아래
+   ★ 피그마: 이달관람 / 평균별점 / 총티켓
+══════════════════════════════════════════════════ */
+.monthly-summary-bar {
+  display: flex;
+  background: rgba(255,255,255,0.18);
+  border-radius: 12px;
+  margin: auto 20px 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.28);
+}
+.summary-item {
+  flex: 1;
+  text-align: center;
+  padding: 16px 8px;
+  border-right: 1px solid rgba(255,255,255,0.24);
+}
+.summary-item:last-child { border-right: none; }
+.summary-lbl {
+  font-size: 11px; color: rgba(255,255,255,0.68); font-weight: 600;
+  margin-bottom: 6px;
+}
+.summary-val {
+  font-size: 20px; font-weight: 900; color: #fff;
 }
 
-/* ── 티켓 미니 (달력 셀 내 영화 표시) ── */
-.ticket-mini-wrap {
-	margin-top: 3px;
-	position: relative;
+/* ══════════════════════════════════════════════════
+   하단 전체 기록 섹션
+══════════════════════════════════════════════════ */
+.all-records-section {
+  background: #fff;
+  border: 1px solid #e6e0d8;
+  border-radius: 12px;
+  margin-top: 0;
+  padding: 22px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
-
-.ticket-mini {
-	background: linear-gradient(135deg, #1a1816 0%, #2d2a26 100%);
-	color: #e8a838;
-	font-size: 9px;
-	font-weight: 700;
-	border-radius: 3px;
-	padding: 2px 5px;
-	display: block;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	margin-bottom: 2px;
-	max-width: 100%;
-	cursor: pointer;
+.all-records-header {
+  display: flex; align-items: center; margin-bottom: 18px;
 }
-/* 같은 날 여러 편: 부채꼴 겹침 효과 */
-.ticket-mini:nth-child(2) {
-	transform: rotate(-3deg) translateY(-4px);
-	opacity: 0.85;
+.all-records-title { font-size: 15px; font-weight: 800; }
+.sort-sel {
+  margin-left: auto; border: 1px solid #e2ddd8;
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 12px; cursor: pointer; background: #fff;
 }
-
-.ticket-mini:nth-child(3) {
-	transform: rotate(-6deg) translateY(-8px);
-	opacity: 0.70;
-}
-
-.ticket-mini-more {
-	font-size: 9px;
-	color: #e8a838;
-	font-weight: 700;
-}
-
-/* ── 카드 목록 영역 ── */
-.card-section {
-	background: #fff;
-	border: 1px solid #e2ddd8;
-	border-top: none;
-	border-radius: 0 0 12px 12px;
-	padding: 24px 28px;
-}
-
-.card-section-header {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-bottom: 18px;
-}
-
-.card-section-title {
-	font-size: 16px;
-	font-weight: 800;
-}
-
-.sort-select {
-	margin-left: auto;
-	border: 1px solid #e2ddd8;
-	border-radius: 6px;
-	padding: 5px 10px;
-	font-size: 13px;
-	cursor: pointer;
-}
-
 .card-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-	gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 14px;
 }
-
 .diary-card {
-	background: #fafaf8;
-	border: 1px solid #e2ddd8;
-	border-radius: 10px;
-	overflow: hidden;
-	cursor: pointer;
-	transition: all 0.2s;
-	text-decoration: none;
-	color: inherit;
-	display: block;
+  background: #fafaf8; border: 1px solid #e6e0d8;
+  border-radius: 10px; overflow: hidden;
+  text-decoration: none; color: inherit; display: block;
+  transition: all 0.18s;
 }
-
 .diary-card:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
-
-.card-poster {
-	width: 100%;
-	aspect-ratio: 2/3;
-	object-fit: cover;
-	background: #e2ddd8;
-	display: block;
-}
-
-.card-poster-placeholder {
-	width: 100%;
-	aspect-ratio: 2/3;
-	background: #e2ddd8;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 28px;
-}
-
-.card-body {
-	padding: 10px;
-}
-
+.card-poster-wrap { width: 100%; aspect-ratio: 2/3; background: #e2ddd8; overflow: hidden; }
+.card-poster-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.card-body { padding: 9px; }
 .card-title {
-	font-size: 13px;
-	font-weight: 700;
-	margin-bottom: 4px;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+  font-size: 12px; font-weight: 700; margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-
-.card-date {
-	font-size: 11px;
-	color: #aaa;
-	margin-bottom: 4px;
+.card-dt   { font-size: 10px; color: #aaa; margin-bottom: 3px; }
+.card-star { color: #e8a838; font-size: 11px; margin-bottom: 4px; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+.card-tag2 {
+  background: #fff3dc; border: 1px solid #f0c848;
+  border-radius: 8px; padding: 1px 6px;
+  font-size: 9px; color: #7a5800;
 }
-
-.card-stars {
-	color: #e8a838;
-	font-size: 12px;
-	margin-bottom: 5px;
-}
-
-.card-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 3px;
-}
-
-.card-tag {
-	background: #fff3dc;
-	border: 1px solid #f0c84a;
-	border-radius: 10px;
-	padding: 1px 7px;
-	font-size: 10px;
-	color: #7a5a00;
-}
-
 .empty-msg {
-	text-align: center;
-	padding: 48px;
-	color: #aaa;
-	font-size: 15px;
+  text-align: center; padding: 44px;
+  color: #aaa; font-size: 14px; line-height: 1.8;
 }
 
-/* ── 태그 수정 모달 ── */
-.modal-backdrop {
-	display: none;
-	position: fixed;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.45);
-	z-index: 500;
+/* ══════════════════════════════════════════════════
+   푸터
+══════════════════════════════════════════════════ */
+.footer-wave-wrap {
+  position: relative;
+  margin-top: 40px;
+  overflow: hidden;
 }
+.footer-wave-wrap svg {
+  display: block;
+  width: 100%;
+}
+.footer-content {
+  background: #f0a028;
+  padding: 32px 48px 48px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 80px;
+  align-items: flex-start;
+}
+.footer-contact {
+  color: #fff;
+}
+.footer-contact-lbl {
+  font-size: 16px; font-weight: 700; margin-bottom: 6px;
+  opacity: 0.85;
+}
+.footer-contact-num {
+  font-size: 28px; font-weight: 900; line-height: 1.2;
+}
+.footer-contact-time {
+  font-size: 12px; opacity: 0.7; margin-top: 4px;
+  line-height: 1.7;
+}
+.footer-links {
+  display: flex; flex-direction: column; gap: 8px;
+  text-align: right;
+}
+.footer-links a {
+  color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600;
+  text-decoration: none;
+}
+.footer-links a:hover { color: #fff; }
 
-.modal-backdrop.open {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+/* ══════════════════════════════════════════════════
+   태그/별점 모달
+══════════════════════════════════════════════════ */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.44); z-index: 800;
 }
-
-.modal {
-	background: white;
-	border-radius: 14px;
-	padding: 28px;
-	width: 500px;
-	max-width: 95vw;
-	max-height: 80vh;
-	overflow-y: auto;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+.modal-bg.open { display: flex; align-items: center; justify-content: center; }
+.modal-box {
+  background: #fff; border-radius: 16px;
+  padding: 28px; width: 480px; max-width: 95vw; max-height: 80vh;
+  overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
-
-.modal-title {
-	font-size: 18px;
-	font-weight: 800;
-	margin-bottom: 20px;
+.modal-ttl { font-size: 17px; font-weight: 800; margin-bottom: 20px; }
+.modal-form { display: flex; flex-direction: column; gap: 16px; }
+.modal-lbl { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.tag-grid-m { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-cb  { display: none; }
+.tag-lbl {
+  background: #f5f3ef; border: 1px solid #e2ddd8;
+  border-radius: 14px; padding: 5px 12px;
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
 }
-
-.modal form {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
+.tag-cb:checked + .tag-lbl {
+  background: #fff3dc; border-color: #e8a838; color: #7a5a00; font-weight: 700;
 }
-
-.tag-grid {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-
-.tag-cb {
-	display: none;
-}
-
-.tag-label {
-	background: #f5f3ef;
-	border: 1px solid #e2ddd8;
-	border-radius: 16px;
-	padding: 5px 12px;
-	font-size: 12px;
-	cursor: pointer;
-	transition: all 0.15s;
-}
-
-.tag-cb:checked+.tag-label {
-	background: #fff3dc;
-	border-color: #e8a838;
-	color: #7a5a00;
-	font-weight: 700;
-}
-
-.star-row {
-	display: flex;
-	gap: 6px;
-	align-items: center;
-	flex-wrap: wrap;
-}
-
-.star-option {
-	display: none;
-}
-
-.star-lbl {
-	cursor: pointer;
-	font-size: 20px;
-	color: #ddd;
-	transition: color 0.1s;
-}
-
-.star-option:checked ~ .star-lbl {
-	color: #e8a838;
-}
-/* CSS-only half-star 별점은 JS로 처리 */
-.star-val-display {
-	font-size: 13px;
-	color: #888;
-	margin-left: 8px;
-}
-
+.star-btns { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+.star-disp { font-size: 12px; color: #999; margin-left: 6px; }
 .btn-save {
-	background: #e8a838;
-	color: white;
-	border: none;
-	border-radius: 8px;
-	padding: 10px 0;
-	font-size: 14px;
-	font-weight: 700;
-	cursor: pointer;
+  background: #e8a838; color: #fff; border: none;
+  border-radius: 8px; padding: 10px; font-size: 14px;
+  font-weight: 700; cursor: pointer; transition: background 0.15s;
 }
-
-.btn-save:hover {
-	background: #d4942a;
-}
-
-.btn-close {
-	background: none;
-	border: none;
-	font-size: 20px;
-	float: right;
-	cursor: pointer;
-	color: #aaa;
+.btn-save:hover { background: #d4942a; }
+.btn-x {
+  background: none; border: none;
+  font-size: 20px; float: right; cursor: pointer; color: #bbb;
 }
 </style>
 </head>
 <body>
 
-	<!-- ── 커버 오프닝 애니메이션 (sessionStorage로 재방문 스킵) ── -->
-	<div id="cover-overlay">
-		<div class="cover-icons">🎬 🎟 🍿 📽</div>
-		<div class="cover-title">My Film Diary</div>
-	</div>
+<!-- ══ 커버 오프닝 ══ -->
+<div id="cover-overlay">
+  <div class="diary-book">
+    <div class="book-spine"><span class="spine-text">MY FILM DIARY</span></div>
+    <div class="book-front">
+      <div class="lens-wrap">
+        <div class="lens-mid">
+          <div class="lens-inner">🎬</div>
+        </div>
+      </div>
+      <div class="book-divider"></div>
+      <div class="book-main-title">MY FILM<br>DIARY</div>
+      <div class="book-sub">나만의 영화 기록장</div>
+      <div class="book-year" id="coverYear"></div>
+      <div class="book-dots">• &nbsp; • &nbsp; •</div>
+    </div>
+  </div>
+</div>
 
-	<div class="page-wrap">
+<div class="book-outer">
+  <div class="book-cover"></div>
+  <div class="page-layer page-layer-3"></div>
+  <div class="page-layer page-layer-2"></div>
+  <div class="page-layer page-layer-1"></div>
 
-		<!-- ── 사이드바 (연도 폴더) ── -->
-		<aside class="sidebar">
-			<div class="sidebar-title">📁 연도별 보기</div>
-			<a href="${pageContext.request.contextPath}/diary/list.do"
-				class="${empty selectedYear ? 'active' : ''}">전체</a>
-			<c:forEach var="yr" items="${yearList}">
-				<a
-					href="${pageContext.request.contextPath}/diary/list.do?year=${yr}"
-					class="${selectedYear eq yr ? 'active' : ''}">📅 ${yr}년</a>
-			</c:forEach>
-			<div class="stat-link">
-				<a href="${pageContext.request.contextPath}/diary/stat.do">📊 연간
-					통계</a>
-			</div>
-		</aside>
+<div class="page-wrap">
 
-		<div class="main-content">
+  <!-- ══ 사이드바 (왼쪽 페이지) ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-page-title">MY FILM DIARY</div>
+    <div class="sidebar-label">📂 기록 연도</div>
+    <a href="${pageContext.request.contextPath}/diary/list.do"
+       class="${empty selectedYear ? 'active' : ''}">전체</a>
+    <c:forEach var="yr" items="${yearList}">
+      <a href="${pageContext.request.contextPath}/diary/list.do?year=${yr}"
+         class="${selectedYear eq yr ? 'active' : ''}">
+        ${yr}년 <span class="year-badge">${yr}</span>
+      </a>
+    </c:forEach>
 
-			<!-- ── 스프링노트 헤더 ── -->
-			<div class="notebook-header">
-				<div class="spring-rings">
-					<div class="ring"></div>
-					<div class="ring"></div>
-					<div class="ring"></div>
-				</div>
-				<div>
-					<div class="notebook-title">🎬 My Film Diary</div>
-					<div class="notebook-sub">나만의 영화 기록장</div>
-				</div>
-				<div class="notebook-actions">
-					<a href="${pageContext.request.contextPath}/diary/stat.do"
-						class="btn-stat">📊 연간 통계</a>
-				</div>
-			</div>
+    <hr class="sidebar-hr">
 
-			<!-- ── 달력 영역 ── -->
-			<div class="calendar-wrap">
-				<div class="cal-nav">
-					<button onclick="moveMonth(-1)">◀</button>
-					<span class="cal-month" id="calTitle"></span>
-					<button onclick="moveMonth(1)">▶</button>
-				</div>
-				<div class="cal-grid" id="calGrid"></div>
-			</div>
+    <div class="monthly-box">
+      <div class="monthly-title">이달 요약</div>
+      <div class="monthly-row">
+        <span class="monthly-lbl">관람 편수</span>
+        <span class="monthly-val" id="mCount">-</span>
+      </div>
+      <div class="monthly-row">
+        <span class="monthly-lbl">평균 별점</span>
+        <span class="monthly-val" id="mStar">-</span>
+      </div>
+      <div class="monthly-row">
+        <span class="monthly-lbl">총 티켓</span>
+        <span class="monthly-val" id="mTicket">-</span>
+      </div>
+    </div>
 
-			<!-- ── 카드 목록 영역 ── -->
-			<div class="card-section">
-				<div class="card-section-header">
-					<div class="card-section-title">🎞 관람 기록</div>
-					<select class="sort-select" onchange="changeSort(this.value)">
-						<option value="latest"
-							${selectedSort eq 'latest'  ? 'selected' : ''}>최신순</option>
-						<option value="oldest"
-							${selectedSort eq 'oldest'  ? 'selected' : ''}>오래된순</option>
-						<option value="star"
-							${selectedSort eq 'star'    ? 'selected' : ''}>별점 높은순</option>
-					</select>
-				</div>
+    <hr class="sidebar-hr">
+    <a class="stat-link" href="${pageContext.request.contextPath}/diary/stat.do">
+      📊 연간 통계
+    </a>
 
-				<c:choose>
-					<c:when test="${not empty diaryList}">
-						<div class="card-grid">
-							<c:forEach var="d" items="${diaryList}">
-								<a class="diary-card"
-									href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}">
-									<!-- 포스터 --> <c:choose>
-										<c:when test="${not empty d.posterUrl}">
-											<img class="card-poster" src="${d.posterUrl}"
-												alt="${d.movieTitle}" onerror="this.style.display='none'">
-										</c:when>
-										<c:otherwise>
-											<div class="card-poster-placeholder">🎬</div>
-										</c:otherwise>
-									</c:choose>
-									<div class="card-body">
-										<div class="card-title">${d.movieTitle}</div>
-										<div class="card-date">
-											<fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd" />
-										</div>
-										<c:if test="${d.starRating > 0}">
-											<div class="card-stars">
-												⭐
-												<fmt:formatNumber value="${d.starRating}"
-													maxFractionDigits="1" />
-											</div>
-										</c:if>
-										<div class="card-tags">
-											<c:forEach var="tag" items="${d.tagList}" end="2">
-												<span class="card-tag">${tag}</span>
-											</c:forEach>
-											<c:if test="${fn:length(d.tagList) > 3}">
-												<span class="card-tag">+${fn:length(d.tagList) - 3}</span>
-											</c:if>
-										</div>
-									</div>
-								</a>
-							</c:forEach>
-						</div>
-					</c:when>
-					<c:otherwise>
-						<div class="empty-msg">
-							🎬 아직 기록된 영화가 없어요!<br>영화를 예매하면 자동으로 기록됩니다.
-						</div>
-					</c:otherwise>
-				</c:choose>
-			</div>
+    <hr class="sidebar-hr">
+    <!-- 날짜별 포스터 포토카드 -->
+    <div class="poster-display">
+      <div class="poster-date-lbl" id="posterDateLbl">날짜를 선택하세요</div>
+      <div class="photocard-stack" id="photocardStack">
+        <div class="photocard-ph">🎬</div>
+      </div>
+    </div>
+  </aside>
 
-		</div>
-		<!-- /.main-content -->
-	</div>
-	<!-- /.page-wrap -->
+  <!-- ══ 스프링 바인딩 ══ -->
+  <div class="spring-col" id="springCol"></div>
 
-	<!-- ── 태그 수정 모달 ── -->
-	<div class="modal-backdrop" id="tagModal">
-		<div class="modal">
-			<button class="btn-close" onclick="closeModal()">&times;</button>
-			<div class="modal-title">감정 태그 &amp; 별점 수정</div>
-			<form action="${pageContext.request.contextPath}/diary/tagUpdate.do"
-				method="post" id="tagForm">
-				<input type="hidden" name="diaryId" id="modalDiaryId">
+  <!-- ══ 노트 본문 ══ -->
+  <div class="notebook-body">
 
-				<!-- 별점 (0.5 단위, JS로 처리) -->
-				<div>
-					<div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">⭐
-						별점</div>
-					<div class="star-row" id="starRow"></div>
-					<input type="hidden" name="starRating" id="starRatingInput"
-						value="0">
-				</div>
+    <!-- 인덱스 탭 -->
+    <div class="index-tabs">
+      <a class="index-tab active" href="${pageContext.request.contextPath}/diary/list.do" title="달력">
+        📅<span>달력</span>
+      </a>
+      <a class="index-tab" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">
+        📊<span>통계</span>
+      </a>
+      <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">
+        🏅<span>뱃지</span>
+      </a>
+    </div>
 
-				<!-- 감정 태그 선택 -->
-				<div>
-					<div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">😊
-						감정 태그 (다중 선택 가능)</div>
-					<div class="tag-grid" id="tagGrid">
-						<c:forEach var="tag" items="${allTags}">
-							<input type="checkbox" class="tag-cb" name="tagIds"
-								id="tag_${tag.tagId}" value="${tag.tagId}">
-							<label class="tag-label" for="tag_${tag.tagId}">${tag.tagName}</label>
-						</c:forEach>
-					</div>
-				</div>
+  <div class="nb-content">
+    <!-- 달력 헤더 (오렌지) -->
+    <div class="cal-header">
+      <button class="cal-nav" onclick="moveMonth(-1)">‹</button>
+      <div style="text-align:center">
+        <div class="cal-month-en" id="calMonthEn"></div>
+        <div class="cal-year-sm"  id="calYearSm"></div>
+      </div>
+      <button class="cal-nav" onclick="moveMonth(1)">›</button>
+    </div>
 
-				<button type="submit" class="btn-save">저장하기</button>
-			</form>
-		</div>
-	</div>
+    <!-- 달력 그리드 (흰 배경) -->
+    <div class="cal-wrap" id="calWrap">
+      <div class="cal-dow-row">
+        <div class="cal-dow">SUN</div><div class="cal-dow">MON</div>
+        <div class="cal-dow">TUE</div><div class="cal-dow">WED</div>
+        <div class="cal-dow">THU</div><div class="cal-dow">FRI</div>
+        <div class="cal-dow">SAT</div>
+      </div>
+      <div class="cal-grid-body" id="calGrid"></div>
+    </div>
 
-	<!-- ── JavaScript ── -->
-	<script>
+    <!-- 스크롤 힌트 화살표 -->
+    <div class="scroll-hint" id="scrollHint">↓</div>
+
+    <!-- ★ 오렌지 물결 + 주간 strip 섹션 (달력과 이어짐) -->
+    <div class="orange-section">
+      <!-- 달력 흰 배경 → 오렌지 물결로 전환: 위로 솟아오르는 형태 -->
+      <div class="wave-top">
+        <svg viewBox="0 0 900 60" xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="none" height="60" width="100%">
+          <!-- 흰 배경 위에서 오렌지가 위로 물결치며 올라옴 -->
+          <path d="M0,60 L0,35 C100,10 200,55 300,30 C400,5 500,50 600,25 C700,0 800,45 900,20 L900,60 Z"
+                fill="#f0a028"/>
+        </svg>
+      </div>
+
+      <!-- 주간 날짜 strip -->
+      <div class="week-strip">
+        <div class="week-nav-row">
+          <button class="week-nav-btn" onclick="prevWeek()">‹</button>
+          <span class="week-nav-lbl" id="weekLbl"></span>
+          <button class="week-nav-btn" onclick="nextWeek()">›</button>
+        </div>
+        <div class="week-days-row" id="weekDays"></div>
+      </div>
+
+      <div class="dated-section">
+        <div class="dated-header-row">
+          <div class="dated-heading" id="datedHeading"></div>
+          <div class="dated-count-badge" id="datedCountBadge" style="display:none"></div>
+        </div>
+        <div class="dated-list-inner" id="datedItems"></div>
+
+        <div class="monthly-summary-bar">
+          <div class="summary-item">
+            <div class="summary-lbl">&#51060;&#45804; &#44288;&#46988;</div>
+            <div class="summary-val" id="sumCount">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-lbl">&#54217;&#44512; &#48324;&#51216;</div>
+            <div class="summary-val" id="sumStar">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-lbl">&#52509; &#54000;&#53011;</div>
+            <div class="summary-val" id="sumTicket">-</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.orange-section -->
+
+  </div><!-- /.nb-content -->
+  </div><!-- /.notebook-body -->
+
+</div><!-- /.page-wrap -->
+</div><!-- /.book-outer -->
+
+
+<!-- ══ 하단 전체 기록 ══ -->
+<div style="max-width:min(1440px,calc(100vw - 40px));margin:0 auto;padding:0 0 20px;">
+  <div class="all-records-section">
+    <div class="all-records-header">
+      <div class="all-records-title">🎞 전체 관람 기록</div>
+      <select class="sort-sel" onchange="changeSort(this.value)">
+        <option value="latest" ${selectedSort eq 'latest' ? 'selected' : ''}>최신순</option>
+        <option value="oldest" ${selectedSort eq 'oldest' ? 'selected' : ''}>오래된순</option>
+        <option value="star"   ${selectedSort eq 'star'   ? 'selected' : ''}>별점 높은순</option>
+      </select>
+    </div>
+
+    <c:choose>
+      <c:when test="${not empty diaryList}">
+        <div class="card-grid">
+          <c:forEach var="d" items="${diaryList}">
+            <a class="diary-card"
+               href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}">
+              <div class="card-poster-wrap">
+                <c:choose>
+                  <c:when test="${not empty d.posterUrl}">
+                    <img src="${d.posterUrl}" alt="${d.movieTitle}" loading="lazy"
+                         onerror="this.parentNode.innerHTML='<div class=card-ph>🎬</div>'">
+                  </c:when>
+                  <c:otherwise><div class="card-ph">🎬</div></c:otherwise>
+                </c:choose>
+              </div>
+              <div class="card-body">
+                <div class="card-title">${d.movieTitle}</div>
+                <div class="card-dt">
+                  <fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/>
+                </div>
+                <c:if test="${d.starRating > 0}">
+                  <div class="card-star">⭐ <fmt:formatNumber value="${d.starRating}" maxFractionDigits="1"/></div>
+                </c:if>
+                <div class="card-tags">
+                  <c:forEach var="tag" items="${d.tagList}" end="2">
+                    <span class="card-tag2">${tag}</span>
+                  </c:forEach>
+                  <c:if test="${fn:length(d.tagList) > 3}">
+                    <span class="card-tag2">+${fn:length(d.tagList)-3}</span>
+                  </c:if>
+                </div>
+              </div>
+            </a>
+          </c:forEach>
+        </div>
+      </c:when>
+      <c:otherwise>
+        <div class="empty-msg">
+          🎬 아직 기록된 영화가 없어요!<br>
+          영화를 예매하면 자동으로 기록됩니다.
+        </div>
+      </c:otherwise>
+    </c:choose>
+  </div>
+</div>
+
+<!-- ══ 푸터 (피그마: 오렌지 물결 푸터) ══ -->
+<div class="footer-wave-wrap">
+  <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg"
+       preserveAspectRatio="none" height="80" width="100%"
+       style="background:#faf6ee;">
+    <path d="M0,80 L0,50 C200,80 400,20 600,45 C800,70 1000,15 1200,40 C1300,52 1380,60 1440,50 L1440,80 Z"
+          fill="#f0a028"/>
+  </svg>
+  <div class="footer-content">
+    <div class="footer-contact">
+      <div class="footer-contact-lbl">문의 시간 &gt;</div>
+      <div class="footer-contact-num">010-xxxx-xxxx</div>
+      <div class="footer-contact-time">월 - 금 10:00 - 18:00<br>(주말/공휴일 휴무)</div>
+    </div>
+    <div class="footer-links">
+      <a href="#">회사소개</a>
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">제휴문의</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 태그/별점 모달 ══ -->
+<div class="modal-bg" id="tagModal">
+  <div class="modal-box">
+    <button class="btn-x" onclick="closeModal()">×</button>
+    <div class="modal-ttl">감정 태그 & 별점 수정</div>
+    <form action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post" class="modal-form">
+      <input type="hidden" name="diaryId" id="mDiaryId">
+      <div>
+        <div class="modal-lbl">⭐ 별점</div>
+        <div class="star-btns" id="starBtns"></div>
+        <input type="hidden" name="starRating" id="starInput" value="0">
+      </div>
+      <div>
+        <div class="modal-lbl">😊 감정 태그 (다중 선택)</div>
+        <div class="tag-grid-m">
+          <c:forEach var="tag" items="${allTags}">
+            <input type="checkbox" class="tag-cb" name="tagIds"
+                   id="tc_${tag.tagId}" value="${tag.tagId}">
+            <label class="tag-lbl" for="tc_${tag.tagId}">${tag.tagName}</label>
+          </c:forEach>
+        </div>
+      </div>
+      <button type="submit" class="btn-save">저장하기</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══ JavaScript ══ -->
+<script>
 const CTX = '${pageContext.request.contextPath}';
+const MONTHS_EN = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE',
+                   'JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+const MONTHS_S  = ['JAN','FEB','MAR','APR','MAY','JUN',
+                   'JUL','AUG','SEP','OCT','NOV','DEC'];
+const DOW_FULL = ['S','M','T','W','T','F','S'];
 
-// ── 커버 애니메이션 스킵 처리 ─────────────────────────────
-(function() {
-  if (sessionStorage.getItem('diaryVisited')) {
-    document.getElementById('cover-overlay').classList.add('skip');
+/* ── 커버 ──────────────────────────────── */
+document.getElementById('coverYear').textContent = new Date().getFullYear();
+(function(){
+  if(sessionStorage.getItem('dv')){
+    document.getElementById('cover-overlay').style.display='none';
   } else {
-    sessionStorage.setItem('diaryVisited', '1');
-    // 2.5초 후 완전 제거
-    setTimeout(() => {
+    sessionStorage.setItem('dv','1');
+    setTimeout(()=>{
       const el = document.getElementById('cover-overlay');
-      if (el) el.remove();
-    }, 3100);
+      el.classList.add('hidden');
+      setTimeout(()=>el.remove(), 800);
+    }, 3400);
   }
 })();
 
-// ── 달력 상태 ─────────────────────────────────────────────
-let currentYear  = new Date().getFullYear();
-let currentMonth = new Date().getMonth() + 1; // 1-based
+/* ── 스프링 링 ─────────────────────────── */
+(function(){
+  const col = document.getElementById('springCol');
+  function fillRings(){
+    col.innerHTML='';
+    const h = col.offsetHeight || 800;
+    const count = Math.max(12, Math.ceil(h / 26));
+    for(let i=0;i<count;i++){
+      const r=document.createElement('div');
+      r.className='ring'; col.appendChild(r);
+    }
+  }
+  fillRings();
+  new ResizeObserver(fillRings).observe(col);
+})();
 
-// ── 달력 이동 ─────────────────────────────────────────────
-function moveMonth(delta) {
-  currentMonth += delta;
-  if (currentMonth < 1)  { currentMonth = 12; currentYear--; }
-  if (currentMonth > 12) { currentMonth = 1;  currentYear++; }
-  loadCalendar(currentYear, currentMonth);
+/* ── 상태 ──────────────────────────────── */
+const today = new Date();
+let curY = today.getFullYear();
+let curM = today.getMonth()+1;
+let selD = today.getDate();
+let weekOff = 0;
+let dayMap  = {};
+
+/* ── 월 이동 ──────────────────────────── */
+function moveMonth(d){
+  curM+=d;
+  if(curM<1){curM=12;curY--;} if(curM>12){curM=1;curY++;}
+  selD=1; weekOff=0; loadCal(curY,curM);
 }
 
-// ── 달력 AJAX 로드 ────────────────────────────────────────
-function loadCalendar(year, month) {
-  document.getElementById('calTitle').textContent = year + '년 ' + month + '월';
-  fetch(CTX + '/diary/calendar.do?year=' + year + '&month=' + month)
-    .then(r => r.json())
-    .then(data => renderCalendar(year, month, data))
-    .catch(() => renderCalendar(year, month, []));
+/* ── 달력 로드 ────────────────────────── */
+function loadCal(y,m){
+  document.getElementById('calMonthEn').textContent = MONTHS_EN[m-1];
+  document.getElementById('calYearSm').textContent  = y;
+  fetch(CTX+'/diary/calendar.do?year='+y+'&month='+m)
+    .then(r=>r.json())
+    .then(data=>renderCal(y,m,data))
+    .catch(()=>renderCal(y,m,[]));
 }
 
-// ── 달력 렌더링 ───────────────────────────────────────────
-function renderCalendar(year, month, diaryData) {
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  // 요일 헤더
-  ['일','월','화','수','목','금','토'].forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'cal-day-header';
-    h.textContent = d;
-    grid.appendChild(h);
-  });
-
-  // diaryData를 날짜별로 그룹핑
-  const dayMap = {};
-  (diaryData || []).forEach(d => {
-    // watchDate: "2026-05-03" 형태 가정
-    const day = String(d.watchDate).substring(8, 10).replace(/^0/, '');
-    if (!dayMap[day]) dayMap[day] = [];
+/* ── 달력 렌더 ────────────────────────── */
+function renderCal(y,m,data){
+  dayMap={};
+  (data||[]).forEach(d=>{
+    const day = +String(d.watchDate).substring(8,10);
+    if(!dayMap[day]) dayMap[day]=[];
     dayMap[day].push(d);
   });
+  updateMonthlySummary(data||[]);
 
-  const firstDay = new Date(year, month - 1, 1).getDay(); // 0=일
-  const lastDate = new Date(year, month, 0).getDate();
-  const today = new Date();
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML='';
 
-  // 이전 달 빈칸
-  for (let i = 0; i < firstDay; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-cell other-month';
-    grid.appendChild(cell);
+  const firstDow = new Date(y,m-1,1).getDay();
+  const lastDate = new Date(y,m,0).getDate();
+
+  for(let i=0;i<firstDow;i++){
+    const c=document.createElement('div');
+    c.className='cal-cell other-month';
+    grid.appendChild(c);
   }
 
-  // 날짜 셀
-  for (let day = 1; day <= lastDate; day++) {
-    const cell = document.createElement('div');
-    const dow = (firstDay + day - 1) % 7;
-    let cls = 'cal-cell';
-    if (dow === 0) cls += ' sunday';
-    if (dow === 6) cls += ' saturday';
-    if (year === today.getFullYear() &&
-        month === today.getMonth() + 1 &&
-        day === today.getDate()) cls += ' today';
-    cell.className = cls;
+  for(let day=1;day<=lastDate;day++){
+    const dow=(firstDow+day-1)%7;
+    const cell=document.createElement('div');
+    let cls='cal-cell';
+    if(dow===0) cls+=' sun';
+    if(dow===6) cls+=' sat';
+    if(y===today.getFullYear()&&m===today.getMonth()+1&&day===today.getDate()) cls+=' today';
+    if(day===selD) cls+=' selected';
+    cell.className=cls;
 
-    const dateEl = document.createElement('div');
-    dateEl.className = 'cal-date';
-    dateEl.textContent = day;
-    cell.appendChild(dateEl);
+    const dn=document.createElement('div');
+    dn.className='cal-date-num'; dn.textContent=day;
+    cell.appendChild(dn);
 
-    // 해당 날짜 다이어리 티켓
-    if (dayMap[String(day)]) {
-      const wrap = document.createElement('div');
-      wrap.className = 'ticket-mini-wrap';
-      const entries = dayMap[String(day)];
-      entries.slice(0, 3).forEach((d, idx) => {
-        const t = document.createElement('span');
-        t.className = 'ticket-mini';
-        t.textContent = '🎟 ' + (d.movieTitle || '');
-        t.onclick = (e) => { e.stopPropagation(); location.href = CTX + '/diary/detail.do?diaryId=' + d.diaryId; };
+    const entries=dayMap[day];
+    if(entries&&entries.length){
+      const wrap=document.createElement('div');
+      wrap.className='cell-tickets';
+      entries.slice(0,3).forEach(e=>{
+        const t=document.createElement('div');
+        t.className='cell-ticket';
+        if(e.posterUrl){
+          const img=document.createElement('img');
+          img.className='cell-ticket-img'; img.src=e.posterUrl;
+          img.onerror=function(){this.style.display='none';};
+          t.appendChild(img);
+        }
+        const sp=document.createElement('span');
+        sp.className='cell-ticket-title'; sp.textContent=e.movieTitle||'';
+        t.appendChild(sp);
+        t.onclick=ev=>{ev.stopPropagation();location.href=CTX+'/diary/detail.do?diaryId='+e.diaryId;};
         wrap.appendChild(t);
       });
-      if (entries.length > 3) {
-        const more = document.createElement('span');
-        more.className = 'ticket-mini-more';
-        more.textContent = '+' + (entries.length - 3) + '편 더';
+      if(entries.length>3){
+        const more=document.createElement('div');
+        more.className='cell-more'; more.textContent='+'+(entries.length-3)+'편';
         wrap.appendChild(more);
       }
       cell.appendChild(wrap);
     }
 
+    cell.addEventListener('click',()=>selectDay(day));
     grid.appendChild(cell);
   }
+
+  const def=(y===today.getFullYear()&&m===today.getMonth()+1)?today.getDate():1;
+  if(weekOff===0) selD=def;
+  renderWeek(); renderDated(); renderPosters();
 }
 
-// ── 정렬 변경 ─────────────────────────────────────────────
-function changeSort(val) {
-  const url = new URL(location.href);
-  url.searchParams.set('sort', val);
-  location.href = url.toString();
-}
-
-// ── 태그 수정 모달 ────────────────────────────────────────
-function openTagModal(diaryId, currentTags, currentStar) {
-  document.getElementById('modalDiaryId').value = diaryId;
-  document.getElementById('starRatingInput').value = currentStar || 0;
-
-  // 별점 UI 렌더링
-  renderStarUI(parseFloat(currentStar) || 0);
-
-  // 현재 태그 체크박스 초기화
-  document.querySelectorAll('.tag-cb').forEach(cb => {
-    cb.checked = currentTags && currentTags.includes(cb.nextElementSibling.textContent.trim());
+/* ── 날짜 선택 ────────────────────────── */
+function selectDay(day){
+  selD=day; weekOff=0;
+  document.querySelectorAll('.cal-cell:not(.other-month)').forEach(c=>{
+    const dn=c.querySelector('.cal-date-num');
+    if(!dn) return;
+    const d=parseInt(dn.textContent);
+    c.classList.toggle('selected',d===day);
   });
+  renderWeek(); renderDated(); renderPosters();
+}
 
+/* ── 주간 strip ───────────────────────── */
+function getWeekDates(){
+  const anc=new Date(curY,curM-1,selD+weekOff*7);
+  const sun=new Date(anc); sun.setDate(anc.getDate()-anc.getDay());
+  return Array.from({length:7},(_,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);return d;});
+}
+function prevWeek(){weekOff--;renderWeek();renderDated();}
+function nextWeek(){weekOff++;renderWeek();renderDated();}
+
+function renderWeek(){
+  const days=getWeekDates();
+  const f=days[0],l=days[6];
+  const lbl=f.getMonth()===l.getMonth()
+    ?MONTHS_S[f.getMonth()]+' '+f.getFullYear()
+    :MONTHS_S[f.getMonth()]+' ~ '+MONTHS_S[l.getMonth()]+' '+l.getFullYear();
+  document.getElementById('weekLbl').textContent=lbl;
+
+  const con=document.getElementById('weekDays');
+  con.innerHTML='';
+  days.forEach((d,i)=>{
+    const isCur=d.getFullYear()===curY&&d.getMonth()+1===curM;
+    const dn=d.getDate();
+    const hasDot=isCur&&!!dayMap[dn];
+    const isSel=isCur&&dn===selD&&weekOff===0;
+
+    const col=document.createElement('div'); col.className='week-day-col';
+    const lb=document.createElement('div'); lb.className='week-day-lbl'; lb.textContent=DOW_FULL[i];
+    const num=document.createElement('div');
+    num.className='week-day-num'+(isSel?' sel':'')+((!isCur)?' other':'');
+    num.textContent=dn;
+    if(isCur) num.onclick=()=>{weekOff=0;selectDay(dn);};
+    const dot=document.createElement('div'); dot.className='week-dot'+(hasDot?'':' none');
+    col.appendChild(lb); col.appendChild(num); col.appendChild(dot);
+    con.appendChild(col);
+  });
+}
+
+/* ── 날짜별 기록 렌더 ─────────────────── */
+function renderDated(){
+  const heading = document.getElementById('datedHeading');
+  const badge   = document.getElementById('datedCountBadge');
+  const items   = document.getElementById('datedItems');
+
+  heading.textContent = curM+'월 '+selD+'일 관람 기록';
+  const entries = dayMap[selD]||[];
+
+  if(!entries.length){
+    badge.style.display='none';
+    items.innerHTML =
+      '<div class="empty-state">'+
+        '<div class="empty-icon">🍿</div>'+
+        '<div class="empty-title">예매한 내역이 없어요</div>'+
+        '<div class="empty-sub">당신의 팝콘을 만들어주세요!</div>'+
+      '</div>';
+    return;
+  }
+
+  badge.style.display='inline-block';
+  badge.textContent = '총 '+entries.length+'편 · '+entries.length+'장';
+
+  items.innerHTML = entries.map(e=>{
+    const dateStr = e.watchDate ? String(e.watchDate).substring(0,10).replace(/-/g,'.') : '';
+    const freshHtml = e.freshYn
+      ? '<div class="fresh-badge'+(e.freshYn==='Y'?'':' bad')+'">'+(e.freshYn==='Y'?'★ 신선':'★ 비신선')+'</div>'
+      : '';
+    const posterHtml = e.posterUrl
+      ? '<img class="ticket-poster" src="'+e.posterUrl+'" onerror="this.style.display=\'none\'">'
+      : '<div class="ticket-poster-ph">🎬</div>';
+    const genreHtml = e.genre
+      ? '<span class="ticket-genre-badge">'+e.genre+'</span><br>'
+      : '';
+    const tagsHtml = (e.tagList&&e.tagList.length)
+      ? '<div class="ticket-tags">'+e.tagList.map(t=>'<span class="ticket-tag">'+t+'</span>').join('')+'</div>'
+      : '';
+    const actionsHtml =
+      '<div class="ticket-actions">'+
+        '<a class="ticket-btn" href="'+CTX+'/diary/detail.do?diaryId='+e.diaryId+'">🎞 기록</a>'+
+        '<a class="ticket-btn" href="'+CTX+'/movie/detail.do?movieId='+(e.movieId||'')+'" onclick="event.stopPropagation()">🍿 팝미인진</a>'+
+      '</div>';
+
+    return '<a class="ticket-card" href="'+CTX+'/diary/detail.do?diaryId='+e.diaryId+'">'+
+      posterHtml+
+      '<div class="ticket-info">'+
+        '<div class="ticket-title">'+(e.movieTitle||'')+'</div>'+
+        genreHtml+
+        '<div class="ticket-meta">'+dateStr+(e.theaterName?' · '+e.theaterName:'')+(e.seatInfo?' · 좌석 '+e.seatInfo:'')+'</div>'+
+        tagsHtml+
+        actionsHtml+
+      '</div>'+
+      freshHtml+
+      '<div class="ticket-date-side">'+dateStr+'</div>'+
+    '</a>';
+  }).join('');
+}
+
+/* ── 포스터 포토카드 (왼쪽 페이지) ───── */
+function renderPosters(){
+  const stack = document.getElementById('photocardStack');
+  const lbl   = document.getElementById('posterDateLbl');
+  if(!stack) return;
+  lbl.textContent = curM+'월 '+selD+'일';
+  const entries = dayMap[selD]||[];
+  stack.innerHTML='';
+  if(!entries.length){
+    stack.innerHTML='<div class="photocard-ph">🎬</div>';
+    return;
+  }
+  entries.slice(0,3).forEach(e=>{
+    if(e.posterUrl){
+      const img=document.createElement('img');
+      img.className='photocard'; img.src=e.posterUrl; img.alt=e.movieTitle||'';
+      img.onerror=function(){this.style.display='none';};
+      stack.appendChild(img);
+    } else {
+      const ph=document.createElement('div');
+      ph.className='photocard';
+      ph.style.cssText='background:#e8e2da;display:flex;align-items:center;justify-content:center;font-size:32px;';
+      ph.textContent='🎬'; stack.appendChild(ph);
+    }
+  });
+}
+
+/* ── 이달 요약 ────────────────────────── */
+function updateMonthlySummary(data){
+  const cnt = data.length;
+  const stars = data.filter(d=>d.starRating>0).map(d=>d.starRating);
+  const avg = stars.length ? (stars.reduce((a,b)=>a+b,0)/stars.length).toFixed(1) : null;
+
+  // 사이드바
+  document.getElementById('mCount').textContent  = cnt ? cnt+'편' : '-';
+  document.getElementById('mStar').textContent   = avg ? avg+'점' : '-';
+  document.getElementById('mTicket').textContent = cnt ? cnt+'장' : '-';
+
+  // 하단 요약 바
+  document.getElementById('sumCount').textContent  = cnt ? cnt+'편' : '-';
+  document.getElementById('sumTicket').textContent = cnt ? cnt+'장' : '-';
+
+  // 별점은 ★로 표시
+  if(avg){
+    const full = Math.round(parseFloat(avg));
+    document.getElementById('sumStar').textContent = '★'.repeat(Math.min(full,5));
+  } else {
+    document.getElementById('sumStar').textContent = '-';
+  }
+}
+
+/* ── 정렬 ──────────────────────────────── */
+function changeSort(v){
+  const url=new URL(location.href);
+  url.searchParams.set('sort',v);
+  location.href=url.toString();
+}
+
+/* ── 모달 ──────────────────────────────── */
+function openTagModal(id,tags,star){
+  document.getElementById('mDiaryId').value=id;
+  document.getElementById('starInput').value=star||0;
+  renderStarBtns(parseFloat(star)||0);
+  document.querySelectorAll('.tag-cb').forEach(cb=>{
+    cb.checked=tags&&tags.includes(cb.nextElementSibling.textContent.trim());
+  });
   document.getElementById('tagModal').classList.add('open');
 }
-function closeModal() {
-  document.getElementById('tagModal').classList.remove('open');
-}
-
-// ── 별점 UI (0.5 단위, 10단계) ───────────────────────────
-function renderStarUI(selectedVal) {
-  const row = document.getElementById('starRow');
-  row.innerHTML = '';
-  for (let i = 0.5; i <= 5.0; i += 0.5) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:22px;padding:0 2px;';
-    const isFull = (i % 1 === 0);
-    btn.textContent = i <= selectedVal ? (isFull ? '⭐' : '✨') : '☆';
-    btn.title = i + '점';
-    btn.dataset.val = i;
-    btn.onclick = function() {
-      document.getElementById('starRatingInput').value = this.dataset.val;
-      renderStarUI(parseFloat(this.dataset.val));
-    };
+function closeModal(){document.getElementById('tagModal').classList.remove('open');}
+function renderStarBtns(val){
+  const row=document.getElementById('starBtns');
+  row.innerHTML='';
+  for(let i=0.5;i<=5;i+=0.5){
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.style.cssText='background:none;border:none;cursor:pointer;font-size:20px;padding:0 2px;';
+    btn.textContent=i<=val?(i%1===0?'⭐':'✨'):'☆';
+    btn.dataset.v=i;
+    btn.onclick=function(){document.getElementById('starInput').value=this.dataset.v;renderStarBtns(+this.dataset.v);};
     row.appendChild(btn);
-    // 0.5 단위 구분 (짝수 i = 정수)
-    if (isFull) {
-      const sep = document.createElement('span');
-      sep.style.cssText = 'width:4px;display:inline-block;';
-      row.appendChild(sep);
-    }
+    if(i%1===0){const sp=document.createElement('span');sp.style.width='2px';sp.style.display='inline-block';row.appendChild(sp);}
   }
-  const valDisplay = document.createElement('span');
-  valDisplay.className = 'star-val-display';
-  valDisplay.textContent = selectedVal > 0 ? selectedVal + '점' : '미선택';
-  row.appendChild(valDisplay);
+  const disp=document.createElement('span');
+  disp.className='star-disp'; disp.textContent=val>0?val+'점':'미선택';
+  row.appendChild(disp);
 }
+document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-// ── 모달 외부 클릭 닫기 ──────────────────────────────────
-document.getElementById('tagModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+/* ══════════════════════════════════════════════════
+   스크롤 연동 — 달력 축소
+   ★ 수정: window.scrollY 기준, sticky 없음 → 맨 위로 튀는 현상 제거
+══════════════════════════════════════════════════ */
+(function(){
+  const calWrap = document.getElementById('calWrap');
+  const hint    = document.getElementById('scrollHint');
+  let collapsed = false;
 
-// ── 초기 달력 로드 ───────────────────────────────────────
-loadCalendar(currentYear, currentMonth);
+  window.addEventListener('scroll', ()=>{
+    const scrollY = window.scrollY || window.pageYOffset;
+    if(!collapsed && scrollY > 120){
+      calWrap.classList.add('collapsed');
+      if(hint) hint.style.display = 'none';
+      collapsed = true;
+    } else if(collapsed && scrollY < 60){
+      calWrap.classList.remove('collapsed');
+      if(hint) hint.style.display = 'block';
+      collapsed = false;
+    }
+  }, {passive: true});
+})();
+
+/* ── 초기 로드 ────────────────────────── */
+loadCal(curY,curM);
 </script>
-
 </body>
 </html>
