@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import admin.dto.AdminDashboardDTO;
+import admin.dto.AdminMemberDTO;
 import admin.dto.AdminMovieDTO;
 import admin.dto.AdminScheduleDTO;
 import admin.dto.AdminScreenDTO;
@@ -43,6 +44,57 @@ public class AdminDAO {
         }
 
         return list;
+    }
+
+    public List<AdminMemberDTO> selectMemberList(Connection conn, String keyword) throws SQLException {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT MEMBER_ID, USER_ID, NAME, EMAIL, ROLE, IS_USE, SOCIAL_TYPE, CREATED_AT ")
+           .append("FROM MEMBER ");
+
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        if (hasKeyword) {
+            sql.append("WHERE LOWER(USER_ID) LIKE ? ")
+               .append("OR LOWER(NAME) LIKE ? ")
+               .append("OR LOWER(EMAIL) LIKE ? ");
+        }
+
+        sql.append("ORDER BY CASE WHEN ROLE = 'A' THEN 0 ELSE 1 END, MEMBER_ID DESC");
+
+        List<AdminMemberDTO> list = new ArrayList<>();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            if (hasKeyword) {
+                String searchValue = "%" + keyword.trim().toLowerCase() + "%";
+                pstmt.setString(1, searchValue);
+                pstmt.setString(2, searchValue);
+                pstmt.setString(3, searchValue);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapMember(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public int updateMemberRoleToAdmin(Connection conn, int memberId) throws SQLException {
+        String sql = "UPDATE MEMBER "
+                + "SET ROLE = 'A' "
+                + "WHERE MEMBER_ID = ? "
+                + "AND IS_USE = 'Y' "
+                + "AND (ROLE IS NULL OR ROLE <> 'A')";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, memberId);
+            return pstmt.executeUpdate();
+        }
+    }
+
+    public boolean existsActiveMember(Connection conn, int memberId) throws SQLException {
+        return exists(conn, "SELECT COUNT(*) FROM MEMBER WHERE MEMBER_ID = ? AND IS_USE = 'Y'", memberId);
     }
 
     public List<AdminScreenDTO> selectScreenOptions(Connection conn) throws SQLException {
@@ -259,6 +311,19 @@ public class AdminDAO {
         dto.setLocation(rs.getString("LOCATION"));
         dto.setScreenName(rs.getString("SCREEN_NAME"));
         dto.setSeatCount(rs.getInt("SEAT_COUNT"));
+        return dto;
+    }
+
+    private AdminMemberDTO mapMember(ResultSet rs) throws SQLException {
+        AdminMemberDTO dto = new AdminMemberDTO();
+        dto.setMemberId(rs.getInt("MEMBER_ID"));
+        dto.setUserId(rs.getString("USER_ID"));
+        dto.setName(rs.getString("NAME"));
+        dto.setEmail(rs.getString("EMAIL"));
+        dto.setRole(rs.getString("ROLE"));
+        dto.setIsUse(rs.getString("IS_USE"));
+        dto.setSocialType(rs.getString("SOCIAL_TYPE"));
+        dto.setCreatedAt(rs.getTimestamp("CREATED_AT"));
         return dto;
     }
 

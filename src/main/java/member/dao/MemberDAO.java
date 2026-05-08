@@ -150,18 +150,6 @@ public class MemberDAO {
         }
     }
 
-    public int updateRoleToAdmin(Connection conn, int memberId) throws SQLException {
-        String sql = "UPDATE MEMBER "
-                + "SET ROLE = 'A' "
-                + "WHERE MEMBER_ID = ? "
-                + "AND IS_USE = 'Y'";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, memberId);
-            return pstmt.executeUpdate();
-        }
-    }
-
     public int deactivateMember(Connection conn, int memberId) throws SQLException {
         String sql = "UPDATE MEMBER "
                 + "SET IS_USE = 'N' "

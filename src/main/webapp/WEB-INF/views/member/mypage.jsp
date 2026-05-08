@@ -249,7 +249,6 @@
         margin-top: 20px;
     }
 
-    .admin-role-btn,
     .admin-link-btn {
         width: 100%;
         height: 40px;
@@ -257,12 +256,6 @@
         font-size: 13px;
         font-weight: 900;
         cursor: pointer;
-    }
-
-    .admin-role-btn {
-        border: none;
-        background: #111;
-        color: #fff;
     }
 
     .admin-link-btn {
@@ -392,19 +385,11 @@
                 		</div>
 	                </div>
 
-                    <div class="admin-role-form">
-                        <c:choose>
-                            <c:when test="${member.admin}">
-                                <a class="admin-link-btn" href="${pageContext.request.contextPath}/admin/main.do">관리자 페이지로 이동</a>
-                            </c:when>
-                            <c:otherwise>
-                                <form action="${pageContext.request.contextPath}/member/adminRole.do" method="post"
-                                      onsubmit="return confirm('현재 계정을 관리자 권한으로 전환하시겠습니까?');">
-                                    <button class="admin-role-btn" type="submit">관리자 역할로 전환</button>
-                                </form>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+                    <c:if test="${member.admin}">
+                        <div class="admin-role-form">
+                            <a class="admin-link-btn" href="${pageContext.request.contextPath}/admin/main.do">관리자 페이지로 이동</a>
+                        </div>
+                    </c:if>
             </aside>
 
             <form class="form-panel" action="${pageContext.request.contextPath}/member/update.do" method="post">

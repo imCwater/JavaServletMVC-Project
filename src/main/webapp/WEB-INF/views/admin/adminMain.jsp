@@ -163,6 +163,7 @@
         </a>
         <nav class="nav">
             <a href="${ctx}/admin/main.do">관리자 홈</a>
+            <a href="${ctx}/admin/memberList.do">회원 관리</a>
             <a href="${ctx}/admin/scheduleList.do">상영 관리</a>
             <a href="${ctx}/main.do">사용자 메인</a>
             <a href="${ctx}/logout.do">로그아웃</a>
@@ -189,6 +190,7 @@
             <h1>관리자 홈</h1>
             <div class="quick-actions">
                 <a class="button primary" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
+                <a class="button" href="${ctx}/admin/memberList.do">회원 관리</a>
                 <a class="button" href="${ctx}/admin/scheduleList.do">상영 목록</a>
             </div>
         </div>

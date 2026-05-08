@@ -7,6 +7,7 @@ import java.util.List;
 
 import admin.dao.AdminDAO;
 import admin.dto.AdminDashboardDTO;
+import admin.dto.AdminMemberDTO;
 import admin.dto.AdminMovieDTO;
 import admin.dto.AdminScheduleDTO;
 import admin.dto.AdminScreenDTO;
@@ -33,6 +34,30 @@ public class AdminService {
             return adminDAO.selectMovieOptions(conn);
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to load movie options.", e);
+        }
+    }
+
+    public List<AdminMemberDTO> getMemberList(String keyword) {
+        try (Connection conn = DBUtil.getConnection()) {
+            return adminDAO.selectMemberList(conn, keyword);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to load member list.", e);
+        }
+    }
+
+    public boolean promoteMemberToAdmin(int memberId) {
+        if (memberId <= 0) {
+            return false;
+        }
+
+        try (Connection conn = DBUtil.getConnection()) {
+            if (!adminDAO.existsActiveMember(conn, memberId)) {
+                return false;
+            }
+
+            return adminDAO.updateMemberRoleToAdmin(conn, memberId) == 1;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to promote member to admin.", e);
         }
     }
 

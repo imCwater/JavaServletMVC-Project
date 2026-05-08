@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>POPFLEX - 상영 관리</title>
+<title>POPFLEX - 회원 관리</title>
 <style>
     * { box-sizing: border-box; }
     body {
@@ -56,8 +57,22 @@
         margin-bottom: 22px;
     }
     h1 { margin: 0; font-size: 28px; }
+    .search-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .search-form input {
+        width: 260px;
+        height: 38px;
+        padding: 0 12px;
+        border: 1px solid #cfc5b8;
+        border-radius: 6px;
+        background: #fff;
+        font-size: 13px;
+    }
     .button,
-    .danger-button {
+    .role-button {
         height: 36px;
         padding: 0 14px;
         display: inline-flex;
@@ -74,14 +89,17 @@
         background: #fff;
         color: #111;
     }
-    .button.primary {
-        border-color: #ffad1f;
+    .button.primary,
+    .role-button {
+        border: 1px solid #ffad1f;
         background: #ffad1f;
+        color: #111;
     }
-    .danger-button {
-        border: 1px solid #c34436;
-        background: #fff;
-        color: #b23628;
+    .role-button:disabled {
+        border-color: #ded4c5;
+        background: #eee8df;
+        color: #786f65;
+        cursor: default;
     }
     .table-wrap {
         overflow-x: auto;
@@ -91,7 +109,7 @@
     }
     table {
         width: 100%;
-        min-width: 940px;
+        min-width: 980px;
         border-collapse: collapse;
     }
     th, td {
@@ -107,18 +125,31 @@
         font-weight: 900;
     }
     tr:last-child td { border-bottom: 0; }
-    .movie-title {
-        max-width: 260px;
-        font-weight: 900;
-        word-break: keep-all;
-    }
+    .member-name { font-weight: 900; }
     .muted { color: #766d62; }
-    .actions {
-        display: flex;
-        gap: 8px;
+    .badge {
+        min-width: 58px;
+        height: 26px;
+        padding: 0 9px;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
     }
-    .actions form { margin: 0; }
+    .badge.admin {
+        background: #111;
+        color: #fff;
+    }
+    .badge.user {
+        background: #f0e4d2;
+        color: #3b332b;
+    }
+    .badge.inactive {
+        background: #f4dddd;
+        color: #9c3128;
+    }
     .message {
         margin-bottom: 18px;
         padding: 12px 14px;
@@ -156,8 +187,12 @@
         .title-row {
             display: block;
         }
-        .title-row .button {
+        .search-form {
             margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .search-form input {
+            width: 100%;
         }
     }
 </style>
@@ -187,51 +222,77 @@
         </c:if>
 
         <div class="title-row">
-            <h1>상영 정보 관리</h1>
-            <a class="button primary" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
+            <h1>회원 관리</h1>
+            <form class="search-form" action="${ctx}/admin/memberList.do" method="get">
+                <input type="text" name="keyword" value="${fn:escapeXml(keyword)}" placeholder="아이디, 이름, 이메일 검색">
+                <button class="button primary" type="submit">검색</button>
+                <a class="button" href="${ctx}/admin/memberList.do">초기화</a>
+            </form>
         </div>
 
         <div class="table-wrap">
             <c:choose>
-                <c:when test="${empty schedules}">
-                    <div class="empty">등록된 상영 정보가 없습니다.</div>
+                <c:when test="${empty members}">
+                    <div class="empty">조회된 회원이 없습니다.</div>
                 </c:when>
                 <c:otherwise>
                     <table>
                         <thead>
                             <tr>
                                 <th>번호</th>
-                                <th>영화</th>
-                                <th>상영관</th>
-                                <th>시작 시간</th>
-                                <th>종료 시간</th>
-                                <th>가격</th>
-                                <th>예약</th>
+                                <th>아이디</th>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>가입 유형</th>
+                                <th>상태</th>
+                                <th>권한</th>
+                                <th>가입일</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="schedule" items="${schedules}">
+                            <c:forEach var="member" items="${members}">
                                 <tr>
-                                    <td><c:out value="${schedule.scheduleId}" /></td>
-                                    <td class="movie-title"><c:out value="${schedule.movieTitle}" /></td>
+                                    <td><c:out value="${member.memberId}" /></td>
+                                    <td><c:out value="${member.userId}" /></td>
+                                    <td class="member-name"><c:out value="${member.name}" /></td>
+                                    <td><c:out value="${member.email}" /></td>
+                                    <td><c:out value="${member.socialType}" /></td>
                                     <td>
-                                        <c:out value="${schedule.theaterName}" />
-                                        <span class="muted"><c:out value="${schedule.screenName}" /></span>
+                                        <c:choose>
+                                            <c:when test="${member.active}">
+                                                <span class="badge user">활성</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge inactive">탈퇴</span>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
-                                    <td><c:out value="${schedule.startTime}" /></td>
-                                    <td><c:out value="${schedule.endTime}" /></td>
-                                    <td><c:out value="${schedule.price}" />원</td>
-                                    <td><c:out value="${schedule.reservationCount}" />건</td>
                                     <td>
-                                        <div class="actions">
-                                            <a class="button" href="${ctx}/admin/scheduleForm.do?scheduleId=${schedule.scheduleId}">수정</a>
-                                            <form action="${ctx}/admin/scheduleDelete.do" method="post"
-                                                  onsubmit="return confirm('이 상영 정보를 삭제하시겠습니까? 예약 내역이 있으면 삭제되지 않습니다.');">
-                                                <input type="hidden" name="scheduleId" value="${schedule.scheduleId}">
-                                                <button class="danger-button" type="submit">삭제</button>
-                                            </form>
-                                        </div>
+                                        <c:choose>
+                                            <c:when test="${member.admin}">
+                                                <span class="badge admin">관리자</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge user">일반</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td class="muted"><c:out value="${member.createdAt}" /></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${member.admin or not member.active}">
+                                                <button class="role-button" type="button" disabled>권한 부여</button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <form action="${ctx}/admin/memberRoleUpdate.do" method="post"
+                                                      onsubmit="return confirm('이 회원에게 관리자 권한을 부여하시겠습니까?');">
+                                                    <input type="hidden" name="memberId" value="${member.memberId}">
+                                                    <input type="hidden" name="keyword" value="${fn:escapeXml(keyword)}">
+                                                    <button class="role-button" type="submit">권한 부여</button>
+                                                </form>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
                                 </tr>
                             </c:forEach>

@@ -14,9 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import member.dto.MemberDTO;
+import member.service.MemberService;
 
 @WebFilter("/admin/*")
 public class AdminCheckFilter implements Filter {
+
+    private final MemberService memberService = new MemberService();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -36,6 +39,16 @@ public class AdminCheckFilter implements Filter {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.do");
             return;
         }
+
+        MemberDTO refreshedMember = memberService.getMember(loginMember.getMemberId());
+        if (refreshedMember == null || !refreshedMember.isActive()) {
+            session.invalidate();
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.do");
+            return;
+        }
+
+        session.setAttribute("loginMember", refreshedMember);
+        loginMember = refreshedMember;
 
         if (!loginMember.isAdmin()) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/main.do");
