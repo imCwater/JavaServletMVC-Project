@@ -40,6 +40,7 @@ public class MyPageServlet extends HttpServlet {
 
         moveFlash(session, request, "mypageMessage");
         moveFlash(session, request, "mypageError");
+        session.setAttribute("loginMember", member);
         request.setAttribute("member", member);
         request.getRequestDispatcher("/WEB-INF/views/member/mypage.jsp")
                .forward(request, response);
