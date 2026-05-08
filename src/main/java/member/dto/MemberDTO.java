@@ -11,6 +11,8 @@ public class MemberDTO {
     private String email;
     private String role;
     private String isUse;
+    private String socialType;
+    private String socialId;
     private Timestamp createdAt;
 
     public int getMemberId() {
@@ -67,6 +69,22 @@ public class MemberDTO {
 
     public void setIsUse(String isUse) {
         this.isUse = isUse;
+    }
+
+    public String getSocialType() {
+        return socialType;
+    }
+
+    public void setSocialType(String socialType) {
+        this.socialType = socialType;
+    }
+
+    public String getSocialId() {
+        return socialId;
+    }
+
+    public void setSocialId(String socialId) {
+        this.socialId = socialId;
     }
 
     public Timestamp getCreatedAt() {
