@@ -1,12 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${stat.year}년 통계 — 필름 다이어리</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<title>나의 뱃지 - 팝플릭스</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -52,7 +50,7 @@ body {
 .page-layer-1 { position: absolute; top: 4px; left: -3px; right: -3px; bottom: -8px; background: #ede7de; border-radius: 16px; z-index: 3; }
 
 /* ── 레이아웃 ── */
-.page-wrap { display: flex; align-items: stretch; gap: 8px; position: relative; z-index: 10; min-height: 640px; }
+.page-wrap { display: flex; align-items: stretch; gap: 8px; position: relative; z-index: 10; }
 
 /* ── 사이드바 ── */
 .sidebar {
@@ -81,11 +79,6 @@ body {
 .sidebar a:hover, .sidebar a.active {
   background: #fff8ed; border-left-color: #e8a838; color: #1a1816;
 }
-.year-badge {
-  background: #f0ece4; color: #999; font-size: 11px;
-  border-radius: 9px; padding: 1px 7px; font-weight: 700;
-}
-.sidebar a.active .year-badge { background: #e8a838; color: #fff; }
 .sidebar-hr { border: none; border-top: 1px solid #ede8e0; margin: 12px 0; }
 .stat-link {
   display: flex; align-items: center; gap: 6px;
@@ -145,60 +138,99 @@ body {
 .index-tab.active { background: linear-gradient(to right, #e8a838, #d09020); color: #fff; box-shadow: 4px 2px 14px rgba(0,0,0,0.28); }
 
 /* ── 헤더 ── */
-.stat-header {
+.badge-header {
   background: #e8a838;
-  padding: 18px 28px;
-  display: flex; align-items: center; justify-content: space-between;
-  background-image: none; flex-shrink: 0;
+  padding: 20px 28px;
+  display: flex; align-items: center; gap: 12px;
+  background-image: none;
 }
-.stat-header-title { font-size: 22px; font-weight: 900; color: #fff; }
-.year-select {
-  background: rgba(255,255,255,0.25); border: none; border-radius: 8px;
-  padding: 6px 12px; font-size: 13px; font-weight: 700;
-  color: #fff; cursor: pointer; outline: none;
+.badge-header-title { font-size: 24px; font-weight: 900; color: #fff; }
+.badge-header-title span { font-size: 28px; }
+.badge-earned-count {
+  margin-left: auto;
+  background: rgba(255,255,255,0.25); color: #fff;
+  font-size: 13px; font-weight: 800;
+  border-radius: 20px; padding: 5px 14px;
 }
-.year-select option { color: #1a1816; background: #fff; }
 
-/* ── 콘텐츠 본체 ── */
-.stat-body { padding: 24px 28px 32px; display: flex; flex-direction: column; gap: 24px; }
+/* ── 콘텐츠 영역 ── */
+.badge-body { padding: 28px 28px 32px; display: flex; flex-direction: column; gap: 32px; }
 
-/* ── 요약 카드 그리드 ── */
-.stat-grid {
+/* ── 섹션 타이틀 ── */
+.section-title {
+  font-size: 14px; font-weight: 800; color: #5a534c;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px; background: #e8e2da;
+}
+
+/* ── 뱃지 그리드 ── */
+.badge-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 14px;
 }
-.stat-card {
-  background: #fafaf8;
-  border: 1px solid #e6e0d8;
-  border-radius: 14px;
-  padding: 20px 14px;
+
+/* ── 뱃지 카드 (기본 = 달성) ── */
+.badge-card {
+  background: #fff;
+  border: 1.5px solid #e8c870;
+  border-radius: 16px;
+  padding: 22px 14px 18px;
   text-align: center;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(232,168,56,0.12);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-.stat-card .icon { font-size: 28px; margin-bottom: 8px; }
-.stat-card .val { font-size: 26px; font-weight: 900; color: #e8a838; line-height: 1.1; }
-.stat-card .label { font-size: 11px; color: #aaa; margin-top: 5px; }
+.badge-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(232,168,56,0.2); }
+.badge-check { position: absolute; top: 10px; right: 12px; font-size: 13px; color: #e8a838; }
+.badge-icon { font-size: 42px; display: block; margin-bottom: 10px; line-height: 1; }
+.badge-name { font-size: 14px; font-weight: 800; margin-bottom: 3px; color: #1a1816; }
+.badge-desc { font-size: 11px; color: #aaa; margin-bottom: 8px; }
+.badge-status-done { font-size: 12px; color: #888; font-weight: 600; }
+.badge-date { font-size: 12px; font-weight: 700; color: #e8a838; margin-top: 3px; }
 
-/* ── 차트 행 ── */
-.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.chart-box {
-  background: #fafaf8;
-  border: 1px solid #e6e0d8;
-  border-radius: 14px;
-  padding: 20px;
+/* ── 뱃지 카드 (잠금) ── */
+.badge-card.locked {
+  border-color: #e2ddd8;
+  box-shadow: none;
+  filter: grayscale(55%);
+  opacity: 0.7;
+  background: #f9f7f4;
 }
-.chart-title { font-size: 13px; font-weight: 800; margin-bottom: 14px; color: #3a3835; }
+.badge-card.locked:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.badge-lock { position: absolute; top: 10px; right: 12px; font-size: 13px; color: #ccc; }
+.badge-remain { font-size: 12px; color: #bbb; font-weight: 600; margin-top: 4px; }
 
-/* ── 태그 빈도 바 ── */
-.tag-freq-list { display: flex; flex-direction: column; gap: 8px; }
-.tag-freq-row { display: flex; align-items: center; gap: 8px; }
-.tag-freq-name { width: 72px; font-size: 11px; font-weight: 600; text-align: right; flex-shrink: 0; color: #5a534c; }
-.tag-freq-bar-wrap { flex: 1; background: #ede8e0; border-radius: 4px; height: 14px; overflow: hidden; }
-.tag-freq-bar { height: 100%; background: linear-gradient(to right, #e8a838, #f0c040); border-radius: 4px; transition: width 0.6s ease; }
-.tag-freq-cnt { width: 24px; font-size: 11px; color: #aaa; text-align: right; }
-.no-data { color: #ccc; font-size: 13px; text-align: center; padding: 24px 0; }
+/* ── 진행 바 (잠금 카드) ── */
+.badge-progress-bar {
+  width: 100%; height: 4px; background: #ede8e0; border-radius: 2px; margin: 8px 0 4px;
+}
+.badge-progress-fill {
+  height: 100%; background: linear-gradient(to right, #e8a838, #f0c040);
+  border-radius: 2px;
+}
+.badge-progress-txt { font-size: 10px; color: #ccc; }
+
+/* ── 빈 상태 (달성 배지 없음) ── */
+.empty-earned {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 10px;
+  padding: 36px 20px;
+  text-align: center;
+}
+.empty-earned img { width: 80px; height: 80px; opacity: 0.85; }
+.empty-earned-title { font-size: 15px; font-weight: 700; color: #5a534c; }
+.empty-earned-sub { font-size: 12px; color: #b0a898; }
+
+/* ── 구분선 ── */
+.section-divider {
+  border: none;
+  border-top: 2px dashed #e8e2da;
+  margin: 0;
+}
 
 /* ── 푸터 ── */
 .footer-wave-wrap { position: relative; margin-top: 40px; overflow: hidden; }
@@ -226,114 +258,109 @@ body {
 
   <div class="page-wrap">
 
-    <!-- ── 사이드바 ── -->
+    <!-- 사이드바 -->
     <aside class="sidebar">
       <div class="sidebar-page-title">MY FILM DIARY</div>
       <a href="${pageContext.request.contextPath}/diary/list.do">전체 기록</a>
       <hr class="sidebar-hr">
-      <a class="stat-link" href="${pageContext.request.contextPath}/diary/stat.do"
-         style="background:#fff3dc; border: 1px solid #f0c84a;">📊 연간 통계</a>
+      <a class="stat-link" href="${pageContext.request.contextPath}/diary/stat.do">📊 연간 통계</a>
       <hr class="sidebar-hr">
-      <a class="stat-link" href="${pageContext.request.contextPath}/diary/badge.do">🏅 나의 뱃지</a>
+      <a class="stat-link" href="${pageContext.request.contextPath}/diary/badge.do"
+         style="background:#fff3dc; border: 1px solid #f0c84a;">🏅 나의 뱃지</a>
     </aside>
 
-    <!-- ── 스프링 ── -->
+    <!-- 스프링 -->
     <div class="spring-col" id="springCol"></div>
 
-    <!-- ── 노트 본문 ── -->
+    <!-- 노트 본문 -->
     <div class="notebook-body">
 
       <!-- 인덱스 탭 -->
       <div class="index-tabs">
         <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do" title="달력">📅<span>달력</span></a>
-        <a class="index-tab active" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">📊<span>통계</span></a>
-        <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">🏅<span>뱃지</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">📊<span>통계</span></a>
+        <a class="index-tab active" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">🏅<span>뱃지</span></a>
       </div>
 
       <div class="nb-content">
 
         <!-- 헤더 -->
-        <div class="stat-header">
-          <div class="stat-header-title">📊 ${stat.year}년 나의 영화 기록</div>
-          <select class="year-select"
-                  onchange="location.href='${pageContext.request.contextPath}/diary/stat.do?year='+this.value">
-            <c:forEach begin="${stat.year - 3}" end="${stat.year}" var="y">
-              <option value="${y}" ${y eq stat.year ? 'selected' : ''}>${y}년</option>
-            </c:forEach>
-          </select>
+        <div class="badge-header">
+          <div class="badge-header-title">
+            🥇 배지 <span>${earnedCount}</span>개 보유자!
+          </div>
+          <div class="badge-earned-count">${earnedCount} / 12개 달성</div>
         </div>
 
         <!-- 콘텐츠 -->
-        <div class="stat-body">
+        <div class="badge-body">
 
-          <!-- 요약 카드 -->
-          <div class="stat-grid">
-            <div class="stat-card">
-              <div class="icon">🎬</div>
-              <div class="val">${stat.totalCount}</div>
-              <div class="label">총 관람 편수</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon">⭐</div>
-              <div class="val">
-                <fmt:formatNumber value="${stat.avgStarRating}" maxFractionDigits="1"/>
-              </div>
-              <div class="label">평균 별점</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon">🎭</div>
-              <div class="val" style="font-size:16px; padding-top:4px;">
-                ${empty stat.topTheater ? '-' : stat.topTheater}
-              </div>
-              <div class="label">가장 많이 간 극장</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon">😊</div>
-              <div class="val" style="font-size:16px; padding-top:4px;">
-                <c:choose>
-                  <c:when test="${not empty stat.tagFreqList}">#${stat.tagFreqList[0].key}</c:when>
-                  <c:otherwise>-</c:otherwise>
-                </c:choose>
-              </div>
-              <div class="label">가장 많이 느낀 감정</div>
-            </div>
-          </div>
+          <!-- ── 상단: 달성한 뱃지 ── -->
+          <div>
+            <div class="section-title">획득한 뱃지</div>
 
-          <!-- 차트 행 -->
-          <div class="chart-row">
-            <!-- 월별 바 차트 -->
-            <div class="chart-box">
-              <div class="chart-title">📅 월별 관람 편수</div>
-              <canvas id="monthChart" height="180"></canvas>
-            </div>
-
-            <!-- 감정 태그 빈도 -->
-            <div class="chart-box">
-              <div class="chart-title">😊 감정 태그 TOP 10</div>
-              <c:choose>
-                <c:when test="${not empty stat.tagFreqList}">
-                  <c:set var="maxTag" value="${stat.tagFreqList[0].value}"/>
-                  <div class="tag-freq-list">
-                    <c:forEach var="entry" items="${stat.tagFreqList}" end="9">
-                      <div class="tag-freq-row">
-                        <div class="tag-freq-name">${entry.key}</div>
-                        <div class="tag-freq-bar-wrap">
-                          <div class="tag-freq-bar"
-                               style="width:${maxTag > 0 ? entry.value * 100 / maxTag : 0}%"></div>
-                        </div>
-                        <div class="tag-freq-cnt">${entry.value}</div>
+            <c:choose>
+              <c:when test="${earnedCount == 0}">
+                <!-- 빈 상태 -->
+                <div class="empty-earned">
+                  <img src="${pageContext.request.contextPath}/img/free-icon-achievements-7057479.png" alt="뱃지 없음">
+                  <div class="empty-earned-title">아직 획득한 배지가 없어요!</div>
+                  <div class="empty-earned-sub">다양한 달성을 통해 나만의 배지를 모아보세요!</div>
+                </div>
+              </c:when>
+              <c:otherwise>
+                <div class="badge-grid">
+                  <c:forEach var="b" items="${badgeList}">
+                    <c:if test="${b.earned}">
+                      <div class="badge-card">
+                        <span class="badge-check">✔</span>
+                        <span class="badge-icon">${b.icon}</span>
+                        <div class="badge-name">${b.name}</div>
+                        <div class="badge-desc">${b.desc}</div>
+                        <div class="badge-status-done">달성 완료</div>
+                        <c:if test="${not empty b.earnedDate}">
+                          <div class="badge-date">${b.earnedDate}</div>
+                        </c:if>
                       </div>
-                    </c:forEach>
+                    </c:if>
+                  </c:forEach>
+                </div>
+              </c:otherwise>
+            </c:choose>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- ── 하단: 잠긴 뱃지 ── -->
+          <div>
+            <div class="section-title">잠긴 뱃지</div>
+            <div class="badge-grid">
+              <c:forEach var="b" items="${badgeList}">
+                <c:if test="${!b.earned}">
+                  <div class="badge-card locked">
+                    <span class="badge-lock">🔒</span>
+                    <span class="badge-icon">${b.icon}</span>
+                    <div class="badge-name">${b.name}</div>
+                    <div class="badge-desc">${b.desc}</div>
+                    <div class="badge-progress-bar">
+                      <div class="badge-progress-fill"
+                           style="width:${b.target > 0 ? (b.progress * 100 / b.target) : 0}%"></div>
+                    </div>
+                    <c:choose>
+                      <c:when test="${b.target == 1}">
+                        <div class="badge-remain">아직 미달성</div>
+                      </c:when>
+                      <c:otherwise>
+                        <div class="badge-remain">${b.target - b.progress}편 남음 (${b.progress}/${b.target})</div>
+                      </c:otherwise>
+                    </c:choose>
                   </div>
-                </c:when>
-                <c:otherwise>
-                  <div class="no-data">태그 기록이 없어요!</div>
-                </c:otherwise>
-              </c:choose>
+                </c:if>
+              </c:forEach>
             </div>
           </div>
 
-        </div><!-- /.stat-body -->
+        </div><!-- /.badge-body -->
       </div><!-- /.nb-content -->
     </div><!-- /.notebook-body -->
   </div><!-- /.page-wrap -->
@@ -378,32 +405,6 @@ body {
   fillRings();
   new ResizeObserver(fillRings).observe(col);
 })();
-
-const monthly = [
-  <c:forEach var="cnt" items="${stat.monthlyCount}" varStatus="s">
-    ${cnt}${!s.last ? ',' : ''}
-  </c:forEach>
-];
-const ctx = document.getElementById('monthChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    datasets: [{
-      label: '관람 편수',
-      data: monthly,
-      backgroundColor: 'rgba(232,168,56,0.75)',
-      borderColor: '#e8a838',
-      borderWidth: 1,
-      borderRadius: 5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-  }
-});
 </script>
 </body>
 </html>

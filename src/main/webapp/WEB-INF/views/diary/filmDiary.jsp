@@ -123,7 +123,8 @@ body {
 .book-outer {
   position: relative;
   max-width: min(1440px, calc(100vw - 40px));
-  margin: 36px auto 52px;
+  /* 기본 상태: 브라우저 한 화면 안에 위아래 여백을 두고 보이게 */
+  margin: 24px auto 70px;
   padding-bottom: 20px;
 }
 
@@ -184,9 +185,13 @@ body {
   display: flex;
   align-items: stretch;
   padding: 0;
-  gap: 0;
+  gap: 8px;
   position: relative;
   z-index: 10;
+  /* 책 전체 높이 기준: 기본은 화면에 맞추고, 내용이 많으면 자동으로 늘어남 */
+  min-height: calc(100vh - 118px);
+  height: auto;
+  overflow: visible;
 }
 
 /* ══════════════════════════════════════════════════
@@ -196,13 +201,17 @@ body {
   flex: 1;
   min-width: 0;
   background: #fff;
-  border-radius: 14px 0 0 14px;
-  border: 1px solid #e6e0d8; border-right: none;
-  padding: 28px 24px 24px;
+  border-radius: 14px;
+  border: 1px solid #e6e0d8;
+  padding: 24px 24px 20px;
   position: relative;
   align-self: stretch;
+  min-height: inherit;
+  height: auto;
   box-shadow: none;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0px, transparent 27px,
@@ -263,34 +272,129 @@ body {
 
 /* ══════════════════════════════════════════════════
    스프링 바인딩 (중앙)
+   - 양쪽 페이지를 잇는 실버 금속 링 구조
 ══════════════════════════════════════════════════ */
 .spring-col {
-  width: 28px; min-width: 28px;
-  background: #fff;
-  border: none;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 8px 0; gap: 0;
-  position: relative; align-self: stretch;
-  z-index: 8;   /* 페이지(z-index:10)보다 낮음 → 페이지가 링 끝을 자연스럽게 덮어줌 */
-  overflow: visible;
+  width: 50px;
+  min-width: 50px;
+  position: relative;
+  align-self: stretch;
+  min-height: inherit;
+  height: auto;
+  z-index: 30;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 14px 0;
+  gap: 0;
+
+  /* 가운데 틈 사이로 보이는 뒤쪽 북커버/제본 골 느낌 */
+  background:
+    linear-gradient(90deg,
+      rgba(92,63,37,0.08) 0%,
+      rgba(92,63,37,0.18) 12%,
+      #b58a57 46%,
+      #8d6235 50%,
+      #b58a57 54%,
+      rgba(92,63,37,0.18) 88%,
+      rgba(92,63,37,0.08) 100%);
+  box-shadow:
+    inset 8px 0 12px rgba(255,255,255,0.55),
+    inset -8px 0 12px rgba(0,0,0,0.10);
 }
-.spring-col::before { display: none; }
-/* 링: 앞면 호만 보이는 링 (뒷면 호 완전 제거) */
+
+/* 중앙 접힘선: 두 페이지 사이가 살짝 벌어진 느낌 */
+.spring-col::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(67,43,24,0.28);
+  box-shadow:
+    -10px 0 16px rgba(255,255,255,0.38),
+    10px 0 16px rgba(0,0,0,0.14);
+  z-index: 0;
+}
+
+/* 왼쪽/오른쪽 페이지 가장자리의 홈 느낌 */
+.sidebar {
+  box-shadow:
+    inset -14px 0 20px rgba(70,45,25,0.045);
+}
+.nb-content {
+  box-shadow:
+    inset 14px 0 20px rgba(70,45,25,0.045),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+
+/*
+  링 하나 = 둥근 버튼이 아니라, 왼쪽 페이지 구멍과 오른쪽 페이지 구멍을
+  얇은 실버 금속 막대가 연결하는 구조.
+*/
 .ring {
   position: relative;
-  width: 56px; height: 22px;
-  background: #fff;
-  border-radius: 50%;
-  border: 3px solid #a0a09a;
-  border-top-color: transparent;   /* 반대편(뒷면) 호 완전 제거 */
-  border-bottom-color: #3a3835;
-  box-shadow: 0 3px 7px rgba(0,0,0,0.32);
-  margin: 6px 0; flex-shrink: 0;
+  width: 76px;
+  height: 18px;
+  margin: 7px 0;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   z-index: 2;
+  transform: translateX(0);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.22));
 }
-/* 페이지가 링 끝을 덮어주므로 별도 커버 불필요 */
-.ring::before { display: none; }
-.ring::after { display: none; }
+
+/* 금속 링의 가로 연결부 */
+.ring::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  top: 7px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom,
+    #ffffff 0%,
+    #e8e8e8 24%,
+    #9c9c9c 52%,
+    #565656 76%,
+    #d9d9d9 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.9),
+    inset 0 -1px 1px rgba(0,0,0,0.35),
+    0 1px 2px rgba(0,0,0,0.25);
+}
+
+/* 양쪽 페이지 구멍 + 살짝 파인 홈 */
+.ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 9px 9px,
+      #2f2f2f 0 3px,
+      #686868 3.2px 4.4px,
+      rgba(255,255,255,0.95) 4.6px 5.8px,
+      transparent 6px),
+    radial-gradient(circle at 67px 9px,
+      #2f2f2f 0 3px,
+      #686868 3.2px 4.4px,
+      rgba(255,255,255,0.95) 4.6px 5.8px,
+      transparent 6px),
+    radial-gradient(ellipse at 9px 9px,
+      rgba(0,0,0,0.16) 0 8px,
+      transparent 8.5px),
+    radial-gradient(ellipse at 67px 9px,
+      rgba(0,0,0,0.16) 0 8px,
+      transparent 8.5px);
+}
 
 /* ══════════════════════════════════════════════════
    노트 본문 (오른쪽 페이지)
@@ -301,6 +405,8 @@ body {
   z-index: 5;
   display: flex;
   align-items: stretch;
+  min-height: inherit;
+  height: auto;
   overflow: visible; /* 인덱스 탭이 밖으로 나오도록 */
 }
 .notebook-body::after { display: none; }
@@ -308,10 +414,14 @@ body {
 .nb-content {
   flex: 1;
   background: #fff;
-  border-radius: 0 14px 14px 0;
-  border: 1px solid #e6e0d8; border-left: none;
+  border-radius: 14px;
+  border: 1px solid #e6e0d8;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  min-height: inherit;
+  height: auto;
+  box-shadow:
+    inset 14px 0 20px rgba(70,45,25,0.045),
+    0 2px 8px rgba(0,0,0,0.04);
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0px, transparent 27px,
@@ -359,8 +469,8 @@ body {
   flex: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 16px;
-  min-height: 220px;
+  padding: 12px 16px;
+  min-height: 170px;
 }
 .poster-date-lbl {
   font-size: 11px; font-weight: 700; color: #c8bfb4;
@@ -368,21 +478,29 @@ body {
 }
 .photocard-stack {
   position: relative;
-  width: 150px; height: 210px;
+  width: 190px; height: 220px;
 }
 .photocard {
   position: absolute;
-  width: 136px; height: 196px;
-  border-radius: 8px; object-fit: cover;
+  width: 136px; height: 192px;
+  border-radius: 10px; object-fit: cover;
   border: 3px solid #fff;
   box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  cursor: pointer;
+  transform-origin: bottom center;
 }
-.photocard:nth-child(1) { transform: rotate(-5deg); left: 0; top: 0; z-index: 1; }
-.photocard:nth-child(2) { transform: rotate(-1.5deg); left: 7px; top: 5px; z-index: 2; }
-.photocard:nth-child(3) { transform: rotate(3deg); left: 12px; top: 10px; z-index: 3; }
+/* 항상 펼쳐진 팬 형태 (hover 없이도 전부 보임) */
+.photocard:nth-child(1) { transform: rotate(-12deg); left: 0;   top: 22px; z-index: 1; }
+.photocard:nth-child(2) { transform: rotate(-1deg);  left: 28px; top: 6px;  z-index: 2; }
+.photocard:nth-child(3) { transform: rotate(10deg);  left: 52px; top: 22px; z-index: 3; }
+/* 개별 카드 호버 → 유지 회전 + 위로 올라오며 확대 */
+.photocard:nth-child(1):hover { transform: rotate(-12deg) scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
+.photocard:nth-child(2):hover { transform: rotate(-1deg)  scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
+.photocard:nth-child(3):hover { transform: rotate(10deg)  scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
 .photocard-ph {
   position: absolute; left: 7px; top: 5px;
-  width: 136px; height: 196px;
+  width: 122px; height: 178px;
   border-radius: 8px;
   background: #f0ece4; border: 2px dashed #d8d0c8;
   display: flex; align-items: center; justify-content: center;
@@ -394,36 +512,47 @@ body {
 ══════════════════════════════════════════════════ */
 .cal-header {
   background: #e8a838;
-  padding: 14px 24px 12px;
+  padding: 12px 24px 10px;
   display: flex; align-items: center; justify-content: space-between;
   background-image: none;
 }
 .cal-month-en {
-  font-size: 30px; font-weight: 900; color: #fff;
+  font-size: 32px; font-weight: 900; color: #fff;
   letter-spacing: 0.08em; line-height: 1;
 }
 .cal-year-sm {
-  font-size: 13px; color: rgba(255,255,255,0.65);
-  margin-top: 4px; letter-spacing: 0.06em;
+  font-size: 15px; color: rgba(255,255,255,0.72);
+  margin-top: 5px; letter-spacing: 0.06em;
 }
 .cal-nav {
-  background: rgba(255,255,255,0.22); border: none;
-  border-radius: 50%; width: 38px; height: 38px;
-  color: #fff; font-size: 22px; font-weight: 700;
+  background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 50%; width: 36px; height: 36px;
+  color: #fff; font-size: 0;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s; line-height: 1;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
 }
-.cal-nav:hover { background: rgba(255,255,255,0.38); }
+.cal-nav::before {
+  content: '';
+  display: block;
+  width: 9px; height: 9px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+}
+.cal-nav:first-child::before { transform: rotate(-135deg) translate(-1px, 1px); }
+.cal-nav:last-child::before  { transform: rotate(45deg) translate(-1px, 1px); }
+.cal-nav:hover { background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.6); }
 
 /* ══════════════════════════════════════════════════
    달력 그리드
 ══════════════════════════════════════════════════ */
 .cal-wrap {
-  padding: 10px 16px 12px;
+  padding: 10px 20px 12px;
   background: #fff;
   background-image: none;
   max-height: 600px;
   overflow: hidden;
+  flex-shrink: 0;
   transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1),
               opacity 0.35s ease,
               padding 0.35s ease;
@@ -436,24 +565,24 @@ body {
 }
 .cal-dow-row {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .cal-dow {
-  text-align: center; font-size: 11px; font-weight: 700;
-  color: #b0a898; padding: 4px 0;
+  text-align: center; font-size: 13px; font-weight: 700;
+  color: #b0a898; padding: 6px 0;
 }
 .cal-dow:first-child { color: #e05050; }
 .cal-dow:last-child  { color: #4a82d8; }
 
 .cal-grid-body {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  gap: 4px;
 }
 .cal-cell {
-  min-height: 60px;
+  min-height: 54px;
   background: #fafaf8;
   border: 1px solid #eeebe6; border-radius: 8px;
-  padding: 5px 4px 3px;
+  padding: 7px 6px 4px;
   cursor: pointer; position: relative;
   transition: background 0.12s, border-color 0.12s;
   overflow: hidden;
@@ -463,45 +592,65 @@ body {
 .cal-cell.selected    { border-color: #e8a838; border-width: 2px; background: #fff4d0; }
 .cal-cell.other-month { opacity: 0.25; pointer-events: none; background: #f8f6f2; }
 .cal-date-num {
-  font-size: 11px; font-weight: 700; color: #5a534c;
+  font-size: 14px; font-weight: 700; color: #5a534c;
   line-height: 1; margin-bottom: 3px;
 }
 .cal-cell.sun .cal-date-num { color: #e05050; }
 .cal-cell.sat .cal-date-num { color: #4a82d8; }
 .cal-cell.today .cal-date-num {
   background: #e8a838; color: #fff;
-  width: 18px; height: 18px; border-radius: 50%;
+  width: 24px; height: 24px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
 
 /* 달력 셀 안 티켓 썸네일 */
-.cell-tickets { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.cell-tickets {
+  position: relative;
+  margin-top: 4px;
+  height: 31px;
+}
 .cell-ticket {
-  display: flex; align-items: center; gap: 3px;
-  background: linear-gradient(135deg, #1e1c18, #2e2820);
-  border-radius: 4px; padding: 2px 4px;
-  cursor: pointer; position: relative;
+  display: flex; align-items: flex-start; gap: 4px;
+  background: #fdf5e4;
+  border: 1px solid #e0cfa0;
+  border-radius: 5px;
+  padding: 3px 5px 8px;
+  cursor: pointer;
+  position: absolute; left: 0; right: 0;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.cell-ticket::before {
-  content: ''; position: absolute;
-  left: 0; top: 0; bottom: 0; width: 3px;
-  background: #e8a838;
+/* 바코드 효과 */
+.cell-ticket::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 7px;
+  background: repeating-linear-gradient(
+    90deg, rgba(160,130,60,0.25) 0px, rgba(160,130,60,0.25) 2px,
+    transparent 2px, transparent 5px
+  );
 }
+/* 지폐 펼친 느낌: 완전 불투명 + 약간 회전으로 겹침 표현 */
+.cell-ticket:nth-child(1) { z-index: 3; top: 0;   left: 0;   right: 0;   transform: rotate(-0.8deg); }
+.cell-ticket:nth-child(2) { z-index: 2; top: 5px;  left: 4px;  right: -4px;  transform: rotate(0.4deg); }
+.cell-ticket:nth-child(3) { z-index: 1; top: 10px; left: 8px;  right: -8px;  transform: rotate(1.4deg); }
+.cell-ticket:nth-child(1):hover { transform: rotate(-0.8deg) translateY(-4px) scale(1.04) !important; z-index: 10 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.20); }
+.cell-ticket:nth-child(2):hover { transform: rotate(0.4deg)  translateY(-4px) scale(1.04) !important; z-index: 10 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.20); }
+.cell-ticket:nth-child(3):hover { transform: rotate(1.4deg)  translateY(-4px) scale(1.04) !important; z-index: 10 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.20); }
 .cell-ticket-img {
-  width: 16px; height: 22px;
-  object-fit: cover; border-radius: 2px; flex-shrink: 0;
+  width: 20px; height: 28px;
+  object-fit: cover; border-radius: 3px; flex-shrink: 0;
 }
 .cell-ticket-title {
-  color: #e8c870; font-size: 8px; font-weight: 700;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  flex: 1;
+  color: #3a3228; font-size: 9px; font-weight: 700;
+  overflow: hidden; flex: 1; line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
-.cell-ticket:nth-child(2) { transform: translateY(-2px); opacity: 0.8; z-index: 1; }
-.cell-ticket:nth-child(3) { transform: translateY(-4px); opacity: 0.65; z-index: 0; }
 .cell-more {
-  font-size: 8px; color: #e8a838; font-weight: 700;
-  text-align: right; padding-right: 2px; margin-top: 1px;
+  font-size: 8px; color: #c07a10; font-weight: 700;
+  text-align: right; padding-right: 2px; margin-top: 2px;
 }
 
 /* ══════════════════════════════════════════════════
@@ -509,15 +658,28 @@ body {
 ══════════════════════════════════════════════════ */
 .scroll-hint {
   text-align: center;
-  padding: 4px 0 0;
-  color: #e8a838;
-  font-size: 22px;
-  animation: bounce 1.5s ease infinite;
+  padding: 8px 0 12px;
+  flex-shrink: 0;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  animation: bounce 1.6s ease-in-out infinite;
+  overflow: visible;
 }
+.scroll-hint .chev {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-right: 3px solid #e8a838;
+  border-bottom: 3px solid #e8a838;
+  transform: rotate(45deg);
+}
+.scroll-hint .chev:last-child { opacity: 0.55; }
 @keyframes bounce {
   0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(4px); }
+  50%      { transform: translateY(-5px); }
 }
 
 /* ══════════════════════════════════════════════════
@@ -542,38 +704,48 @@ body {
   background: #fff;
   margin-bottom: 0;
 }
-.wave-top svg { display: block; }
+.wave-top svg { display: block; height: 56px; }
 
 /* 주간 스트립 */
 .week-strip {
-  padding: 4px 20px 10px;
+  padding: 2px 20px 8px;
 }
 .week-nav-row {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .week-nav-lbl {
-  font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.9);
+  font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.95);
   letter-spacing: 0.04em;
 }
 .week-nav-btn {
-  background: none; border: none;
-  color: rgba(255,255,255,0.75); font-size: 24px; font-weight: 700;
-  cursor: pointer; padding: 0 4px; line-height: 1;
-  transition: color 0.15s;
+  background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: 50%; width: 30px; height: 30px;
+  color: #fff; font-size: 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; flex-shrink: 0; padding: 0;
 }
-.week-nav-btn:hover { color: #fff; }
+.week-nav-btn::before {
+  content: '';
+  display: block;
+  width: 8px; height: 8px;
+  border-top: 2px solid rgba(255,255,255,0.85);
+  border-right: 2px solid rgba(255,255,255,0.85);
+}
+.week-nav-btn:first-child::before { transform: rotate(-135deg) translate(-1px, 1px); }
+.week-nav-btn:last-child::before  { transform: rotate(45deg) translate(-1px, 1px); }
+.week-nav-btn:hover { background: rgba(255,255,255,0.28); }
 
 .week-days-row {
   display: grid; grid-template-columns: repeat(7, 1fr);
   text-align: center;
 }
-.week-day-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-.week-day-lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); }
+.week-day-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.week-day-lbl { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.65); }
 .week-day-num {
   width: 34px; height: 34px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8);
+  font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.85);
   cursor: pointer; transition: all 0.15s;
 }
 .week-day-num:hover { background: rgba(255,255,255,0.2); }
@@ -593,7 +765,7 @@ body {
 ══════════════════════════════════════════════════ */
 .dated-section {
   background: transparent;
-  padding: 0 0 20px;
+  padding: 0 0 8px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -601,10 +773,10 @@ body {
 
 .dated-header-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px 10px;
+  padding: 12px 20px 8px;
 }
 .dated-heading {
-  font-size: 20px; font-weight: 800; color: #fff;
+  font-size: 22px; font-weight: 900; color: #fff;
 }
 .dated-count-badge {
   background: rgba(255,255,255,0.24); color: #fff;
@@ -615,7 +787,7 @@ body {
 /* 빈 상태 */
 .empty-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 32px 0;
+  gap: 10px; padding: 24px 0;
   flex: 1;
   text-align: center;
 }
@@ -625,27 +797,27 @@ body {
 
 /* 티켓 카드 (날짜별 목록) */
 .dated-list-inner {
-  padding: 0 24px;
-  overflow-y: auto;
-  flex: 1;
+  padding: 0 16px 12px;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 .ticket-card {
   display: flex; gap: 14px; align-items: flex-start;
   background: #fff; border-radius: 12px;
-  padding: 14px; margin-bottom: 10px;
+  padding: 10px 12px; margin-bottom: 0;
   text-decoration: none; color: inherit;
   position: relative; overflow: hidden;
   transition: transform 0.15s, box-shadow 0.15s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .ticket-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.14); }
-/* 왼쪽 오렌지 줄 */
+/* 왼쪽 줄 */
 .ticket-card::before {
   content: ''; position: absolute;
   left: 0; top: 0; bottom: 0; width: 4px;
-  background: #e8a838;
+  background: #fff;
 }
 /* 오른쪽 날짜 세로 텍스트 */
 .ticket-date-side {
@@ -674,7 +846,7 @@ body {
 .ticket-title { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
 .ticket-genre-badge {
   display: inline-block;
-  background: #e8a838; color: #fff;
+  background: #fff; color: #5a534c;
   font-size: 10px; font-weight: 700;
   border-radius: 4px; padding: 1px 6px;
   margin-bottom: 5px;
@@ -720,7 +892,7 @@ body {
 .summary-item {
   flex: 1;
   text-align: center;
-  padding: 16px 8px;
+  padding: 13px 8px;
   border-right: 1px solid rgba(255,255,255,0.24);
 }
 .summary-item:last-child { border-right: none; }
@@ -989,16 +1161,19 @@ body {
     </div>
 
     <!-- 스크롤 힌트 화살표 -->
-    <div class="scroll-hint" id="scrollHint">↓</div>
+    <div class="scroll-hint" id="scrollHint">
+      <span class="chev"></span>
+      <span class="chev"></span>
+    </div>
 
     <!-- ★ 오렌지 물결 + 주간 strip 섹션 (달력과 이어짐) -->
     <div class="orange-section">
       <!-- 달력 흰 배경 → 오렌지 물결로 전환: 위로 솟아오르는 형태 -->
       <div class="wave-top">
-        <svg viewBox="0 0 900 60" xmlns="http://www.w3.org/2000/svg"
-             preserveAspectRatio="none" height="60" width="100%">
-          <!-- 흰 배경 위에서 오렌지가 위로 물결치며 올라옴 -->
-          <path d="M0,60 L0,35 C100,10 200,55 300,30 C400,5 500,50 600,25 C700,0 800,45 900,20 L900,60 Z"
+        <svg viewBox="0 0 900 72" xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="none" height="72" width="100%">
+          <!-- 부드러운 아치형 전환: 중앙이 높게 솟아 달력과 자연스럽게 이어짐 -->
+          <path d="M0,72 L0,58 C200,58 320,6 450,6 C580,6 700,58 900,58 L900,72 Z"
                 fill="#f0a028"/>
         </svg>
       </div>
@@ -1181,8 +1356,10 @@ document.getElementById('coverYear').textContent = new Date().getFullYear();
   const col = document.getElementById('springCol');
   function fillRings(){
     col.innerHTML='';
-    const h = col.offsetHeight || 800;
-    const count = Math.max(12, Math.ceil(h / 26));
+    const h = col.clientHeight || 760;
+    // ring 실제 세로폭 = height 18px + margin 위아래 14px = 약 32px.
+    // 링이 너무 빽빽하면 알약 반복처럼 보여서 간격을 살짝 둔다.
+    const count = Math.max(9, Math.floor((h - 28) / 32));
     for(let i=0;i<count;i++){
       const r=document.createElement('div');
       r.className='ring'; col.appendChild(r);
