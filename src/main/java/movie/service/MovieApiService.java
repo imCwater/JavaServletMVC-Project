@@ -106,7 +106,7 @@ public class MovieApiService {
 
         String json = sendGet(requestUrl);
 
-        System.out.println(json);
+//        System.out.println(json); 콘솔에 잘 나오는지 확인용 끝나면 지우기
 
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
         JsonArray dataArr = root.getAsJsonArray("Data");
