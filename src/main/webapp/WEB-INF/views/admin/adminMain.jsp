@@ -7,6 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <title>POPFLEX - 관리자</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
 <style>
     * { box-sizing: border-box; }
     body {
@@ -19,41 +20,6 @@
         min-height: 100vh;
         background: #f8f5ef;
     }
-    .header {
-        height: 76px;
-        padding: 0 42px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #ddd5c7;
-        background: #fffaf2;
-    }
-    .logo {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        color: #111;
-        text-decoration: none;
-        font-size: 22px;
-        font-weight: 900;
-    }
-    .logo img {
-        width: 38px;
-        height: 36px;
-        object-fit: contain;
-    }
-    .nav {
-        display: flex;
-        gap: 24px;
-        align-items: center;
-    }
-    .nav a {
-        color: #222;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 700;
-    }
-    .nav a:hover { color: #bd7500; }
     .content {
         max-width: 1040px;
         margin: 0 auto;
@@ -133,15 +99,6 @@
         color: #b23628;
     }
     @media (max-width: 760px) {
-        .header {
-            height: auto;
-            padding: 22px 24px;
-            display: block;
-        }
-        .nav {
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
         .title-row {
             display: block;
         }
@@ -156,19 +113,10 @@
 </head>
 <body>
 <div class="page">
-    <header class="header">
-        <a class="logo" href="${ctx}/main.do">
-            <img src="${ctx}/img/popflex-logo.png" alt="POPFLEX">
-            <span>POPFLEX 관리자</span>
-        </a>
-        <nav class="nav">
-            <a href="${ctx}/admin/main.do">관리자 홈</a>
-            <a href="${ctx}/admin/memberList.do">회원 관리</a>
-            <a href="${ctx}/admin/scheduleList.do">상영 관리</a>
-            <a href="${ctx}/main.do">사용자 메인</a>
-            <a href="${ctx}/logout.do">로그아웃</a>
-        </nav>
-    </header>
+    <jsp:include page="/WEB-INF/views/common/member-admin-header.jsp">
+        <jsp:param name="mode" value="admin" />
+        <jsp:param name="current" value="admin" />
+    </jsp:include>
 
     <main class="content">
         <c:if test="${not empty adminMessage}">
@@ -214,6 +162,8 @@
             </div>
         </section>
     </main>
+
+    <jsp:include page="/WEB-INF/views/common/member-admin-footer.jsp" />
 </div>
 </body>
 </html>

@@ -1,6 +1,8 @@
 package member.controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,11 +13,14 @@ import javax.servlet.http.HttpSession;
 
 import member.dto.MemberDTO;
 import member.service.MemberService;
+import reservation.dto.ReservationDTO;
+import reservation.service.ReservationService;
 
 @WebServlet("/member/mypage.do")
 public class MyPageServlet extends HttpServlet {
 
     private final MemberService memberService = new MemberService();
+    private final ReservationService reservationService = new ReservationService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,8 +47,19 @@ public class MyPageServlet extends HttpServlet {
         moveFlash(session, request, "mypageError");
         session.setAttribute("loginMember", member);
         request.setAttribute("member", member);
+        setReservationSummary(request, member.getMemberId());
         request.getRequestDispatcher("/WEB-INF/views/member/mypage.jsp")
                .forward(request, response);
+    }
+
+    private void setReservationSummary(HttpServletRequest request, int memberId) {
+        try {
+            ArrayList<ReservationDTO> reservationList =
+                    reservationService.getReservationListByMember(memberId);
+            request.setAttribute("reservationList", reservationList);
+        } catch (SQLException e) {
+            request.setAttribute("reservationLoadError", true);
+        }
     }
 
     private void moveFlash(HttpSession session, HttpServletRequest request, String key) {
