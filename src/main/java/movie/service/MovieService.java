@@ -28,7 +28,32 @@ public class MovieService {
     // 없으면 새로 저장 후 새 MOVIE_ID 반환
     // 반환값: MOVIE_ID, 실패 시 0
     public int saveMovieIfNotExists(MovieDTO movie) {
-        return dao.saveMovieIfNotExists(movie);
+    	
+//    	API 결과가 비정상일 때 NullPointerException 막는 용도
+        if (movie == null) {
+            return 0;
+        }
+
+//      이미 저장된 영화인지 확인
+        MovieDTO savedMovie = dao.findByKmdbIdAndSeq(
+                movie.getKmdbMovieId(),
+                movie.getKmdbMovieSeq()
+        );
+//		이미 있으면 새로 저장하지 않음
+        if (savedMovie != null) {
+            movie.setMovieId(savedMovie.getMovieId());
+            return savedMovie.getMovieId();
+        }
+//		없으면 MOVIE 저장
+        int movieId = dao.insertMovieAndReturnId(movie);
+
+//      영화면 배우/키워드 저장
+        if (movieId > 0) {
+            actorDAO.insertActors(movieId, movie.getActorNm());
+            keywordDAO.insertKeywords(movieId, movie.getKeywords());
+        }
+
+        return movieId;
     }
     
     // KMDb 식별자 기준 영화 조회
@@ -67,20 +92,15 @@ public class MovieService {
      }
 
      // 4. MOVIE 저장 후 movie_id 확보
-     int movieId = dao.saveMovieIfNotExists(apiMovie);
+     int movieId = saveMovieIfNotExists(apiMovie);
 
      if (movieId == 0) {
          return null;
      }
-     
-     // 5. 새 영화일 때만 배우/키워드 저장
-     actorDAO.insertActors(movieId, apiMovie.getActorNm());
-     keywordDAO.insertKeywords(movieId, apiMovie.getKeywords());
-     
-     // 6. MOVIE_ID 기준으로 다시 조회
+
+     // 5. MOVIE_ID 기준으로 다시 조회
      MovieDTO movie = dao.findByMovieId(movieId);
      fillActorAndKeyword(movie);
-     
 
      return movie;
     }
