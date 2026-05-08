@@ -38,8 +38,19 @@ public class MyPageServlet extends HttpServlet {
             return;
         }
 
+        moveFlash(session, request, "mypageMessage");
+        moveFlash(session, request, "mypageError");
         request.setAttribute("member", member);
         request.getRequestDispatcher("/WEB-INF/views/member/mypage.jsp")
                .forward(request, response);
+    }
+
+    private void moveFlash(HttpSession session, HttpServletRequest request, String key) {
+        Object value = session.getAttribute(key);
+
+        if (value != null) {
+            request.setAttribute(key, value);
+            session.removeAttribute(key);
+        }
     }
 }

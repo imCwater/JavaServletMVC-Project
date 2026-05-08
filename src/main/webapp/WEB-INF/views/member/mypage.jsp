@@ -211,6 +211,17 @@
         font-weight: 700;
     }
 
+    .message.ok {
+        background: #ecfdf5;
+        border: 1px solid #9de9bd;
+        color: #11643b;
+    }
+
+    .message.error {
+        background: #fff0ef;
+        color: #c0392b;
+    }
+
     .actions {
         display: flex;
         gap: 10px;
@@ -232,6 +243,36 @@
         background: #ffad1f;
         color: #111;
         transition: background 0.16s ease, transform 0.16s ease;
+    }
+
+    .admin-role-form {
+        margin-top: 20px;
+    }
+
+    .admin-role-btn,
+    .admin-link-btn {
+        width: 100%;
+        height: 40px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .admin-role-btn {
+        border: none;
+        background: #111;
+        color: #fff;
+    }
+
+    .admin-link-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #111;
+        background: #fff;
+        color: #111;
+        text-decoration: none;
     }
 
     .link-btn {
@@ -307,6 +348,9 @@
             <a href="${pageContext.request.contextPath}/reservation/myList.do">예매내역</a>
             <a href="${pageContext.request.contextPath}/review/myList.do">내 리뷰</a>
             <a href="${pageContext.request.contextPath}/diary/list.do">필름 다이어리</a>
+            <c:if test="${sessionScope.loginMember.admin}">
+                <a href="${pageContext.request.contextPath}/admin/main.do">관리자</a>
+            </c:if>
             <a href="${pageContext.request.contextPath}/logout.do">로그아웃</a>
         </nav>
     </header>
@@ -345,15 +389,35 @@
                     <div class="meta-row">
                         <span class="meta-label">가입일</span>
                         <span class="meta-value"><c:out value="${member.createdAt}" /></span>
+                		</div>
+	                </div>
+
+                    <div class="admin-role-form">
+                        <c:choose>
+                            <c:when test="${member.admin}">
+                                <a class="admin-link-btn" href="${pageContext.request.contextPath}/admin/main.do">관리자 페이지로 이동</a>
+                            </c:when>
+                            <c:otherwise>
+                                <form action="${pageContext.request.contextPath}/member/adminRole.do" method="post"
+                                      onsubmit="return confirm('현재 계정을 관리자 권한으로 전환하시겠습니까?');">
+                                    <button class="admin-role-btn" type="submit">관리자 역할로 전환</button>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </div>
             </aside>
 
             <form class="form-panel" action="${pageContext.request.contextPath}/member/update.do" method="post">
                 <h2 class="section-title">회원정보 수정</h2>
 
+                <c:if test="${not empty mypageMessage}">
+                    <div class="message ok"><c:out value="${mypageMessage}" /></div>
+                </c:if>
+                <c:if test="${not empty mypageError}">
+                    <div class="message error"><c:out value="${mypageError}" /></div>
+                </c:if>
                 <c:if test="${not empty errorMsg}">
-                    <div class="message"><c:out value="${errorMsg}" /></div>
+                    <div class="message error"><c:out value="${errorMsg}" /></div>
                 </c:if>
 
                 <div class="field">

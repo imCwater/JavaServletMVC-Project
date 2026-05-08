@@ -204,6 +204,22 @@ public class MemberService {
         }
     }
 
+    public MemberDTO promoteToAdmin(int memberId) {
+        if (memberId <= 0) {
+            return null;
+        }
+
+        try (Connection conn = DBUtil.getConnection()) {
+            if (memberDAO.updateRoleToAdmin(conn, memberId) != 1) {
+                return null;
+            }
+
+            return memberDAO.selectByMemberId(conn, memberId);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to promote member to admin.", e);
+        }
+    }
+
     public boolean deactivateMember(int memberId) {
         if (memberId <= 0) {
             return false;
