@@ -33,4 +33,16 @@ public class AppConfig {
     public static String getKmdbApiUrl() {
         return props.getProperty("KMDB_API_URL");
     }
+
+    public static String getNaverClientId() {
+        return props.getProperty("NAVER_CLIENT_ID");
+    }
+
+    public static String getNaverClientSecret() {
+        return props.getProperty("NAVER_CLIENT_SECRET");
+    }
+
+    public static String getNaverCallbackUrl() {
+        return props.getProperty("NAVER_CALLBACK_URL");
+    }
 }
