@@ -28,6 +28,32 @@ public class SeatService {
 		}
 	}
 
+	public ArrayList<SeatDTO> getSeatList(int screenId) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBUtil.getConnection();
+			return seatDAO.getSeatList(con, screenId);
+		} finally {
+			if (con != null) {
+				con.close();
+			}
+		}
+	}
+
+	public ArrayList<SeatDTO> getSeatListByScheduleId(int scheduleId) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBUtil.getConnection();
+			return seatDAO.getSeatListByScheduleId(con, scheduleId);
+		} finally {
+			if (con != null) {
+				con.close();
+			}
+		}
+	}
+
 	// 특정 상영 일정에서 이미 예매된 좌석 ID 목록을 조회한다.
 	public ArrayList<Integer> getReservedSeatIds(int scheduleId) throws SQLException {
 		Connection con = null;
