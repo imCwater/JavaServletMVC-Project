@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import movie.dto.MovieDTO;
 
@@ -411,6 +412,72 @@ public class MovieDAO {
 
      return dto;
  }
+ 
+ 	public ArrayList<MovieDTO> searchByTitle(String query){
+ 		ArrayList<MovieDTO> list = new ArrayList<>();
+ 		
+ 		if(query == null || query.trim().isEmpty()) {
+ 			return list;
+ 		}
+ 		
+ 		Connection con = dbcon();
+ 		PreparedStatement pst = null;
+ 		ResultSet rs = null;
+ 		
+ 		String sql = "SELECT MOVIE_ID, KMDB_MOVIE_ID, KMDB_MOVIE_SEQ, DOCID, TITLE, " +
+ 		        "DIRECTOR_NAME, COMPANY, PLOT, RUNTIME, RATING, GENRE, RATING_GRADE, " +
+ 		        "RELEASE_DATE, POSTER_URL, VOD_URL " +
+ 		        "FROM MOVIE " +
+ 		        "WHERE REPLACE(TITLE, ' ', '') LIKE '%' || REPLACE(?, ' ', '') || '%' " +
+ 		        "ORDER BY MOVIE_ID DESC";
+ 		
+ 		try {
+			pst = con.prepareStatement(sql);
+			pst.setString(1, query.trim());
+			
+			rs = pst.executeQuery();
+			
+			while(rs.next()) {
+				MovieDTO movie = new MovieDTO();
+				
+				movie.setMovieId(rs.getInt("MOVIE_ID"));
+	            movie.setKmdbMovieId(rs.getString("KMDB_MOVIE_ID"));
+	            movie.setKmdbMovieSeq(rs.getString("KMDB_MOVIE_SEQ"));
+	            movie.setDocid(rs.getString("DOCID"));
+	            movie.setTitle(rs.getString("TITLE"));
+	            movie.setDirectorNm(rs.getString("DIRECTOR_NAME"));
+	            movie.setCompany(rs.getString("COMPANY"));
+	            movie.setPlot(rs.getString("PLOT"));
+
+	            int runtime = rs.getInt("RUNTIME");
+	            if (!rs.wasNull()) {
+	                movie.setRuntime(String.valueOf(runtime));
+	            }
+
+	            movie.setRating(rs.getString("RATING"));
+	            movie.setGenre(rs.getString("GENRE"));
+	            movie.setRatingGrade(rs.getString("RATING_GRADE"));
+
+	            Date releaseDate = rs.getDate("RELEASE_DATE");
+	            if (releaseDate != null) {
+	                movie.setReleaseDate(String.valueOf(releaseDate));
+	            }
+
+	            movie.setPosterUrl(rs.getString("POSTER_URL"));
+	            movie.setVodUrl(rs.getString("VOD_URL"));
+
+	            list.add(movie);
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			close(rs,pst,con);
+		}
+ 		
+ 		return list;
+ 	}
     
     
     

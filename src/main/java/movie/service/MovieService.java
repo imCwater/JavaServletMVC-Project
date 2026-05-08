@@ -61,6 +61,11 @@ public class MovieService {
         return dao.findByKmdbIdAndSeq(kmdbMovieId, kmdbMovieSeq);
     }
     
+    // DB에 저장된 영화 중 제목으로 검색
+    public ArrayList<MovieDTO> searchSavedMoviesByTitle(String query) {
+        return dao.searchByTitle(query);
+    }
+    
     
     // 영화 상세 조회
     // DB에 있으면 DB에서 조회
@@ -164,4 +169,6 @@ public class MovieService {
 
         return sb.toString();
     }
+    
+  
 }
