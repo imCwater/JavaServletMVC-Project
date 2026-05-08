@@ -14,8 +14,6 @@ import member.dto.MemberDTO;
 import reservation.service.ReservationService;
 
 @WebServlet("/reservation/cancel.do")
-// 예매 취소 컨트롤러
-// POST 요청으로 reservationId를 받아 본인 예매를 취소한다.
 public class ReservationCancelServlet extends HttpServlet {
 
 	private ReservationService reservationService = new ReservationService();
@@ -25,7 +23,6 @@ public class ReservationCancelServlet extends HttpServlet {
 		req.setCharacterEncoding("utf-8");
 		resp.setContentType("text/html; charset=utf-8");
 
-		// 취소는 본인 예매만 가능하므로 로그인 회원을 확인한다.
 		HttpSession session = req.getSession(false);
 		MemberDTO loginMember = session == null
 				? null
@@ -47,7 +44,6 @@ public class ReservationCancelServlet extends HttpServlet {
 		int memberId = loginMember.getMemberId();
 
 		try {
-			// Service에서 좌석 행 삭제와 reservation 상태 변경을 트랜잭션으로 처리한다.
 			int result = reservationService.cancelReservation(reservationId, memberId);
 
 			if (result > 0) {
