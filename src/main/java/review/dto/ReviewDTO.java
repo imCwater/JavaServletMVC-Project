@@ -11,13 +11,13 @@ public class ReviewDTO {
     private int memberId;
     // 누가 쓴 리뷰인지 작성자 번호 (FK) - DB: MEMBER_ID
 
-    private String burstYn;    
+    private String freshYn;    
     // 터졌다 여부 - DB: FRESH_YN (컬럼명 그대로)    
     // 'Y' = 터졌다, 'N' = 안터졌다
 
     private String publicYn;
-    // 공개/비공개 여부 - DB: PUBLIC_YN
-    // 'Y' = 전체 공개, 'F' = 친구공개
+    // 공개 여부 - DB: PUBLIC_YN
+    // 'Y' = 전체 공개, 'N' = 친구공개
 
     private String content;
     // 리뷰 본문 내용 - DB: CONTENT
@@ -28,15 +28,16 @@ public class ReviewDTO {
     private String updatedAt;
     // 리뷰 수정일시 - DB: UPDATED_AT
     
-    
-
-    
+   
     // JOIN용 추가 필드 (DB 컬럼 아님)
     // SQL에서 JOIN해서 가져온 데이터를 담는 용도
 
     private String memberName;
     // 작성자 이름 - MEMBER 테이블을 JOIN해서 가져옴
     // JSP에서 "홍길동이 작성" 처럼 표시할 때 사용
+    
+    private String posterUrl;
+    //영화포스터
 
     private String movieTitle;
     // 영화 제목 - MOVIE 테이블을 JOIN해서 가져옴
@@ -44,7 +45,7 @@ public class ReviewDTO {
 
     
     
-
+    /*
     // 통계용 필드
     // COUNT, 계산된 값을 담는 용도
 
@@ -63,8 +64,7 @@ public class ReviewDTO {
     private double burstRate;    // 터졌다 비율 (%)    
     // Java에서 (burstCount * 100.0 / totalCount)로 계산    
     // 예: 리뷰 10개 중 터졌다 7개 → 70.0
-    
-    
+    */
     
     // Getter/Setter
     public int getReviewId() { return reviewId; }    
@@ -76,8 +76,8 @@ public class ReviewDTO {
     public int getMemberId() { return memberId; }    
     public void setMemberId(int memberId) { this.memberId = memberId; }
     
-    public String getBurstYn() { return burstYn; }    
-    public void setBurstYn(String burstYn) { this.burstYn = burstYn; }
+    public String getFreshYn() { return freshYn; }    
+    public void setFreshYn(String freshYn) { this.freshYn = freshYn; }
     
     public String getPublicYn() { return publicYn; }    
     public void setPublicYn(String publicYn) { this.publicYn = publicYn; }
@@ -94,9 +94,13 @@ public class ReviewDTO {
     public String getMemberName() { return memberName; }    
     public void setMemberName(String memberName) { this.memberName = memberName; }
     
+    public String getPosterUrl() { return posterUrl; }    
+    public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
+    
     public String getMovieTitle() { return movieTitle; }    
     public void setMovieTitle(String movieTitle) { this.movieTitle = movieTitle; }
     
+    /*
     public int getTotalCount() { return totalCount; }    
     public void setTotalCount(int totalCount) { this.totalCount = totalCount; }
     
@@ -108,5 +112,5 @@ public class ReviewDTO {
     
     public double getBurstRate() { return burstRate; }    
     public void setBurstRate(double burstRate) { this.burstRate = burstRate; }
-
+	*/
 }

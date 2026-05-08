@@ -12,7 +12,7 @@ import member.dto.MemberDTO;
 import java.io.IOException;
 
 @WebServlet("/review/insert.do")
-public class ReviewInsertController extends HttpServlet {
+public class ReviewInsertServlet extends HttpServlet {
 
     private ReviewService service = new ReviewService();
 
@@ -65,16 +65,16 @@ public class ReviewInsertController extends HttpServlet {
 
         //2.폼 데이터 받기
         int movieId  = Integer.parseInt(req.getParameter("movieId"));
-        String burstYn  = req.getParameter("burstYn");   // 'Y'=터졌다, 'N'=안터졌다
-        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'F'=친구공개
+        String freshYn  = req.getParameter("freshYn");   // 'Y'=터졌다, 'N'=안터졌다  ← burstYn ❌        
+        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'N'=친구공개  ← 'F' ❌
         String content  = req.getParameter("content");
 
         //3.DTO 구성
         ReviewDTO dto = new ReviewDTO();
-        dto.setMovieId(movieId);
-        dto.setMemberId(loginMember.getMemberId()); //MemberDTO에서 꺼내기
-        dto.setBurstYn(burstYn);
-        dto.setPublicYn(publicYn);
+        dto.setMovieId(movieId);       
+        dto.setMemberId(loginMember.getMemberId()); // MemberDTO에서 꺼내기   
+        dto.setFreshYn(freshYn);                    // setBurstYn() ❌ → setFreshYn() ✅  
+        dto.setPublicYn(publicYn);       
         dto.setContent(content);
 
         //4.서비스 호출

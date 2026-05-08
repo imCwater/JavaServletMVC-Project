@@ -12,7 +12,7 @@ import member.dto.MemberDTO;
 import java.io.IOException;
 
 @WebServlet("/review/update.do")
-public class ReviewUpdateController extends HttpServlet {
+public class ReviewUpdateServlet extends HttpServlet {
 
     private ReviewService service = new ReviewService();
 
@@ -35,7 +35,7 @@ public class ReviewUpdateController extends HttpServlet {
         //2.reviewId 받기
         String reviewIdParam = req.getParameter("reviewId");      
         if (reviewIdParam == null) {     
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");    
+        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");    
         	return;    
         }
         
@@ -46,7 +46,7 @@ public class ReviewUpdateController extends HttpServlet {
         
         // 리뷰가 없거나 본인 리뷰가 아니면 차단     
         if (dto == null || dto.getMemberId() != loginMember.getMemberId()) {
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");   
+        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");   
         	return;      
         }
     
@@ -75,16 +75,16 @@ public class ReviewUpdateController extends HttpServlet {
 
         //2.폼 데이터 받기
         int reviewId = Integer.parseInt(req.getParameter("reviewId"));
-        String burstYn  = req.getParameter("burstYn");   // 'Y'=터졌다, 'N'=안터졌다
-        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'F'=친구공개
+        String freshYn  = req.getParameter("freshYn");   // 'Y'=터졌다, 'N'=안터졌다  ← burstYn ❌    
+        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'N'=친구공개  ← 'F' ❌      
         String content  = req.getParameter("content");
 
         //3.DTO 세팅
         ReviewDTO dto = new ReviewDTO();
-        dto.setReviewId(reviewId);
-        dto.setMemberId(loginMember.getMemberId()); //MemberDTO에서 꺼내기
-        dto.setBurstYn(burstYn);
-        dto.setPublicYn(publicYn);
+        dto.setReviewId(reviewId);    
+        dto.setMemberId(loginMember.getMemberId()); // MemberDTO에서 꺼내기   
+        dto.setFreshYn(freshYn);                    // setBurstYn() ❌ → setFreshYn() ✅ 
+        dto.setPublicYn(publicYn);      
         dto.setContent(content);
 
         //4.서비스 호출(+본인확인)
@@ -92,10 +92,10 @@ public class ReviewUpdateController extends HttpServlet {
 
         if (result == 1) {           
         	// 성공 → 내 리뷰 목록으로    
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");      
+        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");      
         } else if (result == -1) {        
         	// 권한 없음     
-        	resp.sendRedirect(req.getContextPath() + "/review/myReview.do");
+        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");
         } else {
             // 수정 실패 → 에러 메시지 전달 후 다시 폼으로
             req.setAttribute("errorMsg", "리뷰 수정에 실패했습니다. 다시 시도해주세요.");

@@ -12,8 +12,8 @@ import member.dto.MemberDTO;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/review/myReview.do")
-public class MyReviewController extends HttpServlet {
+@WebServlet("/review/myList.do")
+public class MyReviewServlet extends HttpServlet {
 
     private ReviewService service = new ReviewService();
 
@@ -55,36 +55,40 @@ public class MyReviewController extends HttpServlet {
         }
     	
         //3.필터값 받기
-        // publicYn : null(전체) / 'Y'(공개) / 'F'(친구공개)
+        // publicYn : null(전체) / 'Y'(공개) / 'N'(친구공개)
         String publicYn = req.getParameter("publicYn");
 
         //4.서비스 호출
         List<ReviewDTO> reviewList = service.getMyReviewList(targetMemberId);
         
-        // 다른 사람 페이지면 공개(Y), 친구공개(F)만 보임     
-        if (!isMyPage) {         
-        	reviewList.removeIf(r -> !"Y".equals(r.getPublicYn()) && !"F".equals(r.getPublicYn()));   
+        // 다른 사람 페이지면 공개(Y), 친구공개(N)만 보임    
+        if (!isMyPage) {           
+        	reviewList.removeIf(r -> !"Y".equals(r.getPublicYn()) && !"N".equals(r.getPublicYn())); 
         }
 
-        // publicYn 필터 : Y 또는 F만 허용
+        // publicYn 필터 : Y(전체 공개) 또는 N(친구공개)만 허용
         if (publicYn != null && !publicYn.isEmpty()) {
             reviewList.removeIf(r -> !publicYn.equals(r.getPublicYn()));
         }
 
-        //5.통계도 같이 가져오기 (터졌다 퍼센트용)
-        // 내 리뷰 통계는 영화별로 따로 구하는 게 아니라 전체 내 리뷰 기준 터졌다 비율 계산
-        long burstCount   = reviewList.stream()                               
-        							  .filter(r -> "Y".equals(r.getBurstYn()))    
-        							  .count();       
-        long totalCount   = reviewList.size();     
-        double burstRate  = totalCount > 0 ? (burstCount * 100.0 / totalCount) : 0.0;
+        /*        
+        //5. 통계 계산 (터졌다 퍼센트용)       
+        // TODO: 영화 상세 페이지 작업 시 사용 예정    
+        // 내 리뷰 페이지에서는 통계 불필요 → 주석 처리    
+        long burstCount  = reviewList.stream()                   
+                          		     .filter(r -> "Y".equals(r.getFreshYn()))    
+                          		     .count();    
+        long totalCount  = reviewList.size();     
+        double burstRate = totalCount > 0 ? (burstCount * 100.0 / totalCount) : 0.0;
         
-        //6.JSP로 데이터 전달
-        req.setAttribute("reviewList",  reviewList);    
-        req.setAttribute("publicYn",    publicYn);   
         req.setAttribute("burstCount",  burstCount);   
-        req.setAttribute("totalCount",  totalCount);     
-        req.setAttribute("burstRate",   String.format("%.1f", burstRate)); // 소수점 1자리
+        req.setAttribute("totalCount",  totalCount);  
+        req.setAttribute("burstRate",   String.format("%.1f", burstRate));   
+        */
+
+        //5. JSP로 데이터 전달       
+        req.setAttribute("reviewList",      reviewList);    
+        req.setAttribute("publicYn",        publicYn);    
         req.setAttribute("isMyPage",        isMyPage);      
         req.setAttribute("targetMemberId",  targetMemberId);
         
