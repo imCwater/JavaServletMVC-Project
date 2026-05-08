@@ -18,10 +18,13 @@ public class MovieSearchService {
 
     // KMDb API 호출 전담 서비스
     private MovieApiService movieApiService = new MovieApiService();
+    
+    private MovieService movieService = new MovieService();
 
     // 영화 검색 화면에 필요한 최종 결과를 만드는 메서드
     public MovieSearchResultDTO search(String query, int currentPage) {
         MovieSearchResultDTO result = new MovieSearchResultDTO();
+        
 
         query = nvl(query).trim();
 
@@ -49,6 +52,11 @@ public class MovieSearchService {
         if (paging.getTotalPage() > 0 && currentPage > paging.getTotalPage()) {
             apiResult = movieApiService.searchMovies(query, paging.getTotalPage(), PAGE_SIZE);
             paging = new PagingDTO(paging.getTotalPage(), PAGE_SIZE, PAGE_BLOCK_SIZE, apiResult.getTotalCount());
+        }
+        
+//      검색 겨로가를 db에 미리 저장
+        for(MovieDTO movie : apiResult.getMovies()) {
+        	movieService.saveMovieIfNotExists(movie);
         }
 
         ArrayList<MovieListItemDTO> movieItems = toMovieListItems(apiResult.getMovies());
