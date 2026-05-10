@@ -2,6 +2,7 @@ package review.service;
 
 import review.dao.ReviewDAO;
 import review.dto.ReviewDTO;
+import review.dto.ReviewStatDTO;
 
 import java.util.List;
 
@@ -87,11 +88,12 @@ public class ReviewService {
 
     
     
-    // 리뷰 통계
-    /**
-     * 특정 영화의 터졌다 통계 반환
-     */
-    public ReviewDTO getReviewStat(int movieId) {
-        return dao.getReviewStat(movieId);
+    // 리뷰 통계    
+    /**     
+     * 특정 영화의 터졌다 통계 반환     
+     */    
+    public ReviewStatDTO getReviewStat(int movieId) {  // ← ReviewDTO ❌ → ReviewStatDTO ✅  
+    	return dao.getReviewStat(movieId);  
+    
     }
 }
