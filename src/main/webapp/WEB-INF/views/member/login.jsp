@@ -7,6 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <title>POPFLEX - 로그인</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
 <style>
     * {
         box-sizing: border-box;
@@ -25,41 +26,6 @@
         margin: 0 auto;
         background: linear-gradient(180deg, #fffaf2 0%, #fff3df 52%, #f3ece3 100%);
     }
-
-    .header {
-        height: 110px;
-        padding: 35px 48px 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .logo {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 25px;
-        font-weight: 900;
-        text-decoration: none;
-        color: #111;
-    }
-
-    .logo-img {
-        width: 42px;
-        height: 40px;
-        object-fit: contain;
-        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
-    }
-
-    .nav a {
-        color: #111;
-        text-decoration: none;
-        font-size: 14px;
-        margin-left: 34px;
-        font-weight: 600;
-    }
-
-    .nav a:hover,
     .sub-link a:hover {
         color: #d38a00;
     }
@@ -203,21 +169,6 @@
     }
 
     @media (max-width: 520px) {
-        .header {
-            height: auto;
-            padding: 26px 24px 0;
-            display: block;
-        }
-
-        .nav {
-            margin-top: 18px;
-        }
-
-        .nav a {
-            margin-left: 0;
-            margin-right: 18px;
-        }
-
         .content {
             width: auto;
             margin: 30px 22px 0;
@@ -232,16 +183,10 @@
 </head>
 <body>
 <div class="page">
-    <header class="header">
-        <a class="logo" href="${pageContext.request.contextPath}/main.do">
-            <img class="logo-img" src="${pageContext.request.contextPath}/img/popflex-logo.png" alt="POPFLEX">
-            <span>POPFLEX</span>
-        </a>
-        <nav class="nav">
-            <a href="${pageContext.request.contextPath}/movie/search.do">영화검색</a>
-            <a href="${pageContext.request.contextPath}/join.do">회원가입</a>
-        </nav>
-    </header>
+    <jsp:include page="/WEB-INF/views/common/member-admin-header.jsp">
+        <jsp:param name="mode" value="auth" />
+        <jsp:param name="current" value="login" />
+    </jsp:include>
 
     <main class="content">
         <div class="brand-hero">
@@ -274,6 +219,8 @@
             </div>
         </form>
     </main>
+
+    <jsp:include page="/WEB-INF/views/common/member-admin-footer.jsp" />
 </div>
 </body>
 </html>
