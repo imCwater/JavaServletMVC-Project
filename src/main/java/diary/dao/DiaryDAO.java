@@ -295,6 +295,148 @@ public class DiaryDAO {
 	}
 
 	// ─────────────────────────────────────────────────────────────
+	// 뱃지 집계용 쿼리 메서드들
+	// ─────────────────────────────────────────────────────────────
+
+	// 전체 기간 총 관람 편수 (뱃지 기준)
+	public int countAllDiary(int memberId) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 별점 1.0점 기록 횟수 (혹평가 뱃지)
+	public int countLowRating(int memberId) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND star_rating = 1.0";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 별점 4.5 이상 기록 횟수 (신선한 눈 뱃지)
+	public int countHighRating(int memberId) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND star_rating >= 4.5";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 감정 태그 달린 다이어리 편수 (팝콘 러버 뱃지)
+	public int countTaggedDiary(int memberId) throws Exception {
+		String sql = "SELECT COUNT(DISTINCT dt.diary_id) FROM DIARY_TAG dt "
+				+ "JOIN DIARY_ENTRY d ON dt.diary_id = d.diary_id WHERE d.member_id = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 심야(22시 이후) 상영 관람 횟수 (심야 시네마 뱃지)
+	public int countMidnightWatch(int memberId) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY d "
+				+ "JOIN RESERVATION r ON d.reservation_id = r.reservation_id "
+				+ "JOIN SCHEDULE sch ON r.schedule_id = sch.schedule_id "
+				+ "WHERE d.member_id = ? AND TO_NUMBER(TO_CHAR(sch.start_time, 'HH24')) >= 22";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 가장 많이 본 장르의 편수 (장르 마스터 뱃지)
+	public int getMaxGenreCount(int memberId) throws Exception {
+		String sql = "SELECT MAX(cnt) FROM ("
+				+ "SELECT m.genre, COUNT(*) AS cnt FROM DIARY_ENTRY d "
+				+ "JOIN MOVIE m ON d.movie_id = m.movie_id "
+				+ "WHERE d.member_id = ? AND m.genre IS NOT NULL "
+				+ "GROUP BY m.genre) t";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 같은 감독 영화 최대 편수 (감독 팬 뱃지)
+	public int getMaxDirectorCount(int memberId) throws Exception {
+		String sql = "SELECT MAX(cnt) FROM ("
+				+ "SELECT m.director_nm, COUNT(*) AS cnt FROM DIARY_ENTRY d "
+				+ "JOIN MOVIE m ON d.movie_id = m.movie_id "
+				+ "WHERE d.member_id = ? AND m.director_nm IS NOT NULL AND m.director_nm <> '' "
+				+ "GROUP BY m.director_nm) t";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// 특정 연도 관람 편수 (올해의 관객 뱃지)
+	public int getYearCount(int memberId, int year) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND TO_CHAR(watch_date,'YYYY') = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setString(2, String.valueOf(year));
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	// n번째 관람일 조회 (달성일 계산용, yyyy.MM.dd 형태)
+	public String getNthWatchDate(int memberId, int n) throws Exception {
+		String sql = "SELECT TO_CHAR(watch_date, 'YYYY.MM.DD') AS dt FROM ("
+				+ "SELECT watch_date, ROW_NUMBER() OVER (ORDER BY watch_date ASC) AS rn "
+				+ "FROM DIARY_ENTRY WHERE member_id = ?) t WHERE t.rn = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setInt(2, n);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getString("dt");
+			}
+		}
+		return null;
+	}
+
+	// 전체 관람 주(ISO 연-주) 목록 (연속 관람 판단용)
+	public List<String> getAllWatchWeeks(int memberId) throws Exception {
+		List<String> weeks = new ArrayList<>();
+		String sql = "SELECT DISTINCT TO_CHAR(watch_date, 'IYYY-IW') AS yw "
+				+ "FROM DIARY_ENTRY WHERE member_id = ? ORDER BY yw";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) weeks.add(rs.getString("yw"));
+			}
+		}
+		return weeks;
+	}
+
+	// ─────────────────────────────────────────────────────────────
 	// 9. 연도 목록 조회 (사이드바 연도 폴더용)
 	// ─────────────────────────────────────────────────────────────
 	public List<String> getYearList(int memberId) throws Exception {
