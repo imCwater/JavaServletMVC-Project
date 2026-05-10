@@ -482,6 +482,165 @@
       color: #6b3300;
     }
 
+    .content {
+      width: min(1080px, calc(100% - 56px));
+      margin: 54px auto 0;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .page-title p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a3320;
+    }
+
+    .summary-panel,
+    .list-panel,
+    .detail-panel {
+      background: var(--box);
+      border-radius: 14px;
+      padding: 26px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-item,
+    .detail-item {
+      background: rgba(255, 255, 255, 0.36);
+      border-radius: 10px;
+      padding: 16px;
+      min-height: 86px;
+    }
+
+    .summary-item span,
+    .detail-item span {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #6b3300;
+    }
+
+    .summary-item strong,
+    .detail-item strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .reservation-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .reservation-table th,
+    .reservation-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid rgba(21, 21, 21, 0.14);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .reservation-table th {
+      font-size: 11px;
+      font-weight: 900;
+      color: #6b3300;
+    }
+
+    .reservation-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .status-pill.cancelled {
+      background: var(--reserved);
+      color: #fff;
+    }
+
+    .table-actions,
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .table-actions .btn,
+    .action-row .btn {
+      min-width: 112px;
+      height: 36px;
+      padding: 0 16px;
+      font-size: 12px;
+    }
+
+    .danger-btn:hover {
+      background: #151515;
+    }
+
+    .empty-state {
+      padding: 52px 20px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .detail-item.wide {
+      grid-column: 1 / -1;
+    }
+
+    .message {
+      margin: 0 0 18px;
+      padding: 13px 18px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.45);
+      color: #6b3300;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .complete-mark {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--point);
+      font-size: 34px;
+      font-weight: 900;
+    }
+
     [hidden] {
       display: none !important;
     }
@@ -492,7 +651,8 @@
       .divider,
       .controls,
       .booking,
-      .footer-inner {
+      .footer-inner,
+      .content {
         width: min(100% - 28px, 680px);
       }
 
@@ -537,8 +697,37 @@
       }
 
       .controls,
-      .booking {
+      .booking,
+      .summary-grid,
+      .detail-grid {
         grid-template-columns: 1fr;
+      }
+
+      .reservation-table,
+      .reservation-table thead,
+      .reservation-table tbody,
+      .reservation-table th,
+      .reservation-table td,
+      .reservation-table tr {
+        display: block;
+      }
+
+      .reservation-table thead {
+        display: none;
+      }
+
+      .reservation-table tr {
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(21, 21, 21, 0.14);
+      }
+
+      .reservation-table tr:last-child {
+        border-bottom: 0;
+      }
+
+      .reservation-table td {
+        border-bottom: 0;
+        padding: 7px 0;
       }
 
       .field,
