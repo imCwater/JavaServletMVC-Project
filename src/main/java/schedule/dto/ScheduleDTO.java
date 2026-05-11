@@ -1,61 +1,95 @@
 package schedule.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-// SCHEDULE 테이블 한 행을 담는 DTO
-// 예매 화면에서 상영 번호, 영화 번호, 시작/종료 시간을 전달할 때 사용한다.
 public class ScheduleDTO {
-	// SCHEDULE 테이블 기본 컬럼
-	int schedule_id;
-	int movie_id;
-	Date Start_time;
-	Date end_time;
 
-	// 전체 값을 받아 DTO를 만들 때 사용하는 생성자
-	public ScheduleDTO(int schedule_id, int movie_id, Date start_time, Date end_time) {
-		super();
-		this.schedule_id = schedule_id;
-		this.movie_id = movie_id;
-		Start_time = start_time;
-		this.end_time = end_time;
-	}
+	private static final int DEFAULT_PRICE = 12000;
+
+	private int scheduleId;
+	private int movieId;
+	private int screenId;
+	private LocalDateTime startTime;
+	private LocalDateTime endTime;
+	private int price;
+
 	public ScheduleDTO() {
-
+		this.price = DEFAULT_PRICE;
 	}
 
-	// schedule_id getter/setter
-	public int getSchedule_id() {
-		return schedule_id;
+	public ScheduleDTO(int scheduleId, int movieId, int screenId, LocalDateTime startTime, LocalDateTime endTime) {
+
+		this.scheduleId = scheduleId;
+		this.movieId = movieId;
+		this.screenId = screenId;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.price = DEFAULT_PRICE;
 	}
-	public void setSchedule_id(int schedule_id) {
-		this.schedule_id = schedule_id;
+
+	public ScheduleDTO(int scheduleId, int movieId, int screenId, LocalDateTime startTime, LocalDateTime endTime,
+			int price) {
+
+		this.scheduleId = scheduleId;
+		this.movieId = movieId;
+		this.screenId = screenId;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.price = price;
 	}
-	// movie_id getter/setter
-	public int getMovie_id() {
-		return movie_id;
+
+	public int getScheduleId() {
+		return scheduleId;
 	}
-	public void setMovie_id(int movie_id) {
-		this.movie_id = movie_id;
+
+	public void setScheduleId(int scheduleId) {
+		this.scheduleId = scheduleId;
 	}
-	// start_time getter/setter
-	public Date getStart_time() {
-		return Start_time;
+
+	public int getMovieId() {
+		return movieId;
 	}
-	public void setStart_time(Date start_time) {
-		Start_time = start_time;
+
+	public void setMovieId(int movieId) {
+		this.movieId = movieId;
 	}
-	// end_time getter/setter
-	public Date getEnd_time() {
-		return end_time;
+
+	public int getScreenId() {
+		return screenId;
 	}
-	public void setEnd_time(Date end_time) {
-		this.end_time = end_time;
+
+	public void setScreenId(int screenId) {
+		this.screenId = screenId;
 	}
+
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(LocalDateTime startTime) {
+		this.startTime = startTime;
+	}
+
+	public LocalDateTime getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(LocalDateTime endTime) {
+		this.endTime = endTime;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
 	@Override
 	public String toString() {
-		return "ScheduleDTO [schedule_id=" + schedule_id + ", movie_id=" + movie_id
-				+ ", Start_time=" + Start_time + ", end_time=" + end_time + "]";
+		return "ScheduleDTO [scheduleId=" + scheduleId + ", movieId=" + movieId + ", screenId=" + screenId
+				+ ", startTime=" + startTime + ", endTime=" + endTime + ", price=" + price + "]";
 	}
-	
-	
+
 }
