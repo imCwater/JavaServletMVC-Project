@@ -16,12 +16,32 @@
   var submitBookingButton = document.querySelector("#submitBookingButton");
   var selectedSeatInputs = document.querySelector("#selectedSeatInputs");
   var reservationForm = document.querySelector("#reservationForm");
+  var currentSeatIdsText = document.body.getAttribute("data-current-seat-ids") || "";
+  var autoOpen = document.body.getAttribute("data-auto-open") === "true";
 
   var seats = [];
   var selectedSeats = [];
+  var initialSeatIds = [];
 
   if (!peopleSelect || !scheduleSelect || !seatMap || !reservationForm) {
     return;
+  }
+
+  function parseInitialSeatIds() {
+    var parts = currentSeatIdsText.split(",");
+    var i;
+    var value;
+
+    for (i = 0; i < parts.length; i += 1) {
+      value = Number(parts[i]);
+      if (value && initialSeatIds.indexOf(value) === -1) {
+        initialSeatIds.push(value);
+      }
+    }
+  }
+
+  function isInitialSeat(seatId) {
+    return initialSeatIds.indexOf(Number(seatId)) > -1;
   }
 
   function syncScheduleFields(sourceSelect) {
@@ -220,7 +240,7 @@
         button.setAttribute("data-seat-name", seat.seatName);
         button.setAttribute("aria-label", seat.seatName + " 좌석");
 
-        if (seat.reserved) {
+        if (seat.reserved && !isInitialSeat(seat.seatId)) {
           button.classList.add("is-reserved");
           button.disabled = true;
         }
@@ -286,17 +306,29 @@
 
       seats = data.seats || [];
       selectedSeats = [];
+      for (var i = 0; i < seats.length; i += 1) {
+        if (isInitialSeat(seats[i].seatId)) {
+          selectedSeats.push({
+            seatId: Number(seats[i].seatId),
+            seatName: seats[i].seatName
+          });
+        }
+      }
       renderSeats();
     };
     request.send();
   }
 
-  openBookingButton.addEventListener("click", function () {
-    openBookingButton.hidden = true;
-    bookingControls.hidden = false;
-    bookingSection.hidden = false;
-    loadSeats();
-  });
+  parseInitialSeatIds();
+
+  if (openBookingButton) {
+    openBookingButton.addEventListener("click", function () {
+      openBookingButton.hidden = true;
+      bookingControls.hidden = false;
+      bookingSection.hidden = false;
+      loadSeats();
+    });
+  }
 
   if (dateSelect) {
     dateSelect.addEventListener("change", function () {
@@ -323,6 +355,19 @@
       seatNotice.textContent = "인원 수에 맞게 좌석을 선택해 주세요.";
     }
   });
+
+  if (autoOpen) {
+    if (openBookingButton) {
+      openBookingButton.hidden = true;
+    }
+    if (bookingControls) {
+      bookingControls.hidden = false;
+    }
+    if (bookingSection) {
+      bookingSection.hidden = false;
+    }
+    loadSeats();
+  }
 
   syncSummary();
 }());
