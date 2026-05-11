@@ -39,9 +39,16 @@ public class DiaryDAO {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT d.diary_id, d.movie_id, d.reservation_id, d.review_id, ");
 		sql.append("       d.watch_date, d.star_rating, d.created_at, ");
-		sql.append("       m.title AS movie_title, m.poster_url ");
+		sql.append("       m.title AS movie_title, m.poster_url, ");
+		sql.append("       rv.content AS review_content, rv.fresh_yn AS review_fresh_yn, rv.public_yn AS review_public_yn, ");
+		sql.append("       th.theater_name, sc.screen_name ");
 		sql.append("  FROM DIARY_ENTRY d ");
 		sql.append("  JOIN MOVIE m ON d.movie_id = m.movie_id ");
+		sql.append("  LEFT JOIN REVIEW rv ON d.review_id = rv.review_id ");
+		sql.append("  LEFT JOIN RESERVATION r ON d.reservation_id = r.reservation_id ");
+		sql.append("  LEFT JOIN SCHEDULE sch ON r.schedule_id = sch.schedule_id ");
+		sql.append("  LEFT JOIN SCREEN sc ON sch.screen_id = sc.screen_id ");
+		sql.append("  LEFT JOIN THEATER th ON sc.theater_id = th.theater_id ");
 		sql.append(" WHERE d.member_id = ? ");
 
 		// 연도 필터 (선택)
@@ -78,6 +85,11 @@ public class DiaryDAO {
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
 					dto.setMovieTitle(rs.getString("movie_title"));
 					dto.setPosterUrl(rs.getString("poster_url"));
+					dto.setReviewContent(rs.getString("review_content"));
+					dto.setReviewFreshYn(rs.getString("review_fresh_yn"));
+					dto.setReviewPublicYn(rs.getString("review_public_yn"));
+					dto.setTheaterName(rs.getString("theater_name"));
+					dto.setScreenName(rs.getString("screen_name"));
 					list.add(dto);
 				}
 			}
@@ -258,6 +270,102 @@ public class DiaryDAO {
 		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
 			ps.setDouble(1, starRating);
+			ps.setInt(2, diaryId);
+			ps.executeUpdate();
+		}
+	}
+
+	public void saveReviewAndLinkDiary(DiaryDTO diary, String freshYn, String content) throws Exception {
+		String reviewText = content == null ? "" : content.trim();
+		if (reviewText.isEmpty()) {
+			return;
+		}
+
+		String normalizedFreshYn = "N".equals(freshYn) ? "N" : "Y";
+		Integer reviewId = diary.getReviewId();
+
+		try (Connection conn = getConnection()) {
+			conn.setAutoCommit(false);
+			try {
+				if (reviewId == null) {
+					reviewId = findLatestReviewId(conn, diary.getMemberId(), diary.getMovieId());
+				}
+
+				if (reviewId == null) {
+					reviewId = insertReview(conn, diary, normalizedFreshYn, reviewText);
+				} else {
+					updateReview(conn, diary, reviewId, normalizedFreshYn, reviewText);
+				}
+
+				if (reviewId != null) {
+					linkDiaryReview(conn, diary.getDiaryId(), reviewId);
+				}
+
+				conn.commit();
+			} catch (Exception e) {
+				conn.rollback();
+				throw e;
+			}
+		}
+	}
+
+	private Integer findLatestReviewId(Connection conn, int memberId, int movieId) throws SQLException {
+		String sql = "SELECT review_id FROM ("
+				+ "SELECT review_id FROM REVIEW WHERE member_id = ? AND movie_id = ? ORDER BY created_at DESC"
+				+ ") WHERE ROWNUM = 1";
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setInt(2, movieId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt("review_id");
+				}
+			}
+		}
+		return null;
+	}
+
+	private Integer insertReview(Connection conn, DiaryDTO diary, String freshYn, String content) throws SQLException {
+		String sql = "INSERT INTO REVIEW (movie_id, member_id, fresh_yn, public_yn, content) VALUES (?, ?, ?, ?, ?)";
+		Integer reviewId = null;
+		try (PreparedStatement ps = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+			ps.setInt(1, diary.getMovieId());
+			ps.setInt(2, diary.getMemberId());
+			ps.setString(3, freshYn);
+			ps.setString(4, "N");
+			ps.setString(5, content);
+			ps.executeUpdate();
+
+			try (ResultSet rs = ps.getGeneratedKeys()) {
+				if (rs.next()) {
+					reviewId = rs.getInt(1);
+				}
+			}
+		}
+
+		if (reviewId == null) {
+			reviewId = findLatestReviewId(conn, diary.getMemberId(), diary.getMovieId());
+		}
+		return reviewId;
+	}
+
+	private void updateReview(Connection conn, DiaryDTO diary, int reviewId, String freshYn, String content)
+			throws SQLException {
+		String sql = "UPDATE REVIEW SET fresh_yn = ?, content = ?, updated_at = SYSTIMESTAMP "
+				+ "WHERE review_id = ? AND member_id = ?";
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, freshYn);
+			ps.setString(2, content);
+			ps.setInt(3, reviewId);
+			ps.setInt(4, diary.getMemberId());
+			ps.executeUpdate();
+		}
+	}
+
+	private void linkDiaryReview(Connection conn, int diaryId, int reviewId) throws SQLException {
+		String sql = "UPDATE DIARY_ENTRY SET review_id = ? WHERE diary_id = ?";
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, reviewId);
 			ps.setInt(2, diaryId);
 			ps.executeUpdate();
 		}

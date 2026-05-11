@@ -34,6 +34,11 @@ public class DiaryDTO {
     // ── 조인 결과 (SCHEDULE, SCREEN, THEATER) ────────────
     private String theaterName;    // 극장명 (예매 기반 다이어리에서 표시용)
     private String screenName;     // 상영관명
+
+    // ── 조인 결과 (REVIEW) ───────────────────────────────
+    private String reviewContent;  // REVIEW.content
+    private String reviewFreshYn;  // REVIEW.fresh_yn
+    private String reviewPublicYn; // REVIEW.public_yn
     
     
     // ─────────────────────────────────────────────────────
@@ -123,6 +128,24 @@ public class DiaryDTO {
 	}
 	public void setScreenName(String screenName) {
 		this.screenName = screenName;
+	}
+	public String getReviewContent() {
+		return reviewContent;
+	}
+	public void setReviewContent(String reviewContent) {
+		this.reviewContent = reviewContent;
+	}
+	public String getReviewFreshYn() {
+		return reviewFreshYn;
+	}
+	public void setReviewFreshYn(String reviewFreshYn) {
+		this.reviewFreshYn = reviewFreshYn;
+	}
+	public String getReviewPublicYn() {
+		return reviewPublicYn;
+	}
+	public void setReviewPublicYn(String reviewPublicYn) {
+		this.reviewPublicYn = reviewPublicYn;
 	}
 
     

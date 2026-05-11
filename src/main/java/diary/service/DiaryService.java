@@ -69,6 +69,12 @@ public class DiaryService {
 		}
 	}
 
+	public void updateTagsStarAndReview(DiaryDTO diary, int[] tagIds, double starRating, String freshYn, String content)
+			throws Exception {
+		updateTagsAndStar(diary.getDiaryId(), tagIds, starRating);
+		diaryDAO.saveReviewAndLinkDiary(diary, freshYn, content);
+	}
+
 	// ─────────────────────────────────────────────────────────────
 	// 6. 다이어리 자동 등록 (예매 완료 후 ReservationService에서 호출)
 	// - reservation_id UNIQUE → 중복 등록 자동 방지
