@@ -4,23 +4,24 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DBUtil {
+import common.config.AppConfig;
 
-    private static final String DRIVER = "oracle.jdbc.driver.OracleDriver";
-    private static final String URL = "jdbc:oracle:thin:@localhost:1521:testdb";
-    private static final String USER = "scott";
-    private static final String PASSWORD = "tiger";
+public class DBUtil {
 
     static {
         try {
-            Class.forName(DRIVER);
+            Class.forName(AppConfig.getDbDriver());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Oracle JDBC 드라이버 로드 실패", e);
         }
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(
+        		AppConfig.getDbUrl(),
+        		AppConfig.getDbUser(),
+        		AppConfig.getDbPassword()
+        	);
     }
 
     public static void close(AutoCloseable... resources) {
