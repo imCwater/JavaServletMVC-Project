@@ -68,6 +68,9 @@ public class DiaryTagUpdateServlet extends HttpServlet {
             catch (NumberFormatException ignored) {}
         }
 
+        String freshYn = req.getParameter("freshYn");
+        String diaryText = req.getParameter("diaryText");
+
         try {
             // ── 본인 다이어리 여부 확인 후 업데이트 ─────────────
             DiaryDTO detail = diaryService.getDiaryDetail(diaryId);
@@ -76,7 +79,7 @@ public class DiaryTagUpdateServlet extends HttpServlet {
                 return;
             }
 
-            diaryService.updateTagsAndStar(diaryId, tagIds, starRating);
+            diaryService.updateTagsStarAndReview(detail, tagIds, starRating, freshYn, diaryText);
 
         } catch (Exception e) {
             e.printStackTrace();
