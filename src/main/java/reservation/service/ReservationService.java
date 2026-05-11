@@ -137,10 +137,10 @@ public class ReservationService {
 		try {
 			DiaryDTO diaryDTO = new DiaryDTO();
 			diaryDTO.setMemberId(memberId);
-			diaryDTO.setMovieId(schedule.getMovie_id());
+			diaryDTO.setMovieId(schedule.getMovieId());
 			diaryDTO.setReservationId(reservationId);
-			diaryDTO.setWatchDate(schedule.getStart_time());
-
+			diaryDTO.setWatchDate(java.sql.Timestamp.valueOf(schedule.getStartTime()));
+			
 			diaryService.insertDiary(diaryDTO);
 		} catch (Exception e) {
 			e.printStackTrace();
