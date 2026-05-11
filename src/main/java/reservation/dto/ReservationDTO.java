@@ -64,6 +64,9 @@ public class ReservationDTO {
 	public char getStatus() {
 		return status;
 	}
+	public String getStatusText() {
+		return String.valueOf(status);
+	}
 	public void setStatus(char status) {
 		this.status = status;
 	}
