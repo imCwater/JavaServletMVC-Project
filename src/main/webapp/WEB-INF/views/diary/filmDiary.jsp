@@ -1011,6 +1011,276 @@ body {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,0.44); z-index: 800;
 }
+/* ══════════════════════════════════════════════════
+   페이지 전환
+══════════════════════════════════════════════════ */
+.sidebar-section { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.sidebar-section.active { display: flex; }
+.nb-page { display: none; flex-direction: column; flex: 1; min-height: inherit; }
+.nb-page.active { display: flex; }
+@keyframes pageFlipIn {
+  0%   { opacity: 0; transform: rotateY(-12deg) translateX(-20px); }
+  100% { opacity: 1; transform: rotateY(0) translateX(0); }
+}
+.page-flip { animation: pageFlipIn 0.32s cubic-bezier(0.25,0.46,0.45,0.94); transform-origin: left center; }
+
+/* ══════════════════════════════════════════════════
+   마스킹 테이프
+══════════════════════════════════════════════════ */
+.tape {
+  position: absolute; width: 52px; height: 15px; border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+  background-image: repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(255,255,255,0.22) 4px,rgba(255,255,255,0.22) 5px);
+  z-index: 20;
+}
+.tape-yellow { background-color: rgba(255,218,80,0.68); }
+.tape-blue   { background-color: rgba(160,200,240,0.68); }
+.tape-pink   { background-color: rgba(255,182,193,0.68); }
+.tape-tl { top:-8px; left:16px; transform:rotate(-7deg); }
+.tape-tr { top:-8px; right:16px; transform:rotate(6deg); }
+
+/* ══════════════════════════════════════════════════
+   Write Diary — 왼쪽 티켓 사이드바
+══════════════════════════════════════════════════ */
+.write-sidebar-inner {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 10px 12px; gap: 12px; flex: 1; overflow-y: auto;
+}
+.write-ticket-slot {
+  position: relative; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 12px;
+}
+.write-ticket {
+  position: relative; background: #fff;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 3px 5px 20px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
+  width: 100%; max-width: 196px;
+  transform: rotate(-1.2deg); overflow: visible;
+}
+.write-ticket-body { display: flex; overflow: hidden; border-radius: 8px 8px 0 0; }
+.write-ticket-poster { width: 76px; flex-shrink: 0; background: #e0dbd4; min-height: 110px; }
+.write-ticket-poster img { width: 76px; height: 110px; object-fit: cover; display: block; }
+.write-ticket-poster-ph {
+  width: 76px; height: 110px; display: flex; align-items: center;
+  justify-content: center; font-size: 26px; background: #e8e2da;
+}
+.write-ticket-info { flex: 1; padding: 8px 8px; border-left: 1.5px dashed #e0dbd4; }
+.wti-title { font-size: 10px; font-weight: 800; color: #1a1816; margin-bottom: 6px; line-height: 1.35; }
+.wti-row { font-size: 9px; color: #aaa; margin-bottom: 3px; line-height: 1.4; }
+.wti-row strong { color: #5a534c; }
+.write-ticket-stub {
+  position: relative; background: #fdf5e4;
+  border-top: 1.5px dashed #d4c090; border-radius: 0 0 8px 8px;
+  padding: 5px 10px; text-align: center;
+  font-size: 8px; color: #c07a10; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; overflow: hidden;
+}
+.write-ticket-stub::before, .write-ticket-stub::after {
+  content: ''; position: absolute; top: -7px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #faf6ee; box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
+}
+.write-ticket-stub::before { left: -6px; }
+.write-ticket-stub::after  { right: -6px; }
+
+/* 영화 선택 목록 */
+.ticket-select-list { width: 100%; display: flex; flex-direction: column; gap: 5px; }
+.ticket-select-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid transparent; background: #faf6ee;
+  transition: all 0.12s;
+}
+.ticket-select-item:hover { background: #fff8ed; border-color: #e8c870; }
+.ticket-select-item.sel   { background: #fff4d0; border-color: #e8a838; }
+.tsi-poster {
+  width: 26px; height: 38px; flex-shrink: 0;
+  border-radius: 3px; background: #e0dbd4; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.tsi-poster img { width:100%; height:100%; object-fit:cover; display:block; border-radius:3px; }
+.tsi-info { flex: 1; min-width: 0; }
+.tsi-title { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tsi-date  { font-size: 9px; color: #aaa; margin-top: 2px; }
+
+/* ══════════════════════════════════════════════════
+   Write Diary — 오른쪽 노트 폼
+══════════════════════════════════════════════════ */
+.diary-note-header {
+  background: #1a1816; padding: 13px 22px 11px;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(255,255,255,0.018) 4px,rgba(255,255,255,0.018) 8px);
+}
+.note-header-icon { font-size: 20px; }
+.note-header-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.08em; }
+.note-header-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.diary-note-wrap {
+  flex: 1; display: flex; flex-direction: column; overflow-y: auto;
+  background: #fff;
+  background-image: repeating-linear-gradient(to bottom,transparent 0px,transparent 27px,rgba(160,140,120,0.11) 27px,rgba(160,140,120,0.11) 28px);
+  background-position: 0 80px;
+}
+.note-movie-banner {
+  flex-shrink: 0; margin: 0 22px;
+  padding: 9px 0 7px;
+  border-bottom: 2px solid #e8a838;
+  font-size: 17px; font-weight: 900; color: #1a1816; letter-spacing: 0.02em;
+}
+.note-section { padding: 11px 22px 0; flex-shrink: 0; }
+.note-section-lbl {
+  font-size: 10px; font-weight: 800; color: #b8b0a4;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px;
+}
+/* 팝콘 평점 */
+.popcorn-row { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.pcorn-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 21px; padding: 0 1px; line-height: 1;
+  filter: grayscale(1) opacity(0.3); transition: filter 0.1s, transform 0.1s;
+}
+.pcorn-btn.lit { filter: none; }
+.pcorn-btn:hover { transform: scale(1.18); }
+.pcorn-score { font-size: 12px; font-weight: 700; color: #c07a10; margin-left: 6px; }
+/* 신선도 */
+.fresh-row { display: flex; gap: 8px; }
+.fresh-btn {
+  flex: 1; padding: 7px 6px; border-radius: 10px;
+  border: 1.5px solid #e2ddd8; background: #fafaf8;
+  cursor: pointer; text-align: center;
+  font-size: 11px; font-weight: 700; color: #aaa;
+  transition: all 0.14s;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.fresh-btn .fb-icon { font-size: 18px; }
+.fresh-btn.sel-fresh  { border-color: #4caf50; background: #f1f8e9; color: #2e7d32; }
+.fresh-btn.sel-rotten { border-color: #ef5350; background: #fce4ec; color: #c62828; }
+/* 감정 태그 */
+.note-tags-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.note-tag-cb { display: none; }
+.note-tag-lbl {
+  background: #f5f3ef; border: 1.5px solid #e2ddd8;
+  border-radius: 14px; padding: 4px 10px;
+  font-size: 11px; cursor: pointer; color: #5a534c; font-weight: 600;
+  transition: all 0.12s;
+}
+.note-tag-cb:checked + .note-tag-lbl {
+  background: #fff3dc; border-color: #e8a838; color: #7a5a00; font-weight: 700;
+}
+/* 텍스트 에어리어 */
+.note-textarea-wrap { margin: 10px 22px 0; position: relative; flex-shrink: 0; }
+.note-textarea {
+  width: 100%; min-height: 108px;
+  border: 1.5px solid #e2ddd8; border-radius: 10px;
+  padding: 11px 13px; font-size: 13px; line-height: 1.75;
+  font-family: inherit; color: #1a1816; resize: vertical;
+  background: rgba(255,255,255,0.6); outline: none;
+  transition: border-color 0.14s;
+}
+.note-textarea:focus { border-color: #e8a838; box-shadow: 0 0 0 3px rgba(232,168,56,0.12); }
+.note-charcount { position: absolute; bottom: 8px; right: 11px; font-size: 10px; color: #ccc; }
+.note-save-btn {
+  margin: 12px 22px 16px; padding: 11px; border-radius: 10px;
+  background: #e8a838; color: #fff; border: none;
+  font-size: 14px; font-weight: 800; cursor: pointer;
+  letter-spacing: 0.04em; transition: background 0.14s; flex-shrink: 0;
+}
+.note-save-btn:hover { background: #d4942a; }
+.write-empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  text-align: center; padding: 40px;
+}
+.write-empty-state .we-icon { font-size: 48px; }
+.write-empty-state .we-txt { font-size: 14px; font-weight: 700; color: #ccc; }
+
+/* ══════════════════════════════════════════════════
+   Archive — 왼쪽 사이드바
+══════════════════════════════════════════════════ */
+.archive-sidebar-inner { display: flex; flex-direction: column; padding: 12px 8px; gap: 10px; flex: 1; overflow-y: auto; }
+.archive-stat-box {
+  background: #fff8ed; border-radius: 10px;
+  border: 1px solid #f0e0b0; padding: 11px 13px;
+}
+.archive-stat-title { font-size: 10px; font-weight: 800; color: #c07a10; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.archive-stat-row {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: #8a7a68;
+  padding: 4px 0; border-bottom: 1px dashed #f0e0b0;
+}
+.archive-stat-row:last-child { border-bottom: none; }
+.archive-stat-val { font-weight: 800; color: #1a1816; }
+.archive-filter-lbl { font-size: 10px; font-weight: 700; color: #b8b0a4; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+.archive-year-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; border-radius: 7px;
+  background: none; border: 1.5px solid transparent;
+  cursor: pointer; font-size: 12px; font-weight: 600; color: #5a534c;
+  transition: all 0.12s; margin-bottom: 3px; text-align: left;
+}
+.archive-year-btn:hover  { background: #fff8ed; border-color: #e8c870; }
+.archive-year-btn.asel   { background: #fff4d0; border-color: #e8a838; color: #1a1816; }
+.archive-year-cnt {
+  background: #f0ece4; color: #999; font-size: 10px;
+  border-radius: 8px; padding: 1px 7px; font-weight: 700;
+}
+.archive-year-btn.asel .archive-year-cnt { background: #e8a838; color: #fff; }
+
+/* ══════════════════════════════════════════════════
+   Archive — 오른쪽 티켓 스크랩북
+══════════════════════════════════════════════════ */
+.archive-content-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.archive-content-header {
+  background: #1a1816; padding: 12px 22px;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.archive-content-title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.08em; }
+.archive-content-sub { font-size: 10px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+.archive-scroll { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.archive-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  text-align: center; padding: 40px; color: #ccc;
+  font-size: 14px; font-weight: 700;
+}
+.archive-ticket {
+  position: relative; display: flex; background: #fff;
+  border-radius: 8px 8px 6px 6px;
+  box-shadow: 2px 3px 14px rgba(0,0,0,0.13);
+  text-decoration: none; color: inherit; overflow: visible;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.archive-ticket:nth-child(odd)  { transform: rotate(-0.5deg); }
+.archive-ticket:nth-child(even) { transform: rotate(0.4deg); }
+.archive-ticket:hover { transform: rotate(0) translateY(-4px) !important; box-shadow: 3px 8px 28px rgba(0,0,0,0.2); z-index: 5; }
+.at-tape {
+  position: absolute; top: -8px; width: 46px; height: 13px; border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 5;
+  background-image: repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(255,255,255,0.22) 4px,rgba(255,255,255,0.22) 5px);
+}
+.at-tape-l { left:14px; transform:rotate(-5deg); background-color:rgba(255,218,80,0.62); }
+.at-tape-r { right:14px; transform:rotate(4deg);  background-color:rgba(160,200,240,0.62); }
+.at-poster { width: 70px; flex-shrink: 0; }
+.at-poster img { width:70px; height:102px; object-fit:cover; border-radius:8px 0 0 0; display:block; }
+.at-poster-ph {
+  width:70px; height:102px; background:#e8e2da; border-radius:8px 0 0 0;
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.at-info { flex:1; padding:10px 12px; border-left:1.5px dashed #e0dbd4; display:flex; flex-direction:column; gap:4px; }
+.at-title { font-size:13px; font-weight:800; }
+.at-meta  { font-size:10px; color:#aaa; }
+.at-tags  { display:flex; flex-wrap:wrap; gap:3px; }
+.at-tag   { background:#fff3dc; border:1px solid #f0c848; border-radius:8px; padding:1px 6px; font-size:9px; color:#7a5800; font-weight:600; }
+.at-star  { font-size:11px; color:#e8a838; margin-top:auto; }
+.at-stub  {
+  position:relative; background:#fdf5e4; border-top:1.5px dashed #d4c090;
+  border-radius:0 0 6px 6px; font-size:8px; color:#c07a10; font-weight:700;
+  letter-spacing:0.1em; text-align:center; padding:4px 10px; text-transform:uppercase; overflow:hidden;
+}
+.at-stub::before, .at-stub::after { content:''; position:absolute; top:-7px; width:13px; height:13px; border-radius:50%; background:#faf6ee; }
+.at-stub::before { left:-6px; }
+.at-stub::after  { right:-6px; }
+
 .modal-bg.open { display: flex; align-items: center; justify-content: center; }
 .modal-box {
   background: #fff; border-radius: 16px;
@@ -1075,48 +1345,144 @@ body {
 
   <!-- ══ 사이드바 (왼쪽 페이지) ══ -->
   <aside class="sidebar">
-    <div class="sidebar-page-title">MY FILM DIARY</div>
-    <div class="sidebar-label">📂 기록 연도</div>
-    <a href="${pageContext.request.contextPath}/diary/list.do"
-       class="${empty selectedYear ? 'active' : ''}">전체</a>
-    <c:forEach var="yr" items="${yearList}">
-      <a href="${pageContext.request.contextPath}/diary/list.do?year=${yr}"
-         class="${selectedYear eq yr ? 'active' : ''}">
-        ${yr}년 <span class="year-badge">${yr}</span>
+
+    <!-- ══ 달력 사이드바 ══ -->
+    <div id="sidebar-cal" class="sidebar-section active">
+      <div class="sidebar-page-title">MY FILM DIARY</div>
+      <div class="sidebar-label">📂 기록 연도</div>
+      <a href="${pageContext.request.contextPath}/diary/list.do"
+         class="${empty selectedYear ? 'active' : ''}">전체</a>
+      <c:forEach var="yr" items="${yearList}">
+        <a href="${pageContext.request.contextPath}/diary/list.do?year=${yr}"
+           class="${selectedYear eq yr ? 'active' : ''}">
+          ${yr}년 <span class="year-badge">${yr}</span>
+        </a>
+      </c:forEach>
+
+      <hr class="sidebar-hr">
+
+      <div class="monthly-box">
+        <div class="monthly-title">이달 요약</div>
+        <div class="monthly-row">
+          <span class="monthly-lbl">관람 편수</span>
+          <span class="monthly-val" id="mCount">-</span>
+        </div>
+        <div class="monthly-row">
+          <span class="monthly-lbl">평균 별점</span>
+          <span class="monthly-val" id="mStar">-</span>
+        </div>
+        <div class="monthly-row">
+          <span class="monthly-lbl">총 티켓</span>
+          <span class="monthly-val" id="mTicket">-</span>
+        </div>
+      </div>
+
+      <hr class="sidebar-hr">
+      <a class="stat-link" href="${pageContext.request.contextPath}/diary/stat.do">
+        📊 연간 통계
       </a>
-    </c:forEach>
 
-    <hr class="sidebar-hr">
+      <hr class="sidebar-hr">
+      <div class="poster-display">
+        <div class="poster-date-lbl" id="posterDateLbl">날짜를 선택하세요</div>
+        <div class="photocard-stack" id="photocardStack">
+          <div class="photocard-ph">🎬</div>
+        </div>
+      </div>
+    </div><!-- /#sidebar-cal -->
 
-    <div class="monthly-box">
-      <div class="monthly-title">이달 요약</div>
-      <div class="monthly-row">
-        <span class="monthly-lbl">관람 편수</span>
-        <span class="monthly-val" id="mCount">-</span>
+    <!-- ══ Write Diary 사이드바 ══ -->
+    <div id="sidebar-write" class="sidebar-section">
+      <div class="sidebar-page-title">WRITE DIARY</div>
+      <div class="write-sidebar-inner">
+        <!-- 메인 티켓 디스플레이 -->
+        <div class="write-ticket-slot">
+          <div class="tape tape-yellow tape-tl"></div>
+          <div class="tape tape-blue tape-tr"></div>
+          <div class="write-ticket">
+            <div class="write-ticket-body">
+              <div class="write-ticket-poster" id="writePosterCol">
+                <div class="write-ticket-poster-ph">🎬</div>
+              </div>
+              <div class="write-ticket-info">
+                <div class="wti-title" id="writeTicketTitle">영화를 선택하세요</div>
+                <div class="wti-row" id="writeTicketDate">날짜: —</div>
+                <div class="wti-row" id="writeTicketTheater">극장: —</div>
+              </div>
+            </div>
+            <div class="write-ticket-stub">POPFLEX · MY TICKET</div>
+          </div>
+        </div>
+        <!-- 영화 선택 목록 -->
+        <div style="width:100%;font-size:10px;font-weight:700;color:#b8b0a4;letter-spacing:0.08em;text-transform:uppercase;padding:0 4px;">Select Movie</div>
+        <div class="ticket-select-list" id="ticketSelectList">
+          <c:choose>
+            <c:when test="${not empty diaryList}">
+              <c:forEach var="d" items="${diaryList}" varStatus="s">
+                <div class="ticket-select-item${s.first ? ' sel' : ''}"
+                     onclick="selectWriteEntry(this)"
+                     data-id="${d.diaryId}"
+                     data-title="${fn:escapeXml(d.movieTitle)}"
+                     data-poster="${fn:escapeXml(d.posterUrl)}"
+                     data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
+                     data-theater="${fn:escapeXml(d.theaterName)}"
+                     data-star="${d.starRating}">
+                  <div class="tsi-poster">
+                    <c:choose>
+                      <c:when test="${not empty d.posterUrl}">
+                        <img src="${d.posterUrl}" alt="" onerror="this.style.display='none'">
+                      </c:when>
+                      <c:otherwise>🎬</c:otherwise>
+                    </c:choose>
+                  </div>
+                  <div class="tsi-info">
+                    <div class="tsi-title">${d.movieTitle}</div>
+                    <div class="tsi-date"><fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/></div>
+                  </div>
+                </div>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <div style="text-align:center;padding:20px;color:#ccc;font-size:12px;">기록된 영화가 없어요</div>
+            </c:otherwise>
+          </c:choose>
+        </div>
       </div>
-      <div class="monthly-row">
-        <span class="monthly-lbl">평균 별점</span>
-        <span class="monthly-val" id="mStar">-</span>
-      </div>
-      <div class="monthly-row">
-        <span class="monthly-lbl">총 티켓</span>
-        <span class="monthly-val" id="mTicket">-</span>
-      </div>
-    </div>
+    </div><!-- /#sidebar-write -->
 
-    <hr class="sidebar-hr">
-    <a class="stat-link" href="${pageContext.request.contextPath}/diary/stat.do">
-      📊 연간 통계
-    </a>
-
-    <hr class="sidebar-hr">
-    <!-- 날짜별 포스터 포토카드 -->
-    <div class="poster-display">
-      <div class="poster-date-lbl" id="posterDateLbl">날짜를 선택하세요</div>
-      <div class="photocard-stack" id="photocardStack">
-        <div class="photocard-ph">🎬</div>
+    <!-- ══ Archive 사이드바 ══ -->
+    <div id="sidebar-archive" class="sidebar-section">
+      <div class="sidebar-page-title">ARCHIVE</div>
+      <div class="archive-sidebar-inner">
+        <div class="archive-stat-box">
+          <div class="archive-stat-title">📊 나의 기록</div>
+          <div class="archive-stat-row">
+            <span>총 관람</span>
+            <span class="archive-stat-val" id="archTotal">-</span>
+          </div>
+          <div class="archive-stat-row">
+            <span>이번 달</span>
+            <span class="archive-stat-val" id="archThisMonth">-</span>
+          </div>
+          <div class="archive-stat-row">
+            <span>평균 별점</span>
+            <span class="archive-stat-val" id="archAvgStar">-</span>
+          </div>
+        </div>
+        <div>
+          <div class="archive-filter-lbl">📂 연도별 보기</div>
+          <button class="archive-year-btn asel" onclick="filterArchive('all',this)">
+            전체 <span class="archive-year-cnt" id="archCntAll">0</span>
+          </button>
+          <c:forEach var="yr" items="${yearList}">
+            <button class="archive-year-btn" onclick="filterArchive('${yr}',this)">
+              ${yr}년 <span class="archive-year-cnt" id="archCnt${yr}">-</span>
+            </button>
+          </c:forEach>
+        </div>
       </div>
-    </div>
+    </div><!-- /#sidebar-archive -->
+
   </aside>
 
   <!-- ══ 스프링 바인딩 ══ -->
@@ -1127,7 +1493,7 @@ body {
 
     <!-- 인덱스 탭 -->
     <div class="index-tabs">
-      <a class="index-tab active" href="${pageContext.request.contextPath}/diary/list.do" title="달력">
+      <a class="index-tab active" id="tab-cal" onclick="switchPage('cal');return false;" href="#" title="달력">
         📅<span>달력</span>
       </a>
       <a class="index-tab" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">
@@ -1136,9 +1502,18 @@ body {
       <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">
         🏅<span>뱃지</span>
       </a>
+      <a class="index-tab" id="tab-write" onclick="switchPage('write');return false;" href="#" title="Write">
+        ✍️<span>Write</span>
+      </a>
+      <a class="index-tab" id="tab-archive" onclick="switchPage('archive');return false;" href="#" title="Archive">
+        📁<span>Archive</span>
+      </a>
     </div>
 
   <div class="nb-content">
+
+    <!-- ══ 달력 페이지 ══ -->
+    <div id="page-cal" class="nb-page active">
     <!-- 달력 헤더 (오렌지) -->
     <div class="cal-header">
       <button class="cal-nav" onclick="moveMonth(-1)">‹</button>
@@ -1211,6 +1586,138 @@ body {
         </div>
       </div>
     </div><!-- /.orange-section -->
+    </div><!-- /#page-cal -->
+
+    <!-- ══ Write Diary 페이지 ══ -->
+    <div id="page-write" class="nb-page">
+      <!-- 헤더 -->
+      <div class="diary-note-header">
+        <span class="note-header-icon">✍️</span>
+        <div>
+          <div class="note-header-title">WRITE DIARY</div>
+          <div class="note-header-sub">나만의 영화 기록을 남겨보세요</div>
+        </div>
+      </div>
+      <c:choose>
+        <c:when test="${not empty diaryList}">
+          <div class="diary-note-wrap">
+            <!-- 영화 제목 배너 -->
+            <div class="note-movie-banner" id="writeMovieTitle">영화를 선택하세요</div>
+            <form id="writeForm" action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post">
+              <input type="hidden" name="diaryId"    id="writeDiaryId"   value="">
+              <input type="hidden" name="starRating" id="writeStarInput" value="0">
+              <input type="hidden" name="freshYn"    id="writeFreshInput" value="">
+              <!-- 팝콘 평점 -->
+              <div class="note-section">
+                <div class="note-section-lbl">🍿 팝콘 평점</div>
+                <div class="popcorn-row" id="popcornRow"></div>
+              </div>
+              <!-- 신선도 -->
+              <div class="note-section">
+                <div class="note-section-lbl">🌿 신선도</div>
+                <div class="fresh-row">
+                  <button type="button" class="fresh-btn" id="freshYes" onclick="setFresh('Y')">
+                    <span class="fb-icon">🍿</span>신선해요!
+                  </button>
+                  <button type="button" class="fresh-btn" id="freshNo" onclick="setFresh('N')">
+                    <span class="fb-icon">🥀</span>별로였어요
+                  </button>
+                </div>
+              </div>
+              <!-- 감정 태그 -->
+              <div class="note-section">
+                <div class="note-section-lbl">😊 감정 태그 <span style="font-size:9px;color:#ccc;font-weight:400;text-transform:none">(복수 선택)</span></div>
+                <div class="note-tags-row">
+                  <c:forEach var="tag" items="${allTags}">
+                    <input type="checkbox" class="note-tag-cb" name="tagIds"
+                           id="ntc_${tag.tagId}" value="${tag.tagId}">
+                    <label class="note-tag-lbl" for="ntc_${tag.tagId}">${tag.tagName}</label>
+                  </c:forEach>
+                </div>
+              </div>
+              <!-- 다이어리 내용 -->
+              <div class="note-section">
+                <div class="note-section-lbl">📖 나의 필름 다이어리</div>
+              </div>
+              <div class="note-textarea-wrap">
+                <textarea class="note-textarea" name="diaryText" maxlength="5000"
+                  placeholder="이 영화에 대한 나만의 다이어리를 남겨보세요! 여기에 쓴 내용은 나만 볼 수 있어요 🔒"
+                  oninput="document.getElementById('writeCharCount').textContent=this.value.length+'/5000'"></textarea>
+                <span class="note-charcount" id="writeCharCount">0/5000</span>
+              </div>
+              <button type="submit" class="note-save-btn">다이어리 저장하기 ✓</button>
+            </form>
+          </div>
+        </c:when>
+        <c:otherwise>
+          <div class="write-empty-state">
+            <div class="we-icon">🎬</div>
+            <div class="we-txt">아직 기록된 영화가 없어요<br>영화를 예매하면 자동으로 기록됩니다</div>
+          </div>
+        </c:otherwise>
+      </c:choose>
+    </div><!-- /#page-write -->
+
+    <!-- ══ Archive 페이지 ══ -->
+    <div id="page-archive" class="nb-page">
+      <div class="archive-content-wrap">
+        <div class="archive-content-header">
+          <div>
+            <div class="archive-content-title">🗂 FILM ARCHIVE</div>
+            <div class="archive-content-sub">관람한 영화들을 모아두는 나만의 보관함</div>
+          </div>
+        </div>
+        <div class="archive-scroll" id="archiveScroll">
+          <c:choose>
+            <c:when test="${not empty diaryList}">
+              <c:forEach var="d" items="${diaryList}">
+                <a class="archive-ticket"
+                   href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}"
+                   data-year="<fmt:formatDate value='${d.watchDate}' pattern='yyyy'/>">
+                  <div class="at-tape at-tape-l"></div>
+                  <div class="at-tape at-tape-r"></div>
+                  <div class="at-poster">
+                    <c:choose>
+                      <c:when test="${not empty d.posterUrl}">
+                        <img src="${d.posterUrl}" alt="${d.movieTitle}"
+                             onerror="this.parentNode.innerHTML='&lt;div class=at-poster-ph&gt;🎬&lt;/div&gt;'">
+                      </c:when>
+                      <c:otherwise><div class="at-poster-ph">🎬</div></c:otherwise>
+                    </c:choose>
+                  </div>
+                  <div class="at-info">
+                    <div class="at-title">${d.movieTitle}</div>
+                    <div class="at-meta">
+                      <fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/>
+                      <c:if test="${not empty d.theaterName}"> · ${d.theaterName}</c:if>
+                    </div>
+                    <c:if test="${not empty d.tagList}">
+                      <div class="at-tags">
+                        <c:forEach var="tag" items="${d.tagList}" end="2">
+                          <span class="at-tag">${tag}</span>
+                        </c:forEach>
+                        <c:if test="${fn:length(d.tagList) > 3}">
+                          <span class="at-tag">+${fn:length(d.tagList)-3}</span>
+                        </c:if>
+                      </div>
+                    </c:if>
+                    <c:if test="${d.starRating > 0}">
+                      <div class="at-star">
+                        <fmt:formatNumber value="${d.starRating}" maxFractionDigits="1"/>★
+                      </div>
+                    </c:if>
+                  </div>
+                  <div class="at-stub">POPFLEX · FILM TICKET</div>
+                </a>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <div class="archive-empty">🗂<br>아직 보관된 티켓이 없어요</div>
+            </c:otherwise>
+          </c:choose>
+        </div>
+      </div>
+    </div><!-- /#page-archive -->
 
   </div><!-- /.nb-content -->
   </div><!-- /.notebook-body -->
@@ -1684,8 +2191,174 @@ document.getElementById('tagModal').addEventListener('click',function(e){if(e.ta
   }, {passive: true});
 })();
 
-/* ── 초기 로드 ────────────────────────── */
+/* ── 초기 로드 + hash 처리 ────────────── */
 loadCal(curY,curM);
+(function(){
+  const hash = location.hash;
+  if(hash === '#write')   switchPage('write');
+  else if(hash === '#archive') switchPage('archive');
+})();
+
+/* ══════════════════════════════════════════════════
+   페이지 전환
+══════════════════════════════════════════════════ */
+function switchPage(page) {
+  // 탭 active
+  document.querySelectorAll('.index-tab').forEach(t => t.classList.remove('active'));
+  const activeTab = document.getElementById('tab-' + page);
+  if (activeTab) activeTab.classList.add('active');
+
+  // 사이드바 전환
+  document.querySelectorAll('.sidebar-section').forEach(s => {
+    s.classList.remove('active', 'page-flip');
+    s.style.display = 'none';
+  });
+  const sb = document.getElementById('sidebar-' + page);
+  if (sb) {
+    sb.style.display = 'flex';
+    void sb.offsetWidth;
+    sb.classList.add('active', 'page-flip');
+  }
+
+  // 컨텐츠 전환
+  document.querySelectorAll('.nb-page').forEach(p => {
+    p.classList.remove('active', 'page-flip');
+    p.style.display = 'none';
+  });
+  const pg = document.getElementById('page-' + page);
+  if (pg) {
+    pg.style.display = 'flex';
+    void pg.offsetWidth;
+    pg.classList.add('active', 'page-flip');
+  }
+
+  if (page === 'write')   initWritePage();
+  if (page === 'archive') initArchivePage();
+}
+
+/* ══ Write Diary ══ */
+function initWritePage() {
+  renderPopcorn(0);
+  const first = document.querySelector('.ticket-select-item');
+  if (first) selectWriteEntry(first);
+}
+
+function selectWriteEntry(el) {
+  document.querySelectorAll('.ticket-select-item').forEach(i => i.classList.remove('sel'));
+  el.classList.add('sel');
+
+  const id      = el.dataset.id      || '';
+  const title   = el.dataset.title   || '—';
+  const poster  = el.dataset.poster  || '';
+  const date    = el.dataset.date    || '—';
+  const theater = el.dataset.theater || '—';
+  const star    = parseFloat(el.dataset.star) || 0;
+
+  // 티켓 업데이트
+  document.getElementById('writeTicketTitle').textContent    = title;
+  document.getElementById('writeTicketDate').innerHTML       = '<strong>날짜</strong> ' + date;
+  document.getElementById('writeTicketTheater').innerHTML    = '<strong>극장</strong> ' + theater;
+  const pc = document.getElementById('writePosterCol');
+  if (pc) {
+    pc.innerHTML = poster
+      ? '<img src="'+poster+'" alt="'+title+'" onerror="this.parentNode.innerHTML=\'<div class=write-ticket-poster-ph>🎬</div>\'">'
+      : '<div class="write-ticket-poster-ph">🎬</div>';
+  }
+
+  // 폼
+  const idEl = document.getElementById('writeDiaryId');
+  const tnEl = document.getElementById('writeMovieTitle');
+  if (idEl) idEl.value = id;
+  if (tnEl) tnEl.textContent = title;
+
+  renderPopcorn(star);
+  setFresh('');
+  document.querySelectorAll('.note-tag-cb').forEach(cb => cb.checked = false);
+  const ta = document.querySelector('#writeForm textarea');
+  if (ta) { ta.value = ''; const cc = document.getElementById('writeCharCount'); if(cc) cc.textContent='0/5000'; }
+}
+
+let _curPopcorn = 0;
+function renderPopcorn(val) {
+  _curPopcorn = val;
+  const row = document.getElementById('popcornRow');
+  if (!row) return;
+  row.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pcorn-btn' + (i <= val ? ' lit' : '');
+    btn.textContent = '🍿';
+    btn.dataset.v = i;
+    btn.onmouseenter = () => highlightPopcorn(i);
+    btn.onmouseleave = () => renderPopcorn(_curPopcorn);
+    btn.onclick = () => {
+      _curPopcorn = i;
+      const si = document.getElementById('writeStarInput');
+      if (si) si.value = i;
+      renderPopcorn(i);
+    };
+    row.appendChild(btn);
+  }
+  const score = document.createElement('span');
+  score.className = 'pcorn-score';
+  score.textContent = val > 0 ? val + ' / 5' : '—';
+  row.appendChild(score);
+}
+function highlightPopcorn(v) {
+  document.querySelectorAll('.pcorn-btn').forEach((b, i) => b.classList.toggle('lit', i < v));
+}
+
+function setFresh(yn) {
+  const yes = document.getElementById('freshYes');
+  const no  = document.getElementById('freshNo');
+  const inp = document.getElementById('writeFreshInput');
+  if (yes) yes.className = 'fresh-btn' + (yn === 'Y' ? ' sel-fresh' : '');
+  if (no)  no.className  = 'fresh-btn' + (yn === 'N' ? ' sel-rotten' : '');
+  if (inp) inp.value = yn;
+}
+
+/* ══ Archive ══ */
+function initArchivePage() {
+  const tickets = document.querySelectorAll('.archive-ticket');
+  const total = tickets.length;
+  const el = document.getElementById('archTotal');
+  if (el) el.textContent = total + '편';
+  const cntAll = document.getElementById('archCntAll');
+  if (cntAll) cntAll.textContent = total;
+
+  // 연도별 카운트
+  const yearCount = {};
+  tickets.forEach(t => {
+    const y = t.dataset.year;
+    yearCount[y] = (yearCount[y] || 0) + 1;
+  });
+  Object.keys(yearCount).forEach(y => {
+    const btn = document.getElementById('archCnt' + y);
+    if (btn) btn.textContent = yearCount[y];
+  });
+
+  // 이번 달 / 평균 별점은 dayMap 기반
+  if (typeof dayMap !== 'undefined') {
+    let mc = 0, totalStar = 0, sc = 0;
+    Object.values(dayMap).forEach(arr => arr.forEach(d => {
+      mc++;
+      if (d.starRating > 0) { totalStar += d.starRating; sc++; }
+    }));
+    const m1 = document.getElementById('archThisMonth');
+    const m2 = document.getElementById('archAvgStar');
+    if (m1) m1.textContent = mc > 0 ? mc + '편' : '-';
+    if (m2) m2.textContent = sc > 0 ? (totalStar/sc).toFixed(1) + '점' : '-';
+  }
+}
+
+function filterArchive(year, btn) {
+  document.querySelectorAll('.archive-year-btn').forEach(b => b.classList.remove('asel'));
+  btn.classList.add('asel');
+  document.querySelectorAll('.archive-ticket').forEach(t => {
+    t.style.display = (year === 'all' || t.dataset.year === year) ? 'flex' : 'none';
+  });
+}
 </script>
 </body>
 </html>
