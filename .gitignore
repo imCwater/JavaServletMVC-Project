@@ -106,3 +106,8 @@ docs/
 
 # local config files
 src/main/resources/config.properties
+
+# =========================
+# Claude Code internal files
+# =========================
+.sisyphus/

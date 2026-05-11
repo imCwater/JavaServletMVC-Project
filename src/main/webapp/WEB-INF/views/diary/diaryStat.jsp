@@ -60,7 +60,7 @@ body {
   position: relative;
   z-index: 10;
   min-height: calc(100vh - 118px);
-  height: auto;
+  height: calc(100vh - 118px);
   overflow: visible;
 }
 
@@ -74,8 +74,8 @@ body {
   padding: 24px 24px 20px;
   position: relative;
   align-self: stretch;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -118,7 +118,7 @@ body {
 /* ── 스프링 ── */
 .spring-col {
   width: 50px; min-width: 50px;
-  position: relative; align-self: stretch; min-height: inherit; height: auto;
+  position: relative; align-self: stretch; min-height: 0; height: 100%;
   z-index: 30; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   padding: 14px 0; gap: 0;
@@ -156,23 +156,60 @@ body {
 }
 
 /* ── 노트 본문 ── */
-.notebook-body { flex: 1; position: relative; z-index: 5; display: flex; align-items: stretch; min-height: inherit; height: auto; overflow: visible; }
+.notebook-body { flex: 1; position: relative; z-index: 5; display: flex; align-items: stretch; min-height: 0; height: 100%; overflow: visible; }
 .notebook-body::after { display: none; }
 .nb-content {
   flex: 1; background: #fff;
   border-radius: 14px;
   border: 1px solid #e6e0d8;
+  position: relative;
   background-image: repeating-linear-gradient(
     to bottom, transparent 0px, transparent 27px,
     rgba(200,190,180,0.18) 27px, rgba(200,190,180,0.18) 28px);
   background-position: 0 52px;
   display: flex; flex-direction: column;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
   box-shadow: inset 14px 0 20px rgba(70,45,25,0.045), 0 2px 8px rgba(0,0,0,0.04);
 }
-.stat-body { overflow: visible; }
+.nb-content::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  z-index: 18;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.72) 58%, rgba(255,255,255,0.94));
+  backdrop-filter: blur(1.5px);
+}
+.nb-content::before {
+  content: '⌄';
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 19;
+  width: 26px;
+  height: 26px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(232,168,56,0.88);
+  color: #fff;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 4px 12px rgba(120,78,26,0.22);
+}
+.nb-content.has-scroll:not(.at-bottom)::after,
+.nb-content.has-scroll:not(.at-bottom)::before { opacity: 1; }
+.nb-content.has-scroll:not(.at-bottom)::before { transform: translateX(-50%) translateY(2px); }
 
 /* ── 인덱스 탭 ── */
 .index-tabs {
@@ -209,7 +246,15 @@ body {
 .year-select option { color: #1a1816; background: #fff; }
 
 /* ── 콘텐츠 본체 ── */
-.stat-body { padding: 24px 28px 32px; display: flex; flex-direction: column; gap: 24px; flex: 1; overflow: auto; }
+.stat-body { padding: 18px 24px 24px; display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; overflow: auto; }
+.stat-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(176,120,56,0.34) transparent;
+}
+.stat-body::-webkit-scrollbar { width: 6px; }
+.stat-body::-webkit-scrollbar-track { background: transparent; }
+.stat-body::-webkit-scrollbar-thumb { background: rgba(176,120,56,0.28); border-radius: 999px; }
+.stat-body::-webkit-scrollbar-thumb:hover { background: rgba(176,120,56,0.45); }
 
 /* ── 요약 카드 그리드 ── */
 .stat-grid {
@@ -221,27 +266,28 @@ body {
   background: #fafaf8;
   border: 1px solid #e6e0d8;
   border-radius: 14px;
-  padding: 20px 14px;
+  padding: 14px 12px;
   text-align: center;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-.stat-card .icon { font-size: 28px; margin-bottom: 8px; }
-.stat-card .val { font-size: 26px; font-weight: 900; color: #e8a838; line-height: 1.1; }
-.stat-card .label { font-size: 11px; color: #aaa; margin-top: 5px; }
+.stat-card .icon { font-size: 23px; margin-bottom: 5px; }
+.stat-card .val { font-size: 23px; font-weight: 900; color: #e8a838; line-height: 1.1; }
+.stat-card .label { font-size: 11px; color: #aaa; margin-top: 4px; }
 
 /* ── 차트 행 ── */
-.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .chart-box {
   background: #fafaf8;
   border: 1px solid #e6e0d8;
   border-radius: 14px;
-  padding: 20px;
+  padding: 16px;
 }
-.chart-title { font-size: 13px; font-weight: 800; margin-bottom: 14px; color: #3a3835; }
+.chart-title { font-size: 13px; font-weight: 800; margin-bottom: 10px; color: #3a3835; }
+.chart-box canvas { max-height: 150px; }
 
 /* ── 태그 빈도 바 ── */
-.tag-freq-list { display: flex; flex-direction: column; gap: 8px; }
+.tag-freq-list { display: flex; flex-direction: column; gap: 6px; }
 .tag-freq-row { display: flex; align-items: center; gap: 8px; }
 .tag-freq-name { width: 72px; font-size: 11px; font-weight: 600; text-align: right; flex-shrink: 0; color: #5a534c; }
 .tag-freq-bar-wrap { flex: 1; background: #ede8e0; border-radius: 4px; height: 14px; overflow: hidden; }
@@ -294,11 +340,11 @@ body {
 
       <!-- 인덱스 탭 -->
       <div class="index-tabs">
-        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do" title="달력">📅<span>달력</span></a>
-        <a class="index-tab active" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">📊<span>통계</span></a>
-        <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">🏅<span>뱃지</span></a>
-        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#write" title="Write">✍️<span>Write</span></a>
-        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#archive" title="Archive">📁<span>Archive</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do" title="Calendar"><span>Calendar</span></a>
+        <a class="index-tab active" href="${pageContext.request.contextPath}/diary/stat.do" title="Analytics"><span>Analytics</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="Badge"><span>Badge</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#write" title="Write"><span>Write</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#archive" title="Archive"><span>Archive</span></a>
       </div>
 
       <div class="nb-content">
@@ -455,6 +501,22 @@ new Chart(ctx, {
     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
   }
 });
+
+function updateScrollHint(){
+  const content = document.querySelector('.nb-content');
+  const scroller = document.querySelector('.stat-body');
+  if(!content || !scroller) return;
+  const hasScroll = scroller.scrollHeight - scroller.clientHeight > 2;
+  const atBottom = !hasScroll || scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
+  content.classList.toggle('has-scroll', hasScroll);
+  content.classList.toggle('at-bottom', atBottom);
+}
+
+document.querySelector('.stat-body').addEventListener('scroll', updateScrollHint, { passive: true });
+window.addEventListener('resize', updateScrollHint);
+new ResizeObserver(updateScrollHint).observe(document.querySelector('.stat-body'));
+setTimeout(updateScrollHint, 0);
+setTimeout(updateScrollHint, 250);
 </script>
 </body>
 </html>

@@ -188,9 +188,8 @@ body {
   gap: 8px;
   position: relative;
   z-index: 10;
-  /* 책 전체 높이 기준: 기본은 화면에 맞추고, 내용이 많으면 자동으로 늘어남 */
   min-height: calc(100vh - 118px);
-  height: auto;
+  height: calc(100vh - 118px);
   overflow: visible;
 }
 
@@ -206,8 +205,8 @@ body {
   padding: 24px 24px 20px;
   position: relative;
   align-self: stretch;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
   box-shadow: none;
   z-index: 10;
   display: flex;
@@ -279,8 +278,8 @@ body {
   min-width: 50px;
   position: relative;
   align-self: stretch;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
   z-index: 30;
   overflow: hidden;
   display: flex;
@@ -405,8 +404,8 @@ body {
   z-index: 5;
   display: flex;
   align-items: stretch;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
   overflow: visible; /* 인덱스 탭이 밖으로 나오도록 */
 }
 .notebook-body::after { display: none; }
@@ -417,8 +416,9 @@ body {
   border-radius: 14px;
   border: 1px solid #e6e0d8;
   overflow: hidden;
-  min-height: inherit;
-  height: auto;
+  min-height: 0;
+  height: 100%;
+  position: relative;
   box-shadow:
     inset 14px 0 20px rgba(70,45,25,0.045),
     0 2px 8px rgba(0,0,0,0.04);
@@ -431,6 +431,43 @@ body {
   display: flex;
   flex-direction: column;
 }
+.nb-content::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  z-index: 18;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.72) 58%, rgba(255,255,255,0.94));
+  backdrop-filter: blur(1.5px);
+}
+.nb-content::before {
+  content: '⌄';
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 19;
+  width: 26px;
+  height: 26px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(232,168,56,0.88);
+  color: #fff;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 4px 12px rgba(120,78,26,0.22);
+}
+.nb-content.has-scroll:not(.at-bottom)::after,
+.nb-content.has-scroll:not(.at-bottom)::before { opacity: 1; }
+.nb-content.has-scroll:not(.at-bottom)::before { transform: translateX(-50%) translateY(2px); }
 /* ── 인덱스 탭 (오른쪽 가장자리) ── */
 .index-tabs {
   position: absolute;
@@ -672,6 +709,7 @@ body {
   display: block;
   width: 14px;
   height: 14px;
+  margin: 0 auto;
   border-right: 3px solid #e8a838;
   border-bottom: 3px solid #e8a838;
   transform: rotate(45deg);
@@ -1014,10 +1052,31 @@ body {
 /* ══════════════════════════════════════════════════
    페이지 전환
 ══════════════════════════════════════════════════ */
-.sidebar-section { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.sidebar-section { display: none; flex-direction: column; flex: 1; min-height: 0; overflow: auto; }
 .sidebar-section.active { display: flex; }
-.nb-page { display: none; flex-direction: column; flex: 1; min-height: inherit; }
+.nb-page { display: none; flex-direction: column; flex: 1; min-height: 0; overflow: auto; }
 .nb-page.active { display: flex; }
+.nb-page,
+.sidebar-section,
+.write-sidebar-inner {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(176,120,56,0.34) transparent;
+}
+.nb-page::-webkit-scrollbar,
+.sidebar-section::-webkit-scrollbar,
+.write-sidebar-inner::-webkit-scrollbar { width: 6px; }
+.nb-page::-webkit-scrollbar-track,
+.sidebar-section::-webkit-scrollbar-track,
+.write-sidebar-inner::-webkit-scrollbar-track { background: transparent; }
+.nb-page::-webkit-scrollbar-thumb,
+.sidebar-section::-webkit-scrollbar-thumb,
+.write-sidebar-inner::-webkit-scrollbar-thumb {
+  background: rgba(176,120,56,0.28);
+  border-radius: 999px;
+}
+.nb-page::-webkit-scrollbar-thumb:hover,
+.sidebar-section::-webkit-scrollbar-thumb:hover,
+.write-sidebar-inner::-webkit-scrollbar-thumb:hover { background: rgba(176,120,56,0.45); }
 @keyframes pageFlipIn {
   0%   { opacity: 0; transform: rotateY(-12deg) translateX(-20px); }
   100% { opacity: 1; transform: rotateY(0) translateX(0); }
@@ -1108,13 +1167,14 @@ body {
    Write Diary — 오른쪽 노트 폼
 ══════════════════════════════════════════════════ */
 .diary-note-header {
-  background: #1a1816; padding: 13px 22px 11px;
+  background: #e8a838;
+  padding: 18px 28px;
   display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-  background-image: repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(255,255,255,0.018) 4px,rgba(255,255,255,0.018) 8px);
+  background-image: none;
 }
-.note-header-icon { font-size: 20px; }
-.note-header-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.08em; }
-.note-header-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.note-header-icon { font-size: 24px; }
+.note-header-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 0.02em; }
+.note-header-sub { font-size: 12px; color: rgba(255,255,255,0.76); margin-top: 3px; }
 .diary-note-wrap {
   flex: 1; display: flex; flex-direction: column; overflow-y: auto;
   background: #fff;
@@ -1225,30 +1285,168 @@ body {
   border-radius: 8px; padding: 1px 7px; font-weight: 700;
 }
 .archive-year-btn.asel .archive-year-cnt { background: #e8a838; color: #fff; }
+.archive-detail-ticket { display: none; flex: 1; flex-direction: column; padding: 16px 16px 20px; gap: 14px; }
+#sidebar-archive.detail-mode .archive-sidebar-inner { display: none; }
+#sidebar-archive.detail-mode .archive-detail-ticket { display: flex; }
+.archive-back-btn {
+  align-self: flex-start;
+  border: 1.5px solid #f0c84a;
+  background: #fff8ed;
+  color: #9a6418;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.archive-detail-card {
+  background: #fff;
+  border: 1px solid #e6e0d8;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.archive-detail-poster-wrap { background: #eee8df; min-height: 220px; display: flex; align-items: center; justify-content: center; }
+.archive-detail-poster { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+.archive-detail-poster-ph { display: none; font-size: 46px; color: #b8b0a4; }
+.archive-detail-card-info { padding: 14px 16px 16px; }
+.archive-detail-card-title { font-size: 17px; font-weight: 900; color: #1a1816; line-height: 1.35; }
+.archive-detail-card-meta { margin-top: 8px; font-size: 12px; color: #8a7a68; line-height: 1.6; }
+.archive-detail-card-star { margin-top: 10px; color: #e8a838; font-size: 13px; font-weight: 800; }
 
 /* ══════════════════════════════════════════════════
    Archive — 오른쪽 티켓 스크랩북
 ══════════════════════════════════════════════════ */
 .archive-content-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.archive-content-wrap.detail-mode .archive-content-header,
+.archive-content-wrap.detail-mode .archive-scroll { display: none; }
+.archive-content-wrap.detail-mode .archive-review-detail { display: flex; }
 .archive-content-header {
-  background: #1a1816; padding: 12px 22px;
+  background: #e8a838;
+  padding: 18px 28px;
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
 }
-.archive-content-title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.08em; }
-.archive-content-sub { font-size: 10px; color: rgba(255,255,255,0.38); margin-top: 2px; }
-.archive-scroll { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.archive-content-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 0.02em; }
+.archive-content-sub { font-size: 12px; color: rgba(255,255,255,0.76); margin-top: 3px; }
+.archive-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 16px;
+}
 .archive-empty {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 10px;
-  text-align: center; padding: 40px; color: #ccc;
-  font-size: 14px; font-weight: 700;
+  text-align: center; padding: 44px 24px; color: #5a534c;
+}
+.archive-empty-illust {
+  position: relative;
+  width: 172px;
+  height: 128px;
+  margin-bottom: 8px;
+}
+.archive-empty-folder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 104px;
+  border-radius: 18px 18px 16px 16px;
+  background: linear-gradient(135deg, #fff1a8 0%, #ffe05a 72%, #ffd000 100%);
+  box-shadow: inset 14px 0 0 rgba(255,255,255,0.28), 0 10px 26px rgba(232,168,56,0.18);
+}
+.archive-empty-folder::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -28px;
+  width: 82px;
+  height: 42px;
+  border-radius: 16px 16px 0 0;
+  background: #fff0a6;
+}
+.archive-empty-folder::after {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 58px;
+  width: 62px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ffc107;
+  box-shadow: 0 22px 0 0 #ffc107;
+}
+.archive-empty-bubble {
+  position: absolute;
+  right: -16px;
+  top: -16px;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eefaff 0%, #d9ecf7 100%);
+  box-shadow: -8px 8px 0 rgba(175,213,232,0.45);
+  color: #86b8c5;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 82px;
+}
+.archive-empty-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #5a534c;
+}
+.archive-empty-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b0a898;
 }
 .archive-ticket {
   position: relative; display: flex; background: #fff;
+  width: calc(50% - 8px);
+  min-width: 280px;
   border-radius: 8px 8px 6px 6px;
   box-shadow: 2px 3px 14px rgba(0,0,0,0.13);
   text-decoration: none; color: inherit; overflow: visible;
   transition: transform 0.18s, box-shadow 0.18s;
+}
+.archive-review-detail {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  padding: 28px 32px;
+  overflow-y: auto;
+  background: #fff;
+  background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, rgba(200,190,180,0.14) 27px, rgba(200,190,180,0.14) 28px);
+  background-position: 0 68px;
+}
+.archive-review-kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.16em; color: #c8bfb4; text-transform: uppercase; }
+.archive-review-title { margin-top: 10px; font-size: 24px; font-weight: 900; color: #1a1816; line-height: 1.3; }
+.archive-review-meta { margin-top: 8px; font-size: 12px; color: #9a8b7c; }
+.archive-review-fresh {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff3dc;
+  border: 1px solid #f0c84a;
+  color: #9a6418;
+  font-size: 12px;
+  font-weight: 800;
+}
+.archive-review-content {
+  margin-top: 24px;
+  padding: 22px 0 32px;
+  color: #3a3228;
+  font-size: 15px;
+  line-height: 1.9;
+  white-space: pre-wrap;
 }
 .archive-ticket:nth-child(odd)  { transform: rotate(-0.5deg); }
 .archive-ticket:nth-child(even) { transform: rotate(0.4deg); }
@@ -1481,6 +1679,20 @@ body {
           </c:forEach>
         </div>
       </div>
+      <div class="archive-detail-ticket" id="archiveDetailTicket">
+        <button type="button" class="archive-back-btn" onclick="closeArchiveDetail()">← Archive</button>
+        <div class="archive-detail-card">
+          <div class="archive-detail-poster-wrap">
+            <img class="archive-detail-poster" id="archiveDetailPoster" src="" alt="" style="display:none">
+            <div class="archive-detail-poster-ph" id="archiveDetailPosterPh">🎬</div>
+          </div>
+          <div class="archive-detail-card-info">
+            <div class="archive-detail-card-title" id="archiveDetailSideTitle">영화 제목</div>
+            <div class="archive-detail-card-meta" id="archiveDetailSideMeta">관람 정보</div>
+            <div class="archive-detail-card-star" id="archiveDetailSideStar"></div>
+          </div>
+        </div>
+      </div>
     </div><!-- /#sidebar-archive -->
 
   </aside>
@@ -1494,19 +1706,19 @@ body {
     <!-- 인덱스 탭 -->
     <div class="index-tabs">
       <a class="index-tab active" id="tab-cal" onclick="switchPage('cal');return false;" href="#" title="달력">
-        📅<span>달력</span>
+        <span>Calendar</span>
       </a>
       <a class="index-tab" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">
-        📊<span>통계</span>
+        <span>Analytics</span>
       </a>
       <a class="index-tab" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">
-        🏅<span>뱃지</span>
+        <span>Badge</span>
       </a>
       <a class="index-tab" id="tab-write" onclick="switchPage('write');return false;" href="#" title="Write">
-        ✍️<span>Write</span>
+        <span>Write</span>
       </a>
       <a class="index-tab" id="tab-archive" onclick="switchPage('archive');return false;" href="#" title="Archive">
-        📁<span>Archive</span>
+        <span>Archive</span>
       </a>
     </div>
 
@@ -1663,17 +1875,26 @@ body {
       <div class="archive-content-wrap">
         <div class="archive-content-header">
           <div>
-            <div class="archive-content-title">🗂 FILM ARCHIVE</div>
-            <div class="archive-content-sub">관람한 영화들을 모아두는 나만의 보관함</div>
+            <div class="archive-content-title">FILM ARCHIVE</div>
+            <div class="archive-content-sub">나의 다이어리 기록</div>
           </div>
         </div>
         <div class="archive-scroll" id="archiveScroll">
-          <c:choose>
-            <c:when test="${not empty diaryList}">
-              <c:forEach var="d" items="${diaryList}">
+          <c:set var="archiveCount" value="0" />
+          <c:forEach var="d" items="${diaryList}">
+            <c:if test="${not empty d.reviewId}">
+              <c:set var="archiveCount" value="${archiveCount + 1}" />
                 <a class="archive-ticket"
                    href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}"
-                   data-year="<fmt:formatDate value='${d.watchDate}' pattern='yyyy'/>">
+                   onclick="openArchiveDetail(this);return false;"
+                   data-title="${fn:escapeXml(d.movieTitle)}"
+                   data-poster="${fn:escapeXml(d.posterUrl)}"
+                   data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
+                   data-year="<fmt:formatDate value='${d.watchDate}' pattern='yyyy'/>"
+                   data-theater="${fn:escapeXml(d.theaterName)}"
+                   data-star="${d.starRating}"
+                   data-fresh="${d.reviewFreshYn}"
+                   data-review-content="${fn:escapeXml(d.reviewContent)}">
                   <div class="at-tape at-tape-l"></div>
                   <div class="at-tape at-tape-r"></div>
                   <div class="at-poster">
@@ -1709,12 +1930,25 @@ body {
                   </div>
                   <div class="at-stub">POPFLEX · FILM TICKET</div>
                 </a>
-              </c:forEach>
-            </c:when>
-            <c:otherwise>
-              <div class="archive-empty">🗂<br>아직 보관된 티켓이 없어요</div>
-            </c:otherwise>
-          </c:choose>
+            </c:if>
+          </c:forEach>
+          <c:if test="${archiveCount == 0}">
+            <div class="archive-empty">
+              <div class="archive-empty-illust" aria-hidden="true">
+                <div class="archive-empty-folder"></div>
+                <div class="archive-empty-bubble">?</div>
+              </div>
+              <div class="archive-empty-title">아직 작성한 다이어리가 없어요.</div>
+              <div class="archive-empty-sub">나만의 Film Diary로 채워보세요!</div>
+            </div>
+          </c:if>
+        </div>
+        <div class="archive-review-detail" id="archiveReviewDetail">
+          <div class="archive-review-kicker">Film Diary</div>
+          <div class="archive-review-title" id="archiveReviewTitle">영화 제목</div>
+          <div class="archive-review-meta" id="archiveReviewMeta">관람 정보</div>
+          <div class="archive-review-fresh" id="archiveReviewFresh">터졌다</div>
+          <div class="archive-review-content" id="archiveReviewContent"></div>
         </div>
       </div>
     </div><!-- /#page-archive -->
@@ -1970,7 +2204,7 @@ function renderCal(y,m,data){
 
   const def=(y===today.getFullYear()&&m===today.getMonth()+1)?today.getDate():1;
   if(weekOff===0) selD=def;
-  renderWeek(); renderDated(); renderPosters();
+  renderWeek(); renderDated(); renderPosters(); updateScrollHints();
 }
 
 /* ── 날짜 선택 ────────────────────────── */
@@ -1982,7 +2216,7 @@ function selectDay(day){
     const d=parseInt(dn.textContent);
     c.classList.toggle('selected',d===day);
   });
-  renderWeek(); renderDated(); renderPosters();
+  renderWeek(); renderDated(); renderPosters(); updateScrollHints();
 }
 
 /* ── 주간 strip ───────────────────────── */
@@ -2168,27 +2402,10 @@ function renderStarBtns(val){
 }
 document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-/* ══════════════════════════════════════════════════
-   스크롤 연동 — 달력 축소
-   ★ 수정: window.scrollY 기준, sticky 없음 → 맨 위로 튀는 현상 제거
-══════════════════════════════════════════════════ */
+/* 내부 스크롤에서는 달력 높이를 바꾸지 않는다. */
 (function(){
-  const calWrap = document.getElementById('calWrap');
-  const hint    = document.getElementById('scrollHint');
-  let collapsed = false;
-
-  window.addEventListener('scroll', ()=>{
-    const scrollY = window.scrollY || window.pageYOffset;
-    if(!collapsed && scrollY > 120){
-      calWrap.classList.add('collapsed');
-      if(hint) hint.style.display = 'none';
-      collapsed = true;
-    } else if(collapsed && scrollY < 60){
-      calWrap.classList.remove('collapsed');
-      if(hint) hint.style.display = 'block';
-      collapsed = false;
-    }
-  }, {passive: true});
+  const hint = document.getElementById('scrollHint');
+  if(hint) hint.style.display = 'flex';
 })();
 
 /* ── 초기 로드 + hash 처리 ────────────── */
@@ -2203,6 +2420,8 @@ loadCal(curY,curM);
    페이지 전환
 ══════════════════════════════════════════════════ */
 function switchPage(page) {
+  if (page !== 'archive') closeArchiveDetail();
+
   // 탭 active
   document.querySelectorAll('.index-tab').forEach(t => t.classList.remove('active'));
   const activeTab = document.getElementById('tab-' + page);
@@ -2234,7 +2453,27 @@ function switchPage(page) {
 
   if (page === 'write')   initWritePage();
   if (page === 'archive') initArchivePage();
+  updateScrollHints();
 }
+
+function updateScrollHints(){
+  document.querySelectorAll('.nb-content').forEach(content => {
+    const scroller = content.querySelector('.nb-page.active');
+    if(!scroller) return;
+    const hasScroll = scroller.scrollHeight - scroller.clientHeight > 2;
+    const atBottom = !hasScroll || scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
+    content.classList.toggle('has-scroll', hasScroll);
+    content.classList.toggle('at-bottom', atBottom);
+  });
+}
+
+document.querySelectorAll('.nb-page').forEach(page => {
+  page.addEventListener('scroll', updateScrollHints, { passive: true });
+});
+window.addEventListener('resize', updateScrollHints);
+new ResizeObserver(updateScrollHints).observe(document.querySelector('.nb-content'));
+setTimeout(updateScrollHints, 0);
+setTimeout(updateScrollHints, 250);
 
 /* ══ Write Diary ══ */
 function initWritePage() {
@@ -2350,14 +2589,100 @@ function initArchivePage() {
     if (m1) m1.textContent = mc > 0 ? mc + '편' : '-';
     if (m2) m2.textContent = sc > 0 ? (totalStar/sc).toFixed(1) + '점' : '-';
   }
+  updateScrollHints();
+}
+
+function openArchiveDetail(ticket) {
+  if (!ticket) return;
+
+  const data = ticket.dataset;
+  const title = data.title || '영화 제목';
+  const date = data.date || '';
+  const year = data.year || '';
+  const theater = data.theater || '';
+  const star = Number(data.star);
+  const fresh = data.fresh || '';
+  const reviewContent = data.reviewContent || '';
+  const meta = [date || year, theater].filter(Boolean).join(' · ');
+
+  const poster = document.getElementById('archiveDetailPoster');
+  const posterPh = document.getElementById('archiveDetailPosterPh');
+  const showPosterFallback = function() {
+    if (poster) {
+      poster.removeAttribute('src');
+      poster.style.display = 'none';
+    }
+    if (posterPh) posterPh.style.display = 'block';
+  };
+
+  if (poster && data.poster) {
+    poster.onload = function() {
+      poster.style.display = 'block';
+      if (posterPh) posterPh.style.display = 'none';
+    };
+    poster.onerror = showPosterFallback;
+    poster.alt = title;
+    poster.src = data.poster;
+    poster.style.display = 'block';
+    if (posterPh) posterPh.style.display = 'none';
+  } else {
+    showPosterFallback();
+  }
+
+  const sideTitle = document.getElementById('archiveDetailSideTitle');
+  const sideMeta = document.getElementById('archiveDetailSideMeta');
+  const sideStar = document.getElementById('archiveDetailSideStar');
+  const reviewTitle = document.getElementById('archiveReviewTitle');
+  const reviewMeta = document.getElementById('archiveReviewMeta');
+  const reviewFresh = document.getElementById('archiveReviewFresh');
+  const reviewText = document.getElementById('archiveReviewContent');
+
+  if (sideTitle) sideTitle.textContent = title;
+  if (sideMeta) sideMeta.textContent = meta || '관람 정보 없음';
+  if (sideStar) sideStar.textContent = Number.isFinite(star) && star > 0 ? data.star + '★' : '';
+  if (reviewTitle) reviewTitle.textContent = title;
+  if (reviewMeta) reviewMeta.textContent = meta || '관람 정보 없음';
+  if (reviewFresh) {
+    if (fresh === 'Y') {
+      reviewFresh.textContent = '🍿 신선해요!';
+      reviewFresh.style.display = 'inline-flex';
+    } else if (fresh === 'N') {
+      reviewFresh.textContent = '🥀 별로였어요';
+      reviewFresh.style.display = 'inline-flex';
+    } else {
+      reviewFresh.textContent = '';
+      reviewFresh.style.display = 'none';
+    }
+  }
+  if (reviewText) reviewText.textContent = reviewContent || '저장된 리뷰 내용이 없어요.';
+
+  const sidebar = document.getElementById('sidebar-archive');
+  const wrap = document.querySelector('.archive-content-wrap');
+  if (sidebar) sidebar.classList.add('detail-mode');
+  if (wrap) wrap.classList.add('detail-mode');
+  updateScrollHints();
+}
+
+function closeArchiveDetail() {
+  const sidebar = document.getElementById('sidebar-archive');
+  const wrap = document.querySelector('.archive-content-wrap');
+  const reviewDetail = document.getElementById('archiveReviewDetail');
+  if (sidebar) sidebar.classList.remove('detail-mode');
+  if (wrap) wrap.classList.remove('detail-mode');
+  if (reviewDetail) reviewDetail.scrollTop = 0;
+  updateScrollHints();
 }
 
 function filterArchive(year, btn) {
+  closeArchiveDetail();
   document.querySelectorAll('.archive-year-btn').forEach(b => b.classList.remove('asel'));
   btn.classList.add('asel');
   document.querySelectorAll('.archive-ticket').forEach(t => {
     t.style.display = (year === 'all' || t.dataset.year === year) ? 'flex' : 'none';
   });
+  const archiveScroll = document.getElementById('archiveScroll');
+  if (archiveScroll) archiveScroll.scrollTop = 0;
+  updateScrollHints();
 }
 </script>
 </body>
