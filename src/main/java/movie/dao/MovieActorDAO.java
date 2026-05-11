@@ -1,37 +1,24 @@
 package movie.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.management.RuntimeErrorException;
+
+import common.DBUtil;
 import movie.dto.MovieActorDTO;
 
 public class MovieActorDAO {
 
-    private String driver = "oracle.jdbc.driver.OracleDriver";
-    private String url = "jdbc:oracle:thin:@localhost:1521/testdb";
-
-    // 나중에는 config.properties로 빼는 게 좋음
-    private String user = "scott";
-    private String password = "tiger";
-
-    public Connection dbcon() {
-        Connection con = null;
-
+	public Connection dbcon() {
         try {
-            Class.forName(driver);
-            con = DriverManager.getConnection(url, user, password);
-            System.out.println("db ok");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            return DBUtil.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("db 연결 실패: DBUtil의 URL/USER/PASSWORD를 확인하세요.");
         }
-
-        return con;
     }
 
     // movie_actor_id 직접 생성용
@@ -164,19 +151,7 @@ public class MovieActorDAO {
     }
 
     private void close(ResultSet rs, PreparedStatement pst, Connection con) {
-        try {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pst != null) {
-                pst.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        DBUtil.close(rs,pst,con);
     }
 
     /*

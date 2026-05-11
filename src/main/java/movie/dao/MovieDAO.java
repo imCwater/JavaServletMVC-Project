@@ -1,38 +1,26 @@
 package movie.dao;
 
+
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import common.DBUtil;
 import movie.dto.MovieDTO;
 
 public class MovieDAO {
 
-    private String driver = "oracle.jdbc.driver.OracleDriver";
-    String url = "jdbc:oracle:thin:@localhost:1521/testdb";
-
-    // 나중에는 config.properties로 빼는 게 좋음
-    private String user = "scott";
-    private String password = "tiger";
+    
 
     public Connection dbcon() {
-        Connection con = null;
-
         try {
-            Class.forName(driver);
-            con = DriverManager.getConnection(url, user, password);
-            System.out.println("db ok");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            return DBUtil.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("db 연결 실패: DBUtil의 URL/USER/PASSWORD를 확인하세요.");
         }
-
-        return con;
     }
 
     // 문자열 날짜 yyyyMMdd -> java.sql.Date 변환
@@ -483,12 +471,6 @@ public class MovieDAO {
     
 
     private void close(ResultSet rs, PreparedStatement pst, Connection con) {
-        try {
-            if (rs != null) rs.close();
-            if (pst != null) pst.close();
-            if (con != null) con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        DBUtil.close(rs,pst,con);
     }
 }
