@@ -53,7 +53,7 @@ public class ScheduleDetailServlet extends HttpServlet {
 //				scheduleId에 해당하는 상영일정이 없으면 404 상태코드 반환
 				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				json.put("success", false);
-				json.put("message", "scheduleId의 상영일정이 없습니다.");
+				json.put("message", "해당 scheduleId의 상영 일정이 없습니다.");
 			} else {
 //				조회된 상영일정 1건을 담을  json 객체 생성
 				JSONObject item = new JSONObject();

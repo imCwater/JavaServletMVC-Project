@@ -20,14 +20,22 @@ public class ScheduleDAO {
 		dto.setScheduleId(rs.getInt("schedule_id"));
 		dto.setMovieId(rs.getInt("movie_id"));
 		dto.setScreenId(rs.getInt("screen_id"));
-		dto.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-
+		
+		Timestamp startTimeStamp = rs.getTimestamp("start_time");
+		if (startTimeStamp != null) {
+			dto.setStartTime(startTimeStamp.toLocalDateTime());
+		} else {
+			dto.setStartTime(null);
+		}
+		
 		Timestamp endTimeStamp = rs.getTimestamp("end_time");
 		if (endTimeStamp != null) {
 			dto.setEndTime(endTimeStamp.toLocalDateTime());
 		} else {
 			dto.setEndTime(null);
 		}
+		
+			
 		dto.setPrice(rs.getInt("price"));
 
 		return dto;

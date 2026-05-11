@@ -1,15 +1,15 @@
 package schedule.dto;
 
-public class Theater {
+public class TheaterDTO {
 	int theaterId;		// 극장 id
 	String theaterName;	// 극장명
 	String location;	// 지역/주소
 	
-	public Theater() {
+	public TheaterDTO() {
 		
 	}
 
-	public Theater(int theaterId, String theaterName, String location) {
+	public TheaterDTO(int theaterId, String theaterName, String location) {
 		this.theaterId = theaterId;
 		this.theaterName = theaterName;
 		this.location = location;

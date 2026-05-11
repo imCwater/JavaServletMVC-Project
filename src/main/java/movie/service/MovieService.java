@@ -1,7 +1,10 @@
 package movie.service;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
+import common.DBUtil;
 import movie.dao.MovieActorDAO;
 import movie.dao.MovieDAO;
 import movie.dao.MovieKeywordDAO;
@@ -11,16 +14,16 @@ import movie.dto.MovieKeywordDTO;
 
 public class MovieService {
 
-	private MovieDAO dao = new MovieDAO();
 	private MovieApiService apiService = new MovieApiService();
 	private MovieActorDAO actorDAO = new MovieActorDAO();
 	private MovieKeywordDAO keywordDAO = new MovieKeywordDAO();
+	private MovieDAO movieDAO = new MovieDAO();
 
     // 1. 영화 저장
     // 새 영화라고 확정된 경우 사용
     // 반환값: 저장 성공 시 MOVIE_ID, 실패 시 0
     public int saveMovie(MovieDTO movie) {
-        return dao.insertMovieAndReturnId(movie);
+        return saveMovieIfNotExists(movie);
     }
 
     // 3. 중복 저장 방지 저장
@@ -28,42 +31,89 @@ public class MovieService {
     // 없으면 새로 저장 후 새 MOVIE_ID 반환
     // 반환값: MOVIE_ID, 실패 시 0
     public int saveMovieIfNotExists(MovieDTO movie) {
-    	
-//    	API 결과가 비정상일 때 NullPointerException 막는 용도
-        if (movie == null) {
-            return 0;
-        }
 
-//      이미 저장된 영화인지 확인
-        MovieDTO savedMovie = dao.findByKmdbIdAndSeq(
+    if (movie == null) {
+        return 0;
+    }
+
+    if (movie.getKmdbMovieId() == null || movie.getKmdbMovieId().trim().isEmpty()
+            || movie.getKmdbMovieSeq() == null || movie.getKmdbMovieSeq().trim().isEmpty()) {
+        return 0;
+    }
+
+    Connection con = null;
+
+    try {
+        con = DBUtil.getConnection();
+
+        // 여기부터 직접 commit하지 않겠다는 뜻
+        con.setAutoCommit(false);
+
+        // 1. 같은 KMDb movieId + movieSeq가 이미 있는지 확인
+        MovieDTO savedMovie = movieDAO.findByKmdbIdAndSeq(
+                con,
                 movie.getKmdbMovieId(),
                 movie.getKmdbMovieSeq()
         );
-//		이미 있으면 새로 저장하지 않음
+
         if (savedMovie != null) {
-            movie.setMovieId(savedMovie.getMovieId());
+            con.commit();
             return savedMovie.getMovieId();
         }
-//		없으면 MOVIE 저장
-        int movieId = dao.insertMovieAndReturnId(movie);
 
-//      영화면 배우/키워드 저장
-        if (movieId > 0) {
-            actorDAO.insertActors(movieId, movie.getActorNm());
-            keywordDAO.insertKeywords(movieId, movie.getKeywords());
+        // 2. MOVIE 저장
+        int movieId = movieDAO.insertMovieAndReturnId(con, movie);
+
+        if (movieId <= 0) {
+            throw new SQLException("MOVIE 저장 실패");
         }
 
+        // 3. MOVIE_ACTOR 저장
+        actorDAO.insertActors(con, movieId, movie.getActorNm());
+
+        // 4. MOVIE_KEYWORD 저장
+        keywordDAO.insertKeywords(con, movieId, movie.getKeywords());
+
+        // 5. 전부 성공하면 commit
+        con.commit();
+
         return movieId;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+
+        // 중간에 하나라도 실패하면 전부 취소
+        if (con != null) {
+            try {
+                con.rollback();
+            } catch (SQLException rollbackException) {
+                rollbackException.printStackTrace();
+            }
+        }
+
+        return 0;
+
+    } finally {
+        if (con != null) {
+            try {
+                // 커넥션 풀/다른 코드 영향 방지용
+                con.setAutoCommit(true);
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
+}
     
     // KMDb 식별자 기준 영화 조회
     public MovieDTO findByKmdbIdAndSeq(String kmdbMovieId, String kmdbMovieSeq) {
-        return dao.findByKmdbIdAndSeq(kmdbMovieId, kmdbMovieSeq);
+        return movieDAO.findByKmdbIdAndSeq(kmdbMovieId, kmdbMovieSeq);
     }
     
     // DB에 저장된 영화 중 제목으로 검색
     public ArrayList<MovieDTO> searchSavedMoviesByTitle(String query) {
-        return dao.searchByTitle(query);
+        return movieDAO.searchByTitle(query);
     }
     
     
@@ -80,11 +130,11 @@ public class MovieService {
      kmdbMovieSeq = kmdbMovieSeq.trim();
 
      // 1. 이미 DB에 저장된 영화인지 확인
-     MovieDTO savedMovie = dao.findByKmdbIdAndSeq(kmdbMovieId, kmdbMovieSeq);
+     MovieDTO savedMovie = movieDAO.findByKmdbIdAndSeq(kmdbMovieId, kmdbMovieSeq);
 
      // 2. 이미 있으면 MOVIE 조회 후 배우/키워드도 채워서 반환
      if (savedMovie != null) {
-    	 MovieDTO movie = dao.findByMovieId(savedMovie.getMovieId());
+    	 MovieDTO movie = movieDAO.findByMovieId(savedMovie.getMovieId());
     	 fillActorAndKeyword(movie);
          return movie;
      }
@@ -104,7 +154,7 @@ public class MovieService {
      }
 
      // 5. MOVIE_ID 기준으로 다시 조회
-     MovieDTO movie = dao.findByMovieId(movieId);
+     MovieDTO movie = movieDAO.findByMovieId(movieId);
      fillActorAndKeyword(movie);
 
      return movie;

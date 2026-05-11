@@ -81,11 +81,30 @@ public class MovieSearchService {
 
 		MovieApiSearchResultDTO apiResult = movieApiService.searchMovies(query, currentPage, PAGE_SIZE);
 
+//		api 장애, 파싱 실패 시 검색화면이 500으로 터지는 거 방지
+		if(apiResult == null || apiResult.getMovies() == null) {
+			PagingDTO paging = new PagingDTO(currentPage, PAGE_SIZE, PAGE_BLOCK_SIZE, 0);
+			result.setMovieItems(new ArrayList<>());
+			result.setPaging(paging);
+			result.setHasResult(false);
+			return result;
+		}
 		PagingDTO paging = new PagingDTO(currentPage, PAGE_SIZE, PAGE_BLOCK_SIZE, apiResult.getTotalCount());
 
 		if (paging.getTotalPage() > 0 && currentPage > paging.getTotalPage()) {
-			apiResult = movieApiService.searchMovies(query, paging.getTotalPage(), PAGE_SIZE);
-			paging = new PagingDTO(paging.getTotalPage(), PAGE_SIZE, PAGE_BLOCK_SIZE, apiResult.getTotalCount());
+		    int lastPage = paging.getTotalPage();
+
+		    apiResult = movieApiService.searchMovies(query, lastPage, PAGE_SIZE);
+
+		    if (apiResult == null || apiResult.getMovies() == null) {
+		        paging = new PagingDTO(lastPage, PAGE_SIZE, PAGE_BLOCK_SIZE, 0);
+		        result.setMovieItems(new ArrayList<>());
+		        result.setPaging(paging);
+		        result.setHasResult(false);
+		        return result;
+		    }
+
+		    paging = new PagingDTO(lastPage, PAGE_SIZE, PAGE_BLOCK_SIZE, apiResult.getTotalCount());
 		}
 
 		/*

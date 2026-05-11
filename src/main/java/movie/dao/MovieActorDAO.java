@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import javax.management.RuntimeErrorException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import common.DBUtil;
 import movie.dto.MovieActorDTO;
@@ -14,174 +14,176 @@ import movie.dto.MovieActorDTO;
 public class MovieActorDAO {
 
 	public Connection dbcon() {
-        try {
-            return DBUtil.getConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException("db 연결 실패: DBUtil의 URL/USER/PASSWORD를 확인하세요.");
-        }
-    }
+		try {
+			return DBUtil.getConnection();
+		} catch (SQLException e) {
+			throw new RuntimeException("db 연결 실패: DBUtil의 URL/USER/PASSWORD를 확인하세요.");
+		}
+	}
 
-    // movie_actor_id 직접 생성용
-    // 현재 MOVIE_ACTOR 테이블의 가장 큰 movie_actor_id + 1 반환
-    private int getNextMovieActorId(Connection con) throws SQLException {
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+	// 배우 여러 명 저장
+	// actorNm 예시: "최민식, 김고은, 유해진"
+	public int insertActors(int movieId, String actorNm) {
 
-        int nextId = 1;
+		if (movieId <= 0) {
+			return 0;
+		}
 
-        String sql = "SELECT NVL(MAX(MOVIE_ACTOR_ID), 0) + 1 AS NEXT_ID FROM MOVIE_ACTOR";
+		if (actorNm == null || actorNm.trim().isEmpty()) {
+			return 0;
+		}
 
-        try {
-            pst = con.prepareStatement(sql);
-            rs = pst.executeQuery();
+		Connection con = dbcon();
+		PreparedStatement pst = null;
 
-            if (rs.next()) {
-                nextId = rs.getInt("NEXT_ID");
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pst != null) {
-                pst.close();
-            }
-        }
+		int insertCount = 0;
 
-        return nextId;
-    }
+		String sql = "INSERT INTO MOVIE_ACTOR(MOVIE_ID, ACTOR_NAME, SORT_ORDER) " + "VALUES(?, ?, ?)";
 
-    // 배우 여러 명 저장
-    // actorNm 예시: "최민식, 김고은, 유해진"
-    public int insertActors(int movieId, String actorNm) {
+		try {
+			// 콤마 기준 분리
+			String[] actors = actorNm.split("\\s*,\\s*");
 
-        if (movieId <= 0) {
-            return 0;
-        }
+//          순서를 유지하면서 중복 제거
+			Set<String> actorSet = new LinkedHashSet<>();
 
-        if (actorNm == null || actorNm.trim().isEmpty()) {
-            return 0;
-        }
+			for (String actorName : actors) {
+				actorName = actorName.trim();
 
-        Connection con = dbcon();
-        PreparedStatement pst = null;
+				if (actorName.isEmpty()) {
+					continue;
+				}
 
-        int insertCount = 0;
+				actorSet.add(actorName);
+			}
 
-        String sql = "INSERT INTO MOVIE_ACTOR(MOVIE_ACTOR_ID, MOVIE_ID, ACTOR_NAME, SORT_ORDER) "
-                + "VALUES(?, ?, ?, ?)";
+			pst = con.prepareStatement(sql);
 
-        try {
-            // 콤마 기준 분리
-            String[] actors = actorNm.split("\\s*,\\s*");
+			int sortOrder = 1;
 
-            int movieActorId = getNextMovieActorId(con);
-            int sortOrder = 1;
+			for (String actorName : actorSet) {
 
-            pst = con.prepareStatement(sql);
+				pst.setInt(1, movieId);
+				pst.setString(2, actorName);
+				pst.setInt(3, sortOrder);
 
-            for (String actorName : actors) {
-                actorName = actorName.trim();
+				int result = pst.executeUpdate();
 
-                if (actorName.isEmpty()) {
-                    continue;
-                }
+				if (result > 0) {
+					insertCount++;
+					sortOrder++;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(null, pst, con);
+		}
 
-                pst.setInt(1, movieActorId);
-                pst.setInt(2, movieId);
-                pst.setString(3, actorName);
-                pst.setInt(4, sortOrder);
+		return insertCount;
+	}
 
-                int result = pst.executeUpdate();
+	// movie_id 기준 배우 목록 조회
+	public ArrayList<MovieActorDTO> findActorsByMovieId(int movieId) {
+		ArrayList<MovieActorDTO> actorList = new ArrayList<>();
 
-                if (result > 0) {
-                    insertCount++;
-                    movieActorId++;
-                    sortOrder++;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            close(null, pst, con);
-        }
+		if (movieId <= 0) {
+			return actorList;
+		}
 
-        return insertCount;
-    }
+		Connection con = dbcon();
+		PreparedStatement pst = null;
+		ResultSet rs = null;
 
-    // movie_id 기준 배우 목록 조회
-    public ArrayList<MovieActorDTO> findActorsByMovieId(int movieId) {
-        ArrayList<MovieActorDTO> actorList = new ArrayList<>();
+		String sql = "SELECT MOVIE_ACTOR_ID, MOVIE_ID, ACTOR_NAME, SORT_ORDER " + "FROM MOVIE_ACTOR "
+				+ "WHERE MOVIE_ID = ? " + "ORDER BY SORT_ORDER ASC";
 
-        if (movieId <= 0) {
-            return actorList;
-        }
+		try {
+			pst = con.prepareStatement(sql);
+			pst.setInt(1, movieId);
 
-        Connection con = dbcon();
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+			rs = pst.executeQuery();
 
-        String sql = "SELECT MOVIE_ACTOR_ID, MOVIE_ID, ACTOR_NAME, SORT_ORDER "
-                + "FROM MOVIE_ACTOR "
-                + "WHERE MOVIE_ID = ? "
-                + "ORDER BY SORT_ORDER ASC";
+			while (rs.next()) {
+				MovieActorDTO actor = new MovieActorDTO();
 
-        try {
-            pst = con.prepareStatement(sql);
-            pst.setInt(1, movieId);
+				actor.setMovieActorId(rs.getInt("MOVIE_ACTOR_ID"));
+				actor.setMovieId(rs.getInt("MOVIE_ID"));
+				actor.setActorName(rs.getString("ACTOR_NAME"));
+				actor.setSortOrder(rs.getInt("SORT_ORDER"));
 
-            rs = pst.executeQuery();
+				actorList.add(actor);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(rs, pst, con);
+		}
 
-            while (rs.next()) {
-                MovieActorDTO actor = new MovieActorDTO();
+		return actorList;
+	}
 
-                actor.setMovieActorId(rs.getInt("MOVIE_ACTOR_ID"));
-                actor.setMovieId(rs.getInt("MOVIE_ID"));
-                actor.setActorName(rs.getString("ACTOR_NAME"));
-                actor.setSortOrder(rs.getInt("SORT_ORDER"));
+	private void close(ResultSet rs, PreparedStatement pst, Connection con) {
+		DBUtil.close(rs, pst, con);
+	}
+	
+	// 트랜잭션용: 외부 Connection으로 배우 저장
+	// 주의: con은 여기서 닫지 않는다.
+	public int insertActors(Connection con, int movieId, String actorNm) throws SQLException {
 
-                actorList.add(actor);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            close(rs, pst, con);
-        }
+	    if (movieId <= 0) {
+	        return 0;
+	    }
 
-        return actorList;
-    }
+	    if (actorNm == null || actorNm.trim().isEmpty()) {
+	        return 0;
+	    }
 
-    private void close(ResultSet rs, PreparedStatement pst, Connection con) {
-        DBUtil.close(rs,pst,con);
-    }
+	    PreparedStatement pst = null;
+	    int insertCount = 0;
 
-    /*
-    public static void main(String[] args) {
-        MovieDAO movieDao = new MovieDAO();
-        MovieKeywordDAO keywordDao = new MovieKeywordDAO();
-        MovieActorDAO actorDao = new MovieActorDAO();
+	    String sql = "INSERT INTO MOVIE_ACTOR(MOVIE_ID, ACTOR_NAME, SORT_ORDER) "
+	            + "VALUES(?, ?, ?)";
 
-        Connection con1 = movieDao.dbcon();
-        Connection con2 = keywordDao.dbcon();
-        Connection con3 = actorDao.dbcon();
+	    try {
+	        String[] actors = actorNm.split("\\s*,\\s*");
 
-        System.out.println(con1 != null ? "MovieDAO 연결 성공" : "MovieDAO 연결 실패");
-        System.out.println(con2 != null ? "MovieKeywordDAO 연결 성공" : "MovieKeywordDAO 연결 실패");
-        System.out.println(con3 != null ? "MovieActorDAO 연결 성공" : "MovieActorDAO 연결 실패");
+	        Set<String> actorSet = new LinkedHashSet<>();
 
-        try {
-            if (con1 != null) {
-                con1.close();
-            }
-            if (con2 != null) {
-                con2.close();
-            }
-            if (con3 != null) {
-                con3.close();
-            }
-            System.out.println("DB 연결 종료");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    */
+	        for (String actorName : actors) {
+	            actorName = actorName.trim();
+
+	            if (actorName.isEmpty()) {
+	                continue;
+	            }
+
+	            actorSet.add(actorName);
+	        }
+
+	        pst = con.prepareStatement(sql);
+
+	        int sortOrder = 1;
+
+	        for (String actorName : actorSet) {
+	            pst.setInt(1, movieId);
+	            pst.setString(2, actorName);
+	            pst.setInt(3, sortOrder);
+
+	            int result = pst.executeUpdate();
+
+	            if (result > 0) {
+	                insertCount++;
+	                sortOrder++;
+	            }
+	        }
+
+	    } finally {
+	        if (pst != null) {
+	            pst.close();
+	        }
+	    }
+
+	    return insertCount;
+	}
+
 }
