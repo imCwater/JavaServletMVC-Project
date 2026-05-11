@@ -15,19 +15,7 @@
 </head>
 <body>
   <div class="page">
-    <header class="site-header">
-      <a class="brand" href="${ctx}/main.do">
-        <img src="${ctx}/img/Logo.png" alt="Popflix">
-        <span>POPFLIX</span>
-      </a>
-      <nav class="nav" aria-label="주요 메뉴">
-        <a href="${ctx}/reservation/myList.do">내 예매내역</a>
-        <a href="${ctx}/movie/search.do">영화 검색</a>
-        <a href="${ctx}/diary/list.do">필름 다이어리</a>
-        <a href="${ctx}/member/mypage.do">마이페이지</a>
-        <a href="${ctx}/logout.do">로그아웃</a>
-      </nav>
-    </header>
+    <jsp:include page="/WEB-INF/views/reservation/reservation-header.jsp" />
 
     <main class="content">
       <section class="page-title">
@@ -52,7 +40,7 @@
             <span>상태</span>
             <strong>
               <c:choose>
-                <c:when test="${reservation.status == 'Y'}">예매완료</c:when>
+                <c:when test="${reservation.statusText eq 'Y'}">예매완료</c:when>
                 <c:otherwise>취소</c:otherwise>
               </c:choose>
             </strong>
@@ -85,7 +73,7 @@
       </section>
 
       <div class="action-row" style="margin-top: 22px;">
-        <c:if test="${reservation.status == 'Y'}">
+        <c:if test="${reservation.statusText eq 'Y'}">
           <a class="btn" href="${ctx}/reservation/updateForm.do?reservationId=${reservation.reservation_id}">예매 변경</a>
           <form action="${ctx}/reservation/cancel.do" method="post" onsubmit="return confirm('예매를 취소하시겠습니까?');">
             <input type="hidden" name="reservationId" value="${reservation.reservation_id}">
@@ -96,21 +84,7 @@
       </div>
     </main>
 
-    <footer class="footer">
-      <div class="footer-inner">
-        <div class="contact">
-          <div class="contact-title">문의 시간 &gt;</div>
-          <strong>010-xxxx-xxxx</strong>
-          <div>평일 09:00 - 18:00<br>주말/공휴일 휴무</div>
-        </div>
-        <div class="footer-links">
-          <span>회사소개</span>
-          <span>이용약관</span>
-          <span>개인정보처리방침</span>
-          <span>제휴문의</span>
-        </div>
-      </div>
-    </footer>
+    <jsp:include page="/WEB-INF/views/reservation/reservation-footer.jsp" />
   </div>
 </body>
 </html>
