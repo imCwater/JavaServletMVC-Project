@@ -18,7 +18,7 @@ body {
 .book-outer {
   position: relative;
   max-width: min(1440px, calc(100vw - 40px));
-  margin: 36px auto 120px;
+  margin: 24px auto 120px;
   padding-bottom: 20px;
 }
 .book-cover {
@@ -45,30 +45,49 @@ body {
     rgba(0,0,0,0.12), rgba(0,0,0,0.22) 40%, rgba(0,0,0,0.12));
   border-radius: 2px;
 }
-.page-layer-3 { position: absolute; top: 12px; left: -7px; right: -7px; bottom: -22px; background: #ccc4ba; border-radius: 18px; z-index: 1; }
+.page-layer-3 { position: absolute; top: 12px; left: -7px; right: -7px; bottom: -22px; background: #ccc4ba; border-radius: 18px; z-index: 1; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
 .page-layer-2 { position: absolute; top: 8px; left: -5px; right: -5px; bottom: -15px; background: #dbd2c8; border-radius: 17px; z-index: 2; }
 .page-layer-1 { position: absolute; top: 4px; left: -3px; right: -3px; bottom: -8px; background: #ede7de; border-radius: 16px; z-index: 3; }
 
 /* ── 레이아웃 ── */
-.page-wrap { display: flex; align-items: stretch; gap: 8px; position: relative; z-index: 10; }
+.page-wrap {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  gap: 8px;
+  position: relative;
+  z-index: 10;
+  min-height: calc(100vh - 118px);
+  height: auto;
+  overflow: visible;
+}
 
 /* ── 사이드바 ── */
 .sidebar {
-  flex: 1; min-width: 0;
+  flex: 1;
+  min-width: 0;
   background: #fff;
   border-radius: 14px;
   border: 1px solid #e6e0d8;
-  padding: 28px 0 24px;
+  padding: 24px 24px 20px;
+  position: relative;
+  align-self: stretch;
+  min-height: inherit;
+  height: auto;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset -14px 0 20px rgba(70,45,25,0.045);
   background-image: repeating-linear-gradient(
     to bottom, transparent 0px, transparent 27px,
     rgba(200,190,180,0.13) 27px, rgba(200,190,180,0.13) 28px);
   background-position: 0 68px;
 }
+.sidebar::before { display: none; }
 .sidebar-page-title {
   font-size: 11px; font-weight: 900; letter-spacing: 0.25em;
   color: #c8bfb4; text-align: center; margin-bottom: 20px;
-  padding: 0 16px 14px; border-bottom: 2px solid #f0ece4; text-transform: uppercase;
+  padding-bottom: 14px; border-bottom: 2px solid #f0ece4; text-transform: uppercase;
 }
 .sidebar a {
   display: flex; align-items: center; justify-content: space-between;
@@ -91,21 +110,47 @@ body {
 
 /* ── 스프링 ── */
 .spring-col {
-  width: 28px; min-width: 28px; background: transparent;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 8px 0; position: relative; align-self: stretch;
-  z-index: 8; overflow: visible;
+  width: 50px; min-width: 50px;
+  position: relative; align-self: stretch; min-height: inherit; height: auto;
+  z-index: 30; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 14px 0; gap: 0;
+  background: linear-gradient(90deg,
+    rgba(92,63,37,0.08) 0%, rgba(92,63,37,0.18) 12%,
+    #b58a57 46%, #8d6235 50%, #b58a57 54%,
+    rgba(92,63,37,0.18) 88%, rgba(92,63,37,0.08) 100%);
+  box-shadow: inset 8px 0 12px rgba(255,255,255,0.55), inset -8px 0 12px rgba(0,0,0,0.10);
+}
+.spring-col::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+  transform: translateX(-50%);
+  background: rgba(67,43,24,0.28);
+  box-shadow: -10px 0 16px rgba(255,255,255,0.38), 10px 0 16px rgba(0,0,0,0.14);
+  z-index: 0;
 }
 .ring {
-  width: 56px; height: 22px; background: #fff; border-radius: 50%;
-  border: 3px solid #a0a09a; border-top-color: transparent;
-  border-bottom-color: #3a3835;
-  box-shadow: 0 3px 7px rgba(0,0,0,0.32);
-  margin: 6px 0; flex-shrink: 0; z-index: 2; position: relative;
+  position: relative; width: 76px; height: 18px; margin: 7px 0; flex-shrink: 0;
+  background: transparent; border: 0; border-radius: 0; z-index: 2;
+  transform: translateX(0); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.22));
+}
+.ring::before {
+  content: ""; position: absolute; left: 11px; right: 11px; top: 7px; height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ffffff 0%, #e8e8e8 24%, #9c9c9c 52%, #565656 76%, #d9d9d9 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), inset 0 -1px 1px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+}
+.ring::after {
+  content: ""; position: absolute; inset: 0; border-radius: 999px;
+  background:
+    radial-gradient(circle at 9px 9px, #2f2f2f 0 3px, #686868 3.2px 4.4px, rgba(255,255,255,0.95) 4.6px 5.8px, transparent 6px),
+    radial-gradient(circle at 67px 9px, #2f2f2f 0 3px, #686868 3.2px 4.4px, rgba(255,255,255,0.95) 4.6px 5.8px, transparent 6px),
+    radial-gradient(ellipse at 9px 9px, rgba(0,0,0,0.16) 0 8px, transparent 8.5px),
+    radial-gradient(ellipse at 67px 9px, rgba(0,0,0,0.16) 0 8px, transparent 8.5px);
 }
 
 /* ── 노트 본문 ── */
-.notebook-body { flex: 1; position: relative; z-index: 5; display: flex; align-items: stretch; overflow: visible; }
+.notebook-body { flex: 1; position: relative; z-index: 5; display: flex; align-items: stretch; min-height: inherit; height: auto; overflow: visible; }
+.notebook-body::after { display: none; }
 .nb-content {
   flex: 1; background: #fff;
   border-radius: 14px;
@@ -115,7 +160,10 @@ body {
     rgba(200,190,180,0.18) 27px, rgba(200,190,180,0.18) 28px);
   background-position: 0 52px;
   display: flex; flex-direction: column;
+  min-height: inherit;
+  height: auto;
   overflow: hidden;
+  box-shadow: inset 14px 0 20px rgba(70,45,25,0.045), 0 2px 8px rgba(0,0,0,0.04);
 }
 
 /* ── 인덱스 탭 ── */
@@ -143,6 +191,7 @@ body {
   padding: 20px 28px;
   display: flex; align-items: center; gap: 12px;
   background-image: none;
+  flex-shrink: 0;
 }
 .badge-header-title { font-size: 24px; font-weight: 900; color: #fff; }
 .badge-header-title span { font-size: 28px; }
@@ -154,7 +203,7 @@ body {
 }
 
 /* ── 콘텐츠 영역 ── */
-.badge-body { padding: 28px 28px 32px; display: flex; flex-direction: column; gap: 32px; }
+.badge-body { padding: 28px 28px 32px; display: flex; flex-direction: column; gap: 32px; flex: 1; overflow: auto; }
 
 /* ── 섹션 타이틀 ── */
 .section-title {
@@ -233,7 +282,7 @@ body {
 }
 
 /* ── 푸터 ── */
-.footer-wave-wrap { position: relative; margin-top: 40px; overflow: hidden; }
+.footer-wave-wrap { position: relative; margin-top: 76px; overflow: hidden; }
 .footer-wave-wrap svg { display: block; width: 100%; }
 .footer-content {
   background: #f0a028; padding: 32px 48px 48px;
@@ -280,6 +329,8 @@ body {
         <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do" title="달력">📅<span>달력</span></a>
         <a class="index-tab" href="${pageContext.request.contextPath}/diary/stat.do" title="통계">📊<span>통계</span></a>
         <a class="index-tab active" href="${pageContext.request.contextPath}/diary/badge.do" title="뱃지">🏅<span>뱃지</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#write" title="Write">✍️<span>Write</span></a>
+        <a class="index-tab" href="${pageContext.request.contextPath}/diary/list.do#archive" title="Archive">📁<span>Archive</span></a>
       </div>
 
       <div class="nb-content">
