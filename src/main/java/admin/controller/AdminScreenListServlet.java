@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import admin.dto.AdminScreenDTO;
 import admin.service.AdminService;
 
-@WebServlet("/screen/list.do")
+@WebServlet("/admin/screen/list.do")
 public class AdminScreenListServlet extends HttpServlet {
 
     private final AdminService adminService = new AdminService();
