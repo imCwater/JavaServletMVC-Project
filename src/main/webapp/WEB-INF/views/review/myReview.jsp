@@ -44,49 +44,51 @@
         </c:otherwise>
     </c:choose>
 
-    <%-- 프로필 헤더 --%>
-    <div class="profile-header">
-        <div class="profile-img">&#128100;</div>
-        <div class="profile-info">
-            <div class="user-name">
+<div class="page">
+
+    <%-- 공통 헤더 --%>
+    <%@ include file="/WEB-INF/views/common/main.jsp" %>
+
+    <div class="myreview-wrap">
+
+        <%-- 페이지 타이틀 행 --%>
+        <div class="page-title-row">
+            <span class="page-title">
                 <c:choose>
                     <c:when test="${isMyPage}">
-                        ${sessionScope.loginMember.name}
-                        (${sessionScope.loginMember.userId})
+                        내 평가 목록
                     </c:when>
-                    <c:otherwise>회원 #${targetMemberId}</c:otherwise>
+                    <c:otherwise>
+                        평가한 영화 목록
+                    </c:otherwise>
                 </c:choose>
-            </div>
-            <div class="user-sub">
-                <c:choose>
-                    <c:when test="${isMyPage}">내 프로필</c:when>
-                    <c:otherwise>평가한 영화 목록</c:otherwise>
-                </c:choose>
+            </span>
+            <c:if test="${isMyPage}">
+                <span class="page-title-sub">
+                    ${sessionScope.loginMember.name}
+                    (${sessionScope.loginMember.userId})
+                </span>
+            </c:if>
+        </div>
+
+        <%-- 통계 카드 --%>
+        <div class="stat-card">
+            <div class="stat-item">전체 <strong>${totalCount}</strong>편</div>
+            <div class="stat-divider">|</div>
+            <div class="stat-item">터졌다 <strong>${freshCount}</strong>편</div>
+            <div class="stat-divider">|</div>
+            <div class="stat-item">안터졌다 <strong>${notFreshCount}</strong>편</div>
+            <div class="burst-bar-wrap">
+                <div class="burst-bar-label">
+                    <span>터졌다 비율</span>
+                    <span><fmt:formatNumber value="${freshRate}" maxFractionDigits="1" />%</span>
+                </div>
+                <div class="burst-bar">
+                    <div class="burst-bar-fill"
+                         style="width:<fmt:formatNumber value='${freshRate}' maxFractionDigits='1' />%;"></div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <%-- 통계 바 --%>
-    <div class="stat-bar">
-        <div class="stat-item">전체 <strong>${totalCount}</strong>편</div>
-        <div class="stat-divider">|</div>
-        <div class="stat-item">터졌다 <strong>${freshCount}</strong>편</div>
-        <div class="stat-divider">|</div>
-        <div class="stat-item">안터졌다 <strong>${notFreshCount}</strong>편</div>
-        <div class="burst-bar-wrap">
-            <div class="burst-bar-label">
-                <span>터졌다 비율</span>
-                <span><fmt:formatNumber value="${freshRate}" maxFractionDigits="1" />%</span>
-            </div>
-            <div class="burst-bar">
-                <div class="burst-bar-fill"
-                     style="width:<fmt:formatNumber value='${freshRate}' maxFractionDigits='1' />%;"></div>
-            </div>
-        </div>
-    </div>
-
-    <%-- 콘텐츠 --%>
-    <div class="content-wrap">
 
         <%-- 필터 헤더 --%>
         <div class="section-header">
@@ -204,7 +206,9 @@
             </c:choose>
         </div>
 
-    </div>
+    </div><%-- /.myreview-wrap --%>
+
+</div><%-- /.page --%>
 
 </body>
 </html>

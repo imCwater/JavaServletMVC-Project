@@ -1,4 +1,4 @@
-package screen.controller;
+package admin.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +13,7 @@ import admin.dto.AdminScreenDTO;
 import admin.service.AdminService;
 
 @WebServlet("/screen/list.do")
-public class ScreenListServlet extends HttpServlet {
+public class AdminScreenListServlet extends HttpServlet {
 
     private final AdminService adminService = new AdminService();
 

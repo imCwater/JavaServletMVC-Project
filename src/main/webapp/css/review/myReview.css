@@ -289,3 +289,12 @@ body {
     .profile-header { padding: 20px; }
     .stat-bar { padding: 14px 20px; }
 }
+
+/* 타이틀 옆 서브텍스트 (이름 + 아이디) */
+.page-title-sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 4px;
+}
+
