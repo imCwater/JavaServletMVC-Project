@@ -20,30 +20,29 @@
 
     <main>
       <c:if test="${not empty errorMsg}">
-        <p class="notice">${errorMsg}</p>
+        <p class="notice"><c:out value="${errorMsg}" /></p>
       </c:if>
 
       <section class="movie" aria-label="영화 정보">
-        <div class="poster" aria-label="영화 포스터 이미지 영역"></div>
+        <div class="poster" aria-label="영화 포스터 영역"></div>
 
         <div class="movie-info">
           <div class="movie-title-row">
-            <h1>${movie.title}</h1>
-            <span class="badge">${movie.genre}</span>
+            <h1><c:out value="${movie.title}" /></h1>
+            <span class="badge"><c:out value="${movie.genre}" /></span>
           </div>
           <div class="rating">
-            <span class="rating-mark">${movie.ratingGrade}</span>
-            <span>${movie.rating}</span>
+            <span class="rating-mark"><c:out value="${movie.ratingGrade}" /></span>
+            <span><c:out value="${movie.rating}" /></span>
           </div>
-          <p class="description">${movie.plot}</p>
-          <div class="like">♡ <span>찜 13개</span></div>
+          <p class="description"><c:out value="${movie.plot}" /></p>
           <div class="movie-actions">
             <c:choose>
               <c:when test="${not empty movie.vodUrl}">
                 <a class="btn" href="${movie.vodUrl}" target="_blank" rel="noopener">예고편 보러 가기</a>
               </c:when>
               <c:otherwise>
-                <button type="button" class="btn" disabled>예고편 보러 가기</button>
+                <button type="button" class="btn" disabled>예고편 없음</button>
               </c:otherwise>
             </c:choose>
             <c:choose>
@@ -60,11 +59,11 @@
         <aside class="meta" aria-label="상세 정보">
           <dl>
             <dt>감독</dt>
-            <dd>${movie.directorNm}</dd>
+            <dd><c:out value="${movie.directorNm}" /></dd>
             <dt>배급</dt>
-            <dd>${movie.company}</dd>
+            <dd><c:out value="${movie.company}" /></dd>
             <dt>개봉일</dt>
-            <dd>${movie.releaseDate}</dd>
+            <dd><c:out value="${movie.releaseDate}" /></dd>
           </dl>
         </aside>
       </section>
@@ -75,30 +74,56 @@
         <c:when test="${not empty scheduleList}">
           <form id="reservationForm" action="${ctx}/reservation/insert.do" method="post">
             <input type="hidden" name="movieId" value="${movieId}">
+            <div class="reservation-data" hidden>
+              <select id="allScheduleSelect">
+                <c:forEach var="schedule" items="${scheduleList}">
+                  <option value="${schedule.scheduleId}"
+                          data-theater-id="${schedule.theaterId}"
+                          data-theater-name="${fn:escapeXml(schedule.theaterName)}"
+                          data-screen-id="${schedule.screenId}"
+                          data-screen-name="${fn:escapeXml(schedule.screenName)}"
+                          data-date="${fn:substring(schedule.startTime, 0, 10)}"
+                          data-time="${fn:substring(schedule.startTime, 11, 16)}"
+                          data-price="${schedule.price}">
+                    ${fn:substring(schedule.startTime, 11, 16)}
+                  </option>
+                </c:forEach>
+              </select>
+            </div>
+
             <section class="controls" id="bookingControls" aria-label="예매 조건 선택" hidden>
               <label class="field">
-                <span>날짜</span>
-                <select id="dateSelect" aria-label="날짜 선택">
-                  <c:forEach var="schedule" items="${scheduleList}">
-                    <option value="${schedule.scheduleId}" data-price="${schedule.price}">
-                      ${fn:substring(schedule.startTime, 0, 10)}
+                <span>영화관</span>
+                <select id="theaterSelect" aria-label="영화관 선택">
+                  <option value="">선택</option>
+                  <c:forEach var="theater" items="${theaterList}">
+                    <option value="${theater.theaterId}">
+                      <c:out value="${theater.theaterName}" />
                     </option>
                   </c:forEach>
+                </select>
+              </label>
+              <label class="field">
+                <span>상영관</span>
+                <select id="screenSelect" aria-label="상영관 선택" disabled>
+                  <option value="">선택</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>날짜</span>
+                <select id="dateSelect" aria-label="날짜 선택" disabled>
+                  <option value="">선택</option>
                 </select>
               </label>
               <label class="field">
                 <span>시간</span>
-                <select id="scheduleSelect" name="scheduleId" aria-label="시간 선택">
-                  <c:forEach var="schedule" items="${scheduleList}">
-                    <option value="${schedule.scheduleId}" data-price="${schedule.price}">
-                      ${fn:substring(schedule.startTime, 11, 16)}
-                    </option>
-                  </c:forEach>
+                <select id="scheduleSelect" name="scheduleId" aria-label="시간 선택" disabled>
+                  <option value="">선택</option>
                 </select>
               </label>
               <label class="field">
                 <span>인원</span>
-                <select id="peopleSelect" aria-label="인원 선택">
+                <select id="peopleSelect" aria-label="인원 선택" disabled>
                   <option value="">선택</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
@@ -113,10 +138,13 @@
             <section class="booking" id="bookingSection" aria-label="좌석 예매" hidden>
               <div>
                 <div class="schedule">
+                  <div>영화관: <strong><span id="theaterText">-</span></strong></div>
+                  <div>상영관: <strong><span id="screenText">-</span></strong></div>
                   <div>날짜: <strong><span id="dateText">-</span></strong></div>
                   <div>시간: <strong><span id="timeText">-</span></strong></div>
                   <div>인원: <strong><span id="peopleText">0</span></strong></div>
                   <div>좌석: <strong><span id="seatText">-</span></strong></div>
+                  <div>1인 금액: <strong><span id="unitPriceText">0</span>원</strong></div>
                   <div>총 금액: <strong><span id="totalPriceText">0</span>원</strong></div>
                 </div>
                 <button type="submit" class="btn reserve-btn" id="submitBookingButton" disabled>예매하기</button>
