@@ -58,8 +58,20 @@
             <strong><fmt:formatDate value="${reservation.endTime}" pattern="yyyy.MM.dd HH:mm" /></strong>
           </div>
           <div class="detail-item">
+            <span>극장</span>
+            <strong><c:out value="${reservation.theaterName}" /></strong>
+          </div>
+          <div class="detail-item">
+            <span>상영관</span>
+            <strong><c:out value="${reservation.screenName}" /></strong>
+          </div>
+          <div class="detail-item">
             <span>인원</span>
             <strong><c:out value="${reservation.headcount}" />명</strong>
+          </div>
+          <div class="detail-item">
+            <span>금액</span>
+            <strong><fmt:formatNumber value="${reservation.totalPrice}" pattern="#,##0" />원</strong>
           </div>
           <div class="detail-item">
             <span>좌석</span>

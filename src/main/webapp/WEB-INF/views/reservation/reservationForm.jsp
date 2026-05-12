@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -73,13 +74,14 @@
       <c:choose>
         <c:when test="${not empty scheduleList}">
           <form id="reservationForm" action="${ctx}/reservation/insert.do" method="post">
+            <input type="hidden" name="movieId" value="${movieId}">
             <section class="controls" id="bookingControls" aria-label="예매 조건 선택" hidden>
               <label class="field">
                 <span>날짜</span>
                 <select id="dateSelect" aria-label="날짜 선택">
                   <c:forEach var="schedule" items="${scheduleList}">
-                    <option value="${schedule.schedule_id}">
-                      <fmt:formatDate value="${schedule.start_time}" pattern="yyyy년 MM월 dd일" />
+                    <option value="${schedule.scheduleId}" data-price="${schedule.price}">
+                      ${fn:substring(schedule.startTime, 0, 10)}
                     </option>
                   </c:forEach>
                 </select>
@@ -88,8 +90,8 @@
                 <span>시간</span>
                 <select id="scheduleSelect" name="scheduleId" aria-label="시간 선택">
                   <c:forEach var="schedule" items="${scheduleList}">
-                    <option value="${schedule.schedule_id}">
-                      <fmt:formatDate value="${schedule.start_time}" pattern="HH:mm" />
+                    <option value="${schedule.scheduleId}" data-price="${schedule.price}">
+                      ${fn:substring(schedule.startTime, 11, 16)}
                     </option>
                   </c:forEach>
                 </select>
@@ -115,6 +117,7 @@
                   <div>시간: <strong><span id="timeText">-</span></strong></div>
                   <div>인원: <strong><span id="peopleText">0</span></strong></div>
                   <div>좌석: <strong><span id="seatText">-</span></strong></div>
+                  <div>총 금액: <strong><span id="totalPriceText">0</span>원</strong></div>
                 </div>
                 <button type="submit" class="btn reserve-btn" id="submitBookingButton" disabled>예매하기</button>
               </div>

@@ -17,8 +17,8 @@ import reservation.service.ReservationService;
 
 @WebServlet("/reservation/myList.do")
 // 내 예매 목록 컨트롤러
-// 로그인 회원의 예매 내역을 조회해서 myList.jsp로 전달한다.
-public class ReservationListServlet extends HttpServlet {
+// 로그인 회원의 예매 내역을 조회해서 myReservation.jsp로 전달한다.
+public class MyReservationServlet extends HttpServlet {
 
     private ReservationService reservationService = new ReservationService();
 
@@ -43,7 +43,7 @@ public class ReservationListServlet extends HttpServlet {
             ArrayList<ReservationDTO> reservationList =
                     reservationService.getReservationListByMember(loginMember.getMemberId());
             req.setAttribute("reservationList", reservationList);
-            req.getRequestDispatcher("/WEB-INF/views/reservation/myList.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/myReservation.jsp").forward(req, resp);
         } catch (SQLException e) {
             e.printStackTrace();
             resp.sendError(500);

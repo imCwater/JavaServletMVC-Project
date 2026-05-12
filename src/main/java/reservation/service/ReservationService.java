@@ -5,22 +5,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import common.DBUtil;
-import diary.dto.DiaryDTO;
-import diary.service.DiaryService;
+import movie.dao.MovieActorDAO;
 import movie.dao.MovieDAO;
+import movie.dao.MovieKeywordDAO;
+import movie.dto.MovieActorDTO;
 import movie.dto.MovieDTO;
+import movie.dto.MovieKeywordDTO;
 import reservation.dao.ReservationDAO;
+import reservation.dao.ReservationSeatDAO;
 import reservation.dto.ReservationDTO;
+import reservation.dto.ReservationSeatDTO;
+import reservation.dto.SeatDTO;
 import schedule.dao.ScheduleDAO;
 import schedule.dto.ScheduleDTO;
 
 // 예매 비즈니스 로직과 트랜잭션 처리를 담당하는 서비스 클래스
 public class ReservationService {
 	private ReservationDAO reservationDAO = new ReservationDAO();
+	private ReservationSeatDAO reservationSeatDAO = new ReservationSeatDAO();
 	private MovieDAO movieDAO = new MovieDAO();
+	private MovieActorDAO actorDAO = new MovieActorDAO();
+	private MovieKeywordDAO keywordDAO = new MovieKeywordDAO();
 	private ScheduleDAO scheduleDAO = new ScheduleDAO();
 	private SeatService seatService = new SeatService();
-	private DiaryService diaryService = new DiaryService();
 
 	// schedule_id로 상영 일정 1건을 조회한다.
 	public ScheduleDTO getScheduleById(int scheduleId) throws SQLException {
@@ -38,16 +45,74 @@ public class ReservationService {
 
 	// movie_id로 영화 1건을 조회한다.
 	public MovieDTO getMovieById(int movieId) throws SQLException {
+		if (movieId <= 0) {
+			return null;
+		}
+
 		Connection con = null;
 
 		try {
 			con = DBUtil.getConnection();
-			return movieDAO.getMovieById(con, movieId);
+			MovieDTO movie = movieDAO.getMovieById(con, movieId);
+			fillActorAndKeyword(movie);
+			return movie;
 		} finally {
 			if (con != null) {
 				con.close();
 			}
 		}
+	}
+
+	private void fillActorAndKeyword(MovieDTO movie) {
+		if (movie == null || movie.getMovieId() <= 0) {
+			return;
+		}
+
+		ArrayList<MovieActorDTO> actorList = actorDAO.findActorsByMovieId(movie.getMovieId());
+		ArrayList<MovieKeywordDTO> keywordList = keywordDAO.findKeywordsByMovieId(movie.getMovieId());
+
+		movie.setActorNm(toActorNames(actorList));
+		movie.setKeywords(toKeywordNames(keywordList));
+	}
+
+	private String toActorNames(ArrayList<MovieActorDTO> actorList) {
+		if (actorList == null || actorList.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (MovieActorDTO actor : actorList) {
+			if (actor == null || actor.getActorName() == null || actor.getActorName().trim().isEmpty()) {
+				continue;
+			}
+
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(actor.getActorName().trim());
+		}
+
+		return sb.toString();
+	}
+
+	private String toKeywordNames(ArrayList<MovieKeywordDTO> keywordList) {
+		if (keywordList == null || keywordList.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (MovieKeywordDTO keyword : keywordList) {
+			if (keyword == null || keyword.getKeywordName() == null || keyword.getKeywordName().trim().isEmpty()) {
+				continue;
+			}
+
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(keyword.getKeywordName().trim());
+		}
+
+		return sb.toString();
 	}
 
 	// 선택한 영화의 전체 상영 일정 목록을 조회한다.
@@ -85,6 +150,11 @@ public class ReservationService {
 				return -1;
 			}
 
+			if (!allSeatsBelongToSchedule(con, scheduleId, seatIds)) {
+				con.rollback();
+				return -1;
+			}
+
 			// DB UNIQUE 제약에 걸리기 전에 이미 예매된 좌석인지 검사한다.
 			ArrayList<Integer> reservedSeatIds = seatService.getReservedSeatIds(con, scheduleId);
 			for (Integer seatId : seatIds) {
@@ -109,7 +179,12 @@ public class ReservationService {
 
 			// 선택한 좌석마다 reservation_seat 행을 저장한다.
 			for (Integer seatId : seatIds) {
-				int result = reservationDAO.insertReservationSeat(con, reservationId, scheduleId, seatId);
+				ReservationSeatDTO reservationSeatDTO = new ReservationSeatDTO();
+				reservationSeatDTO.setReservation_id(reservationId);
+				reservationSeatDTO.setSchedule_id(scheduleId);
+				reservationSeatDTO.setSeat_id(seatId);
+
+				int result = reservationSeatDAO.insertReservationSeat(con, reservationSeatDTO);
 				if (result == 0) {
 					con.rollback();
 					return -4;
@@ -117,7 +192,6 @@ public class ReservationService {
 			}
 
 			con.commit();
-			insertDiaryAfterReservation(memberId, reservationId, schedule);
 			return reservationId;
 		} catch (SQLException e) {
 			if (con != null) {
@@ -129,21 +203,6 @@ public class ReservationService {
 				con.setAutoCommit(true);
 				con.close();
 			}
-		}
-	}
-
-	// 예매 트랜잭션 커밋 후 다이어리 자동 등록을 시도한다.
-	private void insertDiaryAfterReservation(int memberId, int reservationId, ScheduleDTO schedule) {
-		try {
-			DiaryDTO diaryDTO = new DiaryDTO();
-			diaryDTO.setMemberId(memberId);
-			diaryDTO.setMovieId(schedule.getMovieId());
-			diaryDTO.setReservationId(reservationId);
-			diaryDTO.setWatchDate(java.sql.Timestamp.valueOf(schedule.getStartTime()));
-			
-			diaryService.insertDiary(diaryDTO);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -183,7 +242,7 @@ public class ReservationService {
 
 		try {
 			con = DBUtil.getConnection();
-			return reservationDAO.getSeatIdsByReservation(con, reservationId, memberId);
+			return reservationSeatDAO.getSeatIdsByReservation(con, reservationId, memberId);
 		} finally {
 			if (con != null) {
 				con.close();
@@ -211,6 +270,11 @@ public class ReservationService {
 				return -1;
 			}
 
+			if (!allSeatsBelongToSchedule(con, reservation.getSchedule_id(), seatIds)) {
+				con.rollback();
+				return -1;
+			}
+
 			// 현재 예매의 기존 좌석은 제외하고 다른 예매 좌석만 중복 검사한다.
 			ArrayList<Integer> reservedSeatIds = seatService.getReservedSeatIdsExceptReservation(
 					con, reservation.getSchedule_id(), reservationId);
@@ -222,10 +286,14 @@ public class ReservationService {
 			}
 
 			// 기존 좌석 행을 삭제하고 새로 선택한 좌석 행을 다시 저장한다.
-			reservationDAO.deleteReservationSeats(con, reservationId);
+			reservationSeatDAO.deleteReservationSeats(con, reservationId);
 			for (Integer seatId : seatIds) {
-				int result = reservationDAO.insertReservationSeat(
-						con, reservationId, reservation.getSchedule_id(), seatId);
+				ReservationSeatDTO reservationSeatDTO = new ReservationSeatDTO();
+				reservationSeatDTO.setReservation_id(reservationId);
+				reservationSeatDTO.setSchedule_id(reservation.getSchedule_id());
+				reservationSeatDTO.setSeat_id(seatId);
+
+				int result = reservationSeatDAO.insertReservationSeat(con, reservationSeatDTO);
 				if (result == 0) {
 					con.rollback();
 					return -3;
@@ -270,7 +338,7 @@ public class ReservationService {
 			}
 
 			// 같은 좌석을 다시 예매할 수 있도록 reservation_seat 행을 먼저 삭제한다.
-			reservationDAO.deleteReservationSeats(con, reservationId);
+			reservationSeatDAO.deleteReservationSeats(con, reservationId);
 
 			int result = reservationDAO.cancelReservation(con, reservationId, memberId);
 			if (result > 0) {
@@ -291,5 +359,22 @@ public class ReservationService {
 				con.close();
 			}
 		}
+	}
+
+	private boolean allSeatsBelongToSchedule(Connection con, int scheduleId, ArrayList<Integer> seatIds) {
+		ArrayList<SeatDTO> seats = seatService.getSeatListByScheduleId(con, scheduleId);
+		ArrayList<Integer> validSeatIds = new ArrayList<>();
+
+		for (SeatDTO seat : seats) {
+			validSeatIds.add(seat.getSeat_id());
+		}
+
+		for (Integer seatId : seatIds) {
+			if (seatId == null || !validSeatIds.contains(seatId)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
