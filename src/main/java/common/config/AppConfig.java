@@ -9,6 +9,7 @@ import java.util.Properties;
 public class AppConfig {
 
 	private static final String CONFIG_FILE_NAME = "config.properties";
+    private static final char UTF8_BOM = '\uFEFF';
     private static final Properties props = new Properties();
 
     static {
@@ -23,11 +24,24 @@ public class AppConfig {
             }
 
             props.load(new InputStreamReader(input, StandardCharsets.UTF_8));
+            normalizeBomKeys();
 
         } catch (IOException e) {
             throw new RuntimeException("config.properties 읽기 실패", e);
         }
     }
+    private static void normalizeBomKeys() {
+        for (String key : props.stringPropertyNames()) {
+            if (!key.isEmpty() && key.charAt(0) == UTF8_BOM) {
+                String normalizedKey = key.substring(1);
+                if (!props.containsKey(normalizedKey)) {
+                    props.setProperty(normalizedKey, props.getProperty(key));
+                }
+                props.remove(key);
+            }
+        }
+    }
+
     private static String getRequired(String key) {
     	String value = props.getProperty(key);
     	
