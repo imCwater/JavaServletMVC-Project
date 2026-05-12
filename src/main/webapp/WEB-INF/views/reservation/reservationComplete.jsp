@@ -42,7 +42,7 @@
             <strong><fmt:formatDate value="${reservation.startTime}" pattern="yyyy.MM.dd HH:mm" /></strong>
           </div>
           <div class="summary-item">
-            <span>극장</span>
+            <span>영화관 / 상영관</span>
             <strong><c:out value="${reservation.theaterName}" /> <c:out value="${reservation.screenName}" /></strong>
           </div>
           <div class="summary-item">

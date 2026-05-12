@@ -1,7 +1,12 @@
 package reservation.service;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import common.DBUtil;
@@ -15,6 +20,8 @@ import reservation.dao.ReservationDAO;
 import reservation.dao.ReservationSeatDAO;
 import reservation.dto.ReservationDTO;
 import reservation.dto.ReservationSeatDTO;
+import reservation.dto.ReservationScheduleDTO;
+import reservation.dto.ReservationTheaterDTO;
 import reservation.dto.SeatDTO;
 import schedule.dao.ScheduleDAO;
 import schedule.dto.ScheduleDTO;
@@ -126,6 +133,272 @@ public class ReservationService {
 			if (con != null) {
 				con.close();
 			}
+		}
+	}
+
+	public void ensureDefaultSchedulesForMovie(int movieId) throws SQLException {
+		if (movieId <= 0) {
+			return;
+		}
+
+		Connection con = null;
+
+		try {
+			con = DBUtil.getConnection();
+			con.setAutoCommit(false);
+
+			if (hasReservableScheduleForMovie(con, movieId)) {
+				con.commit();
+				return;
+			}
+
+			ArrayList<DefaultScreen> screens = getAllScreens(con);
+			if (screens.isEmpty()) {
+				con.commit();
+				return;
+			}
+
+			int runtimeMinutes = getMovieRuntime(con, movieId);
+			insertDefaultSchedules(con, movieId, screens, runtimeMinutes);
+			con.commit();
+		} catch (SQLException e) {
+			if (con != null) {
+				con.rollback();
+			}
+			throw e;
+		} finally {
+			if (con != null) {
+				con.setAutoCommit(true);
+				con.close();
+			}
+		}
+	}
+
+	public ArrayList<ReservationScheduleDTO> getReservationScheduleListByMovieId(int movieId) throws SQLException {
+		ArrayList<ReservationScheduleDTO> list = new ArrayList<>();
+		String sql = "select s.schedule_id, s.movie_id, s.screen_id, sc.theater_id, t.theater_name, sc.screen_name, "
+				+ "s.start_time, s.end_time, s.price "
+				+ "from schedule s "
+				+ "join screen sc on s.screen_id = sc.screen_id "
+				+ "join theater t on sc.theater_id = t.theater_id "
+				+ "where s.movie_id = ? "
+				+ "order by t.theater_name asc, sc.screen_name asc, s.start_time asc";
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			con = DBUtil.getConnection();
+			pst = con.prepareStatement(sql);
+			pst.setInt(1, movieId);
+			rs = pst.executeQuery();
+
+			while (rs.next()) {
+				ReservationScheduleDTO dto = new ReservationScheduleDTO();
+				dto.setScheduleId(rs.getInt("schedule_id"));
+				dto.setMovieId(rs.getInt("movie_id"));
+				dto.setScreenId(rs.getInt("screen_id"));
+				dto.setTheaterId(rs.getInt("theater_id"));
+				dto.setTheaterName(rs.getString("theater_name"));
+				dto.setScreenName(rs.getString("screen_name"));
+				dto.setPrice(rs.getInt("price"));
+
+				Timestamp startTime = rs.getTimestamp("start_time");
+				if (startTime != null) {
+					dto.setStartTime(startTime.toLocalDateTime());
+				}
+
+				Timestamp endTime = rs.getTimestamp("end_time");
+				if (endTime != null) {
+					dto.setEndTime(endTime.toLocalDateTime());
+				}
+
+				list.add(dto);
+			}
+		} finally {
+			DBUtil.close(rs, pst, con);
+		}
+
+		return list;
+	}
+
+	public ArrayList<ReservationTheaterDTO> getTheaterList() throws SQLException {
+		ArrayList<ReservationTheaterDTO> list = new ArrayList<>();
+		String sql = "select theater_id, theater_name, location from theater order by theater_name asc";
+
+		Connection con = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			con = DBUtil.getConnection();
+			pst = con.prepareStatement(sql);
+			rs = pst.executeQuery();
+
+			while (rs.next()) {
+				ReservationTheaterDTO dto = new ReservationTheaterDTO();
+				dto.setTheaterId(rs.getInt("theater_id"));
+				dto.setTheaterName(rs.getString("theater_name"));
+				dto.setLocation(rs.getString("location"));
+				list.add(dto);
+			}
+		} finally {
+			DBUtil.close(rs, pst, con);
+		}
+
+		return list;
+	}
+
+	private boolean hasReservableScheduleForMovie(Connection con, int movieId) throws SQLException {
+		String sql = "select count(*) "
+				+ "from schedule s "
+				+ "join screen sc on s.screen_id = sc.screen_id "
+				+ "join theater t on sc.theater_id = t.theater_id "
+				+ "where s.movie_id = ?";
+
+		try (PreparedStatement pst = con.prepareStatement(sql)) {
+			pst.setInt(1, movieId);
+
+			try (ResultSet rs = pst.executeQuery()) {
+				return rs.next() && rs.getInt(1) > 0;
+			}
+		}
+	}
+
+	private ArrayList<DefaultScreen> getAllScreens(Connection con) throws SQLException {
+		ArrayList<DefaultScreen> screens = new ArrayList<>();
+		String sql = "select screen_id, screen_name from screen order by screen_id asc";
+
+		try (PreparedStatement pst = con.prepareStatement(sql);
+				ResultSet rs = pst.executeQuery()) {
+			while (rs.next()) {
+				screens.add(new DefaultScreen(rs.getInt("screen_id"), rs.getString("screen_name")));
+			}
+		}
+
+		return screens;
+	}
+
+	private int getMovieRuntime(Connection con, int movieId) throws SQLException {
+		String sql = "select runtime from movie where movie_id = ?";
+
+		try (PreparedStatement pst = con.prepareStatement(sql)) {
+			pst.setInt(1, movieId);
+
+			try (ResultSet rs = pst.executeQuery()) {
+				if (rs.next()) {
+					int runtime = rs.getInt("runtime");
+					if (!rs.wasNull() && runtime > 0) {
+						return runtime;
+					}
+				}
+			}
+		}
+
+		return 120;
+	}
+
+	private int insertDefaultSchedules(Connection con, int movieId, ArrayList<DefaultScreen> screens, int runtimeMinutes)
+			throws SQLException {
+		String sql = "insert into schedule (movie_id, screen_id, start_time, end_time, price) values (?, ?, ?, ?, ?)";
+		int price = 12000;
+		int inserted = 0;
+		LocalDate firstDate = findAvailableFirstDate(con);
+		int runtime = runtimeMinutes > 0 ? runtimeMinutes : 120;
+		int screenIndex;
+
+		try (PreparedStatement pst = con.prepareStatement(sql)) {
+			for (int day = 0; day < 7; day++) {
+				for (screenIndex = 0; screenIndex < screens.size(); screenIndex++) {
+					DefaultScreen screen = screens.get(screenIndex);
+					int[] startHours = getDefaultStartHours(screen.screenName, screenIndex);
+
+					for (int startHour : startHours) {
+						LocalDateTime startTime = firstDate.plusDays(day).atTime(startHour, 0);
+						LocalDateTime endTime = startTime.plusMinutes(runtime);
+
+						pst.setInt(1, movieId);
+						pst.setInt(2, screen.screenId);
+						pst.setTimestamp(3, Timestamp.valueOf(startTime));
+						pst.setTimestamp(4, Timestamp.valueOf(endTime));
+						pst.setInt(5, price);
+						pst.addBatch();
+					}
+				}
+			}
+
+			int[] results = pst.executeBatch();
+			for (int result : results) {
+				if (result > 0) {
+					inserted += result;
+				}
+			}
+		}
+
+		return inserted;
+	}
+
+	private LocalDate findAvailableFirstDate(Connection con) throws SQLException {
+		LocalDate firstDate = LocalDate.now().plusDays(1);
+
+		for (int week = 0; week < 52; week++) {
+			if (!hasScheduleInDateRange(con, firstDate, firstDate.plusDays(7))) {
+				return firstDate;
+			}
+
+			firstDate = firstDate.plusDays(7);
+		}
+
+		return firstDate;
+	}
+
+	private boolean hasScheduleInDateRange(Connection con, LocalDate startDate, LocalDate endDate) throws SQLException {
+		String sql = "select count(*) from schedule where start_time >= ? and start_time < ?";
+
+		try (PreparedStatement pst = con.prepareStatement(sql)) {
+			pst.setTimestamp(1, Timestamp.valueOf(startDate.atStartOfDay()));
+			pst.setTimestamp(2, Timestamp.valueOf(endDate.atStartOfDay()));
+
+			try (ResultSet rs = pst.executeQuery()) {
+				return rs.next() && rs.getInt(1) > 0;
+			}
+		}
+	}
+
+	private int[] getDefaultStartHours(String screenName, int screenIndex) {
+		String name = screenName == null ? "" : screenName;
+
+		if (name.contains("1")) {
+			return new int[] { 13, 14, 15 };
+		}
+
+		if (name.contains("2")) {
+			return new int[] { 16, 17, 18 };
+		}
+
+		if (name.contains("3")) {
+			return new int[] { 19, 20, 21 };
+		}
+
+		if (screenIndex == 0) {
+			return new int[] { 13, 14, 15 };
+		}
+
+		if (screenIndex == 1) {
+			return new int[] { 16, 17, 18 };
+		}
+
+		return new int[] { 19, 20, 21 };
+	}
+
+	private static class DefaultScreen {
+		private final int screenId;
+		private final String screenName;
+
+		private DefaultScreen(int screenId, String screenName) {
+			this.screenId = screenId;
+			this.screenName = screenName;
 		}
 	}
 
