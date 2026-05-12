@@ -13,7 +13,9 @@ import javax.servlet.http.HttpSession;
 
 import member.dto.MemberDTO;
 import reservation.dto.ReservationDTO;
+import reservation.dto.SeatDTO;
 import reservation.service.ReservationService;
+import reservation.service.SeatService;
 
 @WebServlet("/reservation/updateForm.do")
 // 예매 변경 화면 컨트롤러
@@ -21,6 +23,7 @@ import reservation.service.ReservationService;
 public class ReservationUpdateFormServlet extends HttpServlet {
 
     private ReservationService reservationService = new ReservationService();
+    private SeatService seatService = new SeatService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -57,6 +60,7 @@ public class ReservationUpdateFormServlet extends HttpServlet {
 
             // JSP에서 기존 좌석을 체크 상태로 표시하기 위해 seat_id 목록을 CSV 형태로 만든다.
             ArrayList<Integer> currentSeatIds = reservationService.getReservationSeatIds(reservationId, memberId);
+            ArrayList<SeatDTO> seatList = seatService.getSeatListByScheduleId(reservation.getSchedule_id());
             StringBuilder currentSeatIdCsv = new StringBuilder(",");
             for (Integer seatId : currentSeatIds) {
                 currentSeatIdCsv.append(seatId).append(",");
@@ -64,7 +68,8 @@ public class ReservationUpdateFormServlet extends HttpServlet {
 
             req.setAttribute("reservation", reservation);
             req.setAttribute("currentSeatIdCsv", currentSeatIdCsv.toString());
-            req.getRequestDispatcher("/WEB-INF/views/reservation/reservationUpdateForm.jsp").forward(req, resp);
+            req.setAttribute("seatList", seatList);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/reservationUpdate.jsp").forward(req, resp);
         } catch (NumberFormatException e) {
             resp.sendRedirect(req.getContextPath() + "/reservation/myList.do");
         } catch (SQLException e) {

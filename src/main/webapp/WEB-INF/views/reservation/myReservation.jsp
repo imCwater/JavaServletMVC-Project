@@ -51,7 +51,9 @@
                   <th>예매번호</th>
                   <th>영화</th>
                   <th>상영일시</th>
+                  <th>극장</th>
                   <th>인원</th>
+                  <th>금액</th>
                   <th>좌석</th>
                   <th>상태</th>
                   <th>관리</th>
@@ -63,7 +65,9 @@
                     <td><c:out value="${reservation.reservation_id}" /></td>
                     <td><c:out value="${reservation.movieTitle}" /></td>
                     <td><fmt:formatDate value="${reservation.startTime}" pattern="yyyy.MM.dd HH:mm" /></td>
+                    <td><c:out value="${reservation.theaterName}" /> <c:out value="${reservation.screenName}" /></td>
                     <td><c:out value="${reservation.headcount}" />명</td>
+                    <td><fmt:formatNumber value="${reservation.totalPrice}" pattern="#,##0" />원</td>
                     <td><c:out value="${empty reservation.seatNames ? '-' : reservation.seatNames}" /></td>
                     <td>
                       <c:choose>

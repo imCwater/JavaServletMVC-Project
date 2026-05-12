@@ -17,6 +17,9 @@ public class ReservationDTO {
 	Timestamp startTime;
 	Timestamp endTime;
 	String seatNames;
+	int price;
+	String theaterName;
+	String screenName;
 	public ReservationDTO(int reservation_id, int member_id, int schedule_id, int headcount, char status,
 			Timestamp reserved_at) {
 		super();
@@ -99,6 +102,27 @@ public class ReservationDTO {
 	}
 	public void setSeatNames(String seatNames) {
 		this.seatNames = seatNames;
+	}
+	public int getPrice() {
+		return price;
+	}
+	public void setPrice(int price) {
+		this.price = price;
+	}
+	public int getTotalPrice() {
+		return price * headcount;
+	}
+	public String getTheaterName() {
+		return theaterName;
+	}
+	public void setTheaterName(String theaterName) {
+		this.theaterName = theaterName;
+	}
+	public String getScreenName() {
+		return screenName;
+	}
+	public void setScreenName(String screenName) {
+		this.screenName = screenName;
 	}
 	
 }

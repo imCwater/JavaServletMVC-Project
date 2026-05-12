@@ -39,40 +39,23 @@ public class ReservationDAO {
 		return reservationId;
 	}
 
-	// 선택 좌석 1개를 reservation_seat 테이블에 저장한다.
-	public int insertReservationSeat(Connection con, int reservationId, int scheduleId, int seatId) {
-		String sql = "insert into reservation_seat(reservation_id, schedule_id, seat_id) values(?,?,?)";
-		PreparedStatement pst = null;
-		int result = 0;
-
-		try {
-			pst = con.prepareStatement(sql);
-			pst.setInt(1, reservationId);
-			pst.setInt(2, scheduleId);
-			pst.setInt(3, seatId);
-
-			result = pst.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return result;
-	}
-
 	// 회원의 예매 목록을 영화명, 상영시간, 좌석명까지 조인해서 조회한다.
 	public ArrayList<ReservationDTO> getReservationListByMember(Connection con, int memberId) {
 		ArrayList<ReservationDTO> list = new ArrayList<>();
 		String sql = "select r.reservation_id, r.member_id, r.schedule_id, r.headcount, r.status, r.reserved_at, "
-				+ "m.title as movie_title, s.start_time, s.end_time, "
+				+ "m.title as movie_title, s.start_time, s.end_time, s.price, "
+				+ "t.theater_name, sc.screen_name, "
 				+ "listagg(se.row_label || se.col_num, ', ') within group (order by se.row_label, se.col_num) as seat_names "
 				+ "from reservation r "
 				+ "join schedule s on r.schedule_id = s.schedule_id "
 				+ "join movie m on s.movie_id = m.movie_id "
+				+ "join screen sc on s.screen_id = sc.screen_id "
+				+ "join theater t on sc.theater_id = t.theater_id "
 				+ "left join reservation_seat rs on r.reservation_id = rs.reservation_id "
 				+ "left join seat se on rs.seat_id = se.seat_id "
 				+ "where r.member_id = ? "
 				+ "group by r.reservation_id, r.member_id, r.schedule_id, r.headcount, r.status, r.reserved_at, "
-				+ "m.title, s.start_time, s.end_time "
+				+ "m.title, s.start_time, s.end_time, s.price, t.theater_name, sc.screen_name "
 				+ "order by r.reserved_at desc";
 
 		PreparedStatement pst = null;
@@ -95,6 +78,9 @@ public class ReservationDAO {
 				dto.setStartTime(rs.getTimestamp("start_time"));
 				dto.setEndTime(rs.getTimestamp("end_time"));
 				dto.setSeatNames(rs.getString("seat_names"));
+				dto.setPrice(rs.getInt("price"));
+				dto.setTheaterName(rs.getString("theater_name"));
+				dto.setScreenName(rs.getString("screen_name"));
 
 				list.add(dto);
 			}
@@ -141,16 +127,19 @@ public class ReservationDAO {
 	public ReservationDTO getReservationDetailByIdAndMember(Connection con, int reservationId, int memberId) {
 		ReservationDTO dto = null;
 		String sql = "select r.reservation_id, r.member_id, r.schedule_id, r.headcount, r.status, r.reserved_at, "
-				+ "m.title as movie_title, s.start_time, s.end_time, "
+				+ "m.title as movie_title, s.start_time, s.end_time, s.price, "
+				+ "t.theater_name, sc.screen_name, "
 				+ "listagg(se.row_label || se.col_num, ', ') within group (order by se.row_label, se.col_num) as seat_names "
 				+ "from reservation r "
 				+ "join schedule s on r.schedule_id = s.schedule_id "
 				+ "join movie m on s.movie_id = m.movie_id "
+				+ "join screen sc on s.screen_id = sc.screen_id "
+				+ "join theater t on sc.theater_id = t.theater_id "
 				+ "left join reservation_seat rs on r.reservation_id = rs.reservation_id "
 				+ "left join seat se on rs.seat_id = se.seat_id "
 				+ "where r.reservation_id = ? and r.member_id = ? "
 				+ "group by r.reservation_id, r.member_id, r.schedule_id, r.headcount, r.status, r.reserved_at, "
-				+ "m.title, s.start_time, s.end_time";
+				+ "m.title, s.start_time, s.end_time, s.price, t.theater_name, sc.screen_name";
 
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -173,57 +162,15 @@ public class ReservationDAO {
 				dto.setStartTime(rs.getTimestamp("start_time"));
 				dto.setEndTime(rs.getTimestamp("end_time"));
 				dto.setSeatNames(rs.getString("seat_names"));
+				dto.setPrice(rs.getInt("price"));
+				dto.setTheaterName(rs.getString("theater_name"));
+				dto.setScreenName(rs.getString("screen_name"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		return dto;
-	}
-
-	// 특정 예매에 연결된 모든 좌석 행을 삭제한다.
-	public int deleteReservationSeats(Connection con, int reservationId) {
-		String sql = "delete from reservation_seat where reservation_id = ?";
-		PreparedStatement pst = null;
-		int result = 0;
-
-		try {
-			pst = con.prepareStatement(sql);
-			pst.setInt(1, reservationId);
-			result = pst.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return result;
-	}
-
-	// 활성 예매 1건에 연결된 seat_id 목록을 조회한다.
-	public ArrayList<Integer> getSeatIdsByReservation(Connection con, int reservationId, int memberId) {
-		ArrayList<Integer> list = new ArrayList<>();
-		String sql = "select rs.seat_id "
-				+ "from reservation_seat rs "
-				+ "join reservation r on rs.reservation_id = r.reservation_id "
-				+ "where rs.reservation_id = ? and r.member_id = ? and r.status = 'Y' "
-				+ "order by rs.seat_id";
-
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		try {
-			pst = con.prepareStatement(sql);
-			pst.setInt(1, reservationId);
-			pst.setInt(2, memberId);
-			rs = pst.executeQuery();
-
-			while (rs.next()) {
-				list.add(rs.getInt("seat_id"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return list;
 	}
 
 	// 좌석 변경 후 선택 좌석 수에 맞춰 headcount를 수정한다.

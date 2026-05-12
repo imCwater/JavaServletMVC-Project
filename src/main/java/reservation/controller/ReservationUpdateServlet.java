@@ -61,13 +61,11 @@ public class ReservationUpdateServlet extends HttpServlet {
                     reservationId, memberId, seatIds);
 
             if (result > 0) {
-                resp.sendRedirect(req.getContextPath()
-                        + "/reservation/detail.do?reservationId=" + reservationId + "&update=success");
+                resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?update=success");
                 return;
             }
 
-            resp.sendRedirect(req.getContextPath()
-                    + "/reservation/updateForm.do?reservationId=" + reservationId + "&update=fail");
+            resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?update=fail");
         } catch (NumberFormatException e) {
             resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?update=fail");
         } catch (SQLException e) {

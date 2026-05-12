@@ -1,6 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <footer class="footer">
+  <div class="footer-popcorn" aria-hidden="true">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+    <img class="popcorn-kernel" src="${pageContext.request.contextPath}/img/Logo.png" alt="">
+  </div>
   <div class="footer-inner">
     <div class="contact">
       <div class="contact-title">문의 시간 &gt;</div>
