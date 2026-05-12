@@ -11,8 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import diary.dto.DiaryDTO;
+import diary.service.DiaryService;
 import member.dto.MemberDTO;
 import reservation.service.ReservationService;
+import schedule.dto.ScheduleDTO;
 
 @WebServlet("/reservation/insert.do")
 // 예매 등록 컨트롤러
@@ -20,6 +23,7 @@ import reservation.service.ReservationService;
 public class ReservationInsertServlet extends HttpServlet {
 
     private ReservationService reservationService = new ReservationService();
+    private DiaryService diaryService = new DiaryService();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,10 +42,11 @@ public class ReservationInsertServlet extends HttpServlet {
         }
 
         int memberId = loginMember.getMemberId();
+        String movieIdParameter = req.getParameter("movieId");
         String scheduleIdParameter = req.getParameter("scheduleId");
 
         if (scheduleIdParameter == null || scheduleIdParameter.trim().isEmpty()) {
-            resp.sendRedirect(req.getContextPath() + "/movie/search.do");
+            redirectReservationForm(req, resp, movieIdParameter);
             return;
         }
 
@@ -60,16 +65,48 @@ public class ReservationInsertServlet extends HttpServlet {
             // Service에서 예매/예매좌석 저장과 중복 좌석 검사를 처리한다.
             int result = reservationService.reserve(memberId, scheduleId, seatIds);
             if (result > 0) {
+                insertDiaryAfterReservation(memberId, result, scheduleId);
                 resp.sendRedirect(req.getContextPath() + "/reservation/complete.do?reservationId=" + result);
                 return;
             }
 
-            resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?reserve=fail");
+            redirectReservationForm(req, resp, movieIdParameter);
         } catch (NumberFormatException e) {
-            resp.sendRedirect(req.getContextPath() + "/reservation/myList.do?reserve=fail");
+            redirectReservationForm(req, resp, movieIdParameter);
         } catch (SQLException e) {
             e.printStackTrace();
             resp.sendError(500);
+        }
+    }
+
+    private void redirectReservationForm(HttpServletRequest req, HttpServletResponse resp, String movieIdParameter)
+            throws IOException {
+        String redirectUrl = req.getContextPath() + "/reservation/form.do?reserve=fail";
+
+        if (movieIdParameter != null && !movieIdParameter.trim().isEmpty()) {
+            redirectUrl = req.getContextPath()
+                    + "/reservation/form.do?movieId=" + movieIdParameter.trim() + "&reserve=fail";
+        }
+
+        resp.sendRedirect(redirectUrl);
+    }
+
+    private void insertDiaryAfterReservation(int memberId, int reservationId, int scheduleId) {
+        try {
+            ScheduleDTO schedule = reservationService.getScheduleById(scheduleId);
+            if (schedule == null) {
+                return;
+            }
+
+            DiaryDTO diaryDTO = new DiaryDTO();
+            diaryDTO.setMemberId(memberId);
+            diaryDTO.setMovieId(schedule.getMovieId());
+            diaryDTO.setReservationId(reservationId);
+            diaryDTO.setWatchDate(java.sql.Timestamp.valueOf(schedule.getStartTime()));
+
+            diaryService.insertDiary(diaryDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

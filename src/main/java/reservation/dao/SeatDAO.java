@@ -29,11 +29,67 @@ public class SeatDAO {
 	}
 
 	public ArrayList<SeatDTO> getSeatList(Connection con, int screenId) {
-		return getSeatList(con);
+		ArrayList<SeatDTO> list = new ArrayList<>();
+		String sql = "select seat_id, row_label, col_num from seat where screen_id = ? order by row_label, col_num";
+
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			pst = con.prepareStatement(sql);
+			pst.setInt(1, screenId);
+			rs = pst.executeQuery();
+
+			while (rs.next()) {
+				SeatDTO dto = new SeatDTO();
+				dto.setSeat_id(rs.getInt("seat_id"));
+				dto.setRow_label(rs.getString("row_label"));
+				dto.setCol_num(rs.getInt("col_num"));
+				list.add(dto);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		if (list.size() == 0) {
+			list = selectSeatList(con);
+		}
+
+		return list;
 	}
 
 	public ArrayList<SeatDTO> getSeatListByScheduleId(Connection con, int scheduleId) {
-		return getSeatList(con);
+		ArrayList<SeatDTO> list = new ArrayList<>();
+		String sql = "select se.seat_id, se.row_label, se.col_num "
+				+ "from schedule s "
+				+ "join seat se on s.screen_id = se.screen_id "
+				+ "where s.schedule_id = ? "
+				+ "order by se.row_label, se.col_num";
+
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			pst = con.prepareStatement(sql);
+			pst.setInt(1, scheduleId);
+			rs = pst.executeQuery();
+
+			while (rs.next()) {
+				SeatDTO dto = new SeatDTO();
+				dto.setSeat_id(rs.getInt("seat_id"));
+				dto.setRow_label(rs.getString("row_label"));
+				dto.setCol_num(rs.getInt("col_num"));
+				list.add(dto);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		if (list.size() == 0) {
+			list = selectSeatList(con);
+		}
+
+		return list;
 	}
 
 	// SEAT 테이블에서 좌석 정보를 실제로 조회하는 내부 메서드

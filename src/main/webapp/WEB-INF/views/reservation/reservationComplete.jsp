@@ -42,8 +42,16 @@
             <strong><fmt:formatDate value="${reservation.startTime}" pattern="yyyy.MM.dd HH:mm" /></strong>
           </div>
           <div class="summary-item">
+            <span>극장</span>
+            <strong><c:out value="${reservation.theaterName}" /> <c:out value="${reservation.screenName}" /></strong>
+          </div>
+          <div class="summary-item">
             <span>좌석</span>
             <strong><c:out value="${reservation.seatNames}" /></strong>
+          </div>
+          <div class="summary-item">
+            <span>금액</span>
+            <strong><fmt:formatNumber value="${reservation.totalPrice}" pattern="#,##0" />원</strong>
           </div>
         </div>
       </section>

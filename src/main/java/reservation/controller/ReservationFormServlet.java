@@ -13,13 +13,15 @@ import javax.servlet.http.HttpServletResponse;
 import movie.dto.MovieDTO;
 import reservation.service.ReservationService;
 import schedule.dto.ScheduleDTO;
+import schedule.service.ScheduleService;
 
 @WebServlet("/reservation/form.do")
 // 예매 시작 화면 컨트롤러
-// movieId를 받아 영화 정보와 상영 일정 목록을 조회한 뒤 scheduleList.jsp로 이동한다.
+// movieId를 받아 영화 정보와 상영 일정 목록을 조회한 뒤 reservationForm.jsp로 이동한다.
 public class ReservationFormServlet extends HttpServlet {
 
     private ReservationService reservationService = new ReservationService();
+    private ScheduleService scheduleService = new ScheduleService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -30,7 +32,7 @@ public class ReservationFormServlet extends HttpServlet {
         String movieIdParameter = req.getParameter("movieId");
         if (movieIdParameter == null || movieIdParameter.trim().isEmpty()) {
             req.setAttribute("errorMsg", "영화 번호가 전달되지 않았습니다.");
-            req.getRequestDispatcher("/WEB-INF/views/reservation/scheduleList.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/reservationForm.jsp").forward(req, resp);
             return;
         }
 
@@ -39,14 +41,14 @@ public class ReservationFormServlet extends HttpServlet {
             movieId = Integer.parseInt(movieIdParameter);
         } catch (NumberFormatException e) {
             req.setAttribute("errorMsg", "잘못된 영화 번호입니다.");
-            req.getRequestDispatcher("/WEB-INF/views/reservation/scheduleList.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/reservationForm.jsp").forward(req, resp);
             return;
         }
 
         try {
-            // 예매 화면에 필요한 영화 정보와 해당 영화의 상영 일정을 조회한다.
+            // 예매 화면에 필요한 영화, 상영 일정, 좌석 기본 정보를 각 Service에서 조회한다.
             MovieDTO movie = reservationService.getMovieById(movieId);
-            ArrayList<ScheduleDTO> scheduleList = reservationService.getScheduleListByMovieId(movieId);
+            ArrayList<ScheduleDTO> scheduleList = scheduleService.getScheduleListByMovieId(movieId);
 
             if (movie == null) {
                 req.setAttribute("errorMsg", "영화 번호 " + movieId + "번이 DB에 없습니다.");
@@ -55,7 +57,7 @@ public class ReservationFormServlet extends HttpServlet {
             req.setAttribute("movieId", movieId);
             req.setAttribute("movie", movie);
             req.setAttribute("scheduleList", scheduleList);
-            req.getRequestDispatcher("/WEB-INF/views/reservation/scheduleList.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/reservationForm.jsp").forward(req, resp);
         } catch (SQLException e) {
             e.printStackTrace();
             resp.sendError(500);

@@ -517,9 +517,9 @@
                                         <article class="reservation-item">
                                             <div class="item-top">
                                                 <div class="item-title"><c:out value="${reservation.movieTitle}" /></div>
-                                                <span class="status-badge ${reservation.status eq 'C' ? 'cancel' : ''}">
+                                                <span class="status-badge ${reservation.statusText eq 'C' ? 'cancel' : ''}">
                                                     <c:choose>
-                                                        <c:when test="${reservation.status eq 'C'}">취소</c:when>
+                                                        <c:when test="${reservation.statusText eq 'C'}">취소</c:when>
                                                         <c:otherwise>예매완료</c:otherwise>
                                                     </c:choose>
                                                 </span>

@@ -37,7 +37,7 @@
           <label class="field">
             <span>날짜</span>
             <select id="dateSelect" aria-label="날짜 선택">
-              <option value="${reservation.schedule_id}">
+              <option value="${reservation.schedule_id}" data-price="${reservation.price}">
                 <fmt:formatDate value="${reservation.startTime}" pattern="yyyy년 MM월 dd일" />
               </option>
             </select>
@@ -45,7 +45,7 @@
           <label class="field">
             <span>시간</span>
             <select id="scheduleSelect" name="scheduleId" aria-label="시간 선택">
-              <option value="${reservation.schedule_id}">
+              <option value="${reservation.schedule_id}" data-price="${reservation.price}">
                 <fmt:formatDate value="${reservation.startTime}" pattern="HH:mm" />
               </option>
             </select>
@@ -67,6 +67,7 @@
               <div>시간: <strong><span id="timeText">-</span></strong></div>
               <div>인원: <strong><span id="peopleText">0</span></strong></div>
               <div>좌석: <strong><span id="seatText">-</span></strong></div>
+              <div>총 금액: <strong><span id="totalPriceText">0</span>원</strong></div>
             </div>
             <button type="submit" class="btn reserve-btn" id="submitBookingButton">변경하기</button>
           </div>

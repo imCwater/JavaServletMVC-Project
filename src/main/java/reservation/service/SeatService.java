@@ -54,6 +54,10 @@ public class SeatService {
 		}
 	}
 
+	public ArrayList<SeatDTO> getSeatListByScheduleId(Connection con, int scheduleId) {
+		return seatDAO.getSeatListByScheduleId(con, scheduleId);
+	}
+
 	// 특정 상영 일정에서 이미 예매된 좌석 ID 목록을 조회한다.
 	public ArrayList<Integer> getReservedSeatIds(int scheduleId) throws SQLException {
 		Connection con = null;

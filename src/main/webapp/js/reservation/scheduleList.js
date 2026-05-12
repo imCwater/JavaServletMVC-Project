@@ -4,6 +4,7 @@
   var peopleSelect = document.querySelector("#peopleSelect");
   var peopleText = document.querySelector("#peopleText");
   var seatText = document.querySelector("#seatText");
+  var totalPriceText = document.querySelector("#totalPriceText");
   var seatNotice = document.querySelector("#seatNotice");
   var seatMap = document.querySelector("#seatMap");
   var dateSelect = document.querySelector("#dateSelect");
@@ -56,13 +57,25 @@
   }
 
   function syncSummary() {
+    var price = 0;
+    var peopleCount = Number(peopleSelect.value || 0);
+
     if (dateText && dateSelect && dateSelect.selectedOptions.length > 0) {
       dateText.textContent = dateSelect.selectedOptions[0].textContent.trim();
     }
 
     if (timeText && scheduleSelect.selectedOptions.length > 0) {
       timeText.textContent = scheduleSelect.selectedOptions[0].textContent.trim();
+      price = Number(scheduleSelect.selectedOptions[0].getAttribute("data-price") || 0);
     }
+
+    if (totalPriceText) {
+      totalPriceText.textContent = formatPrice(price * peopleCount);
+    }
+  }
+
+  function formatPrice(value) {
+    return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
   function syncSeatInputs() {
