@@ -1,5 +1,6 @@
 package schedule.dto;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class ScheduleDTO {
@@ -42,11 +43,19 @@ public class ScheduleDTO {
 		return scheduleId;
 	}
 
+	public int getSchedule_id() {
+		return scheduleId;
+	}
+
 	public void setScheduleId(int scheduleId) {
 		this.scheduleId = scheduleId;
 	}
 
 	public int getMovieId() {
+		return movieId;
+	}
+
+	public int getMovie_id() {
 		return movieId;
 	}
 
@@ -58,6 +67,10 @@ public class ScheduleDTO {
 		return screenId;
 	}
 
+	public int getScreen_id() {
+		return screenId;
+	}
+
 	public void setScreenId(int screenId) {
 		this.screenId = screenId;
 	}
@@ -66,12 +79,20 @@ public class ScheduleDTO {
 		return startTime;
 	}
 
+	public Timestamp getStart_time() {
+		return startTime == null ? null : Timestamp.valueOf(startTime);
+	}
+
 	public void setStartTime(LocalDateTime startTime) {
 		this.startTime = startTime;
 	}
 
 	public LocalDateTime getEndTime() {
 		return endTime;
+	}
+
+	public Timestamp getEnd_time() {
+		return endTime == null ? null : Timestamp.valueOf(endTime);
 	}
 
 	public void setEndTime(LocalDateTime endTime) {
