@@ -31,25 +31,28 @@ public class FriendCheckServlet extends HttpServlet {
             return;
         }
 
-        MemberDTO loginMember  = (MemberDTO) session.getAttribute("loginMember");
-        String targetIdParam   = req.getParameter("targetMemberId");
+        String targetIdParam = req.getParameter("targetMemberId");
 
         if (targetIdParam == null || targetIdParam.trim().isEmpty()) {
             resp.getWriter().write("{\"result\":\"EMPTY\",\"isFriend\":false}");
             return;
         }
 
+        MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
+
         try {
             int targetMemberId = Integer.parseInt(targetIdParam.trim());
+            int loginMemberId = loginMember.getMemberId();
 
-            // 본인이면 true 처리 (본인 비공개 리뷰 조회 가능)
-            if (targetMemberId == loginMember.getMemberId()) {
-                resp.getWriter().write("{\"result\":\"OK\",\"isFriend\":true}");
-                return;
+            boolean isFriend;
+
+            // 본인이면 true 처리
+            // 이유: 본인은 친구가 아니어도 자기 친구공개/비공개성 리뷰 조회 가능해야 함
+            if (loginMemberId == targetMemberId) {
+                isFriend = true;
+            } else {
+                isFriend = friendService.isFriend(loginMemberId, targetMemberId);
             }
-
-            boolean isFriend =
-                friendService.isFriend(loginMember.getMemberId(), targetMemberId);
 
             resp.getWriter().write(
                 "{\"result\":\"OK\",\"isFriend\":" + isFriend + "}");

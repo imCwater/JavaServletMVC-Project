@@ -474,15 +474,13 @@
     color: var(--muted);
 }
 
-/* =============================================  
- 반응형 추가
-============================================= *
-/@media (max-width: 768px) { 
-	.profile-card {     
-	   flex-wrap: wrap;  
-	  }
-	  
-    .profile-review-grid {   
-         gap: 10px;   
-      }
- }
+/* ── userProfile 반응형 ───────────────────────────── */
+@media (max-width: 768px) {
+    .profile-card {
+        flex-wrap: wrap;
+    }
+
+    .profile-review-grid {
+        gap: 10px;
+    }
+}

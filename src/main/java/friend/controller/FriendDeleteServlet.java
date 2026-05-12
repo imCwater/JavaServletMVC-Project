@@ -20,47 +20,63 @@ public class FriendDeleteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json;charset=UTF-8");
 
         HttpSession session = req.getSession(false);
-
+        
         // 비로그인 체크
         if (session == null || session.getAttribute("loginMember") == null) {
-            resp.getWriter().write("{\"result\":\"NOT_LOGIN\"}");
+            writeJsonOrRedirect(req, resp, "NOT_LOGIN", "/login.do");
+            return;
+        }
+
+        String targetIdParam = req.getParameter("targetMemberId");
+
+
+        // 파라미터 체크
+        if (targetIdParam == null || targetIdParam.trim().isEmpty()) {
+            writeJsonOrRedirect(req, resp, "EMPTY", "/friend/list.do");
             return;
         }
 
         MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        String targetIdParam  = req.getParameter("targetMemberId");
-
-        // 파라미터 체크
-        if (targetIdParam == null || targetIdParam.trim().isEmpty()) {
-            resp.getWriter().write("{\"result\":\"EMPTY\"}");
-            return;
-        }
 
         try {
             int targetMemberId = Integer.parseInt(targetIdParam.trim());
 
             // 자기 자신 삭제 방지
             if (targetMemberId == loginMember.getMemberId()) {
-                resp.getWriter().write("{\"result\":\"SELF\"}");
+                writeJsonOrRedirect(req, resp, "SELF", "/friend/list.do");
                 return;
             }
 
             boolean deleted =
                 friendService.deleteFriend(loginMember.getMemberId(), targetMemberId);
 
-            resp.getWriter().write(
-                deleted ? "{\"result\":\"OK\"}"
-                        : "{\"result\":\"NOT_FRIEND\"}"
-            );
+            writeJsonOrRedirect(req, resp,
+                deleted ? "OK" : "NOT_FRIEND",
+                "/friend/list.do");
 
         } catch (NumberFormatException e) {
-            resp.getWriter().write("{\"result\":\"INVALID\"}");
+            writeJsonOrRedirect(req, resp, "INVALID", "/friend/list.do");
         } catch (Exception e) {
             e.printStackTrace();
-            resp.getWriter().write("{\"result\":\"ERROR\"}");
+            writeJsonOrRedirect(req, resp, "ERROR", "/friend/list.do");
         }
     }
+    
+    private void writeJsonOrRedirect(HttpServletRequest req, HttpServletResponse resp,
+            String result, String redirectPath) throws IOException {
+		if (isAjax(req)) {
+			resp.getWriter().write("{\"result\":\"" + result + "\"}");
+		} else {
+			resp.sendRedirect(req.getContextPath() + redirectPath);
+		}
+	}
+	
+	private boolean isAjax(HttpServletRequest req) {
+		return "XMLHttpRequest".equals(req.getHeader("X-Requested-With"));
+	}
+
 }

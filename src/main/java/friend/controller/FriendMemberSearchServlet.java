@@ -31,27 +31,26 @@ public class FriendMemberSearchServlet extends HttpServlet {
             return;
         }
 
-        MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-        String keyword        = req.getParameter("userId");
+        String keyword = req.getParameter("userId");
 
         if (keyword == null || keyword.trim().isEmpty()) {
             resp.getWriter().write("{\"result\":\"EMPTY\"}");
             return;
         }
 
-        try {
-            // ✅ 본인 제외 검색
-            MemberDTO found =
-                friendService.searchMember(keyword.trim(), loginMember.getMemberId());
+        MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
 
+        try {
+            MemberDTO found = friendService.findByUserId(keyword.trim());
+
+            // 본인인지 없는 회원인지 구분
             if (found == null) {
-                // 본인인지 없는 회원인지 구분
-                MemberDTO anyone = friendService.findByUserId(keyword.trim());
-                if (anyone != null && anyone.getMemberId() == loginMember.getMemberId()) {
-                    resp.getWriter().write("{\"result\":\"SELF\"}");
-                } else {
-                    resp.getWriter().write("{\"result\":\"NOT_FOUND\"}");
-                }
+                resp.getWriter().write("{\"result\":\"NOT_FOUND\"}");
+                return;
+            }
+
+            if (found.getMemberId() == loginMember.getMemberId()) {
+                resp.getWriter().write("{\"result\":\"SELF\"}");
                 return;
             }
 
@@ -60,17 +59,57 @@ public class FriendMemberSearchServlet extends HttpServlet {
                 friendService.isFriend(loginMember.getMemberId(), found.getMemberId());
 
             resp.getWriter().write(
-                "{\"result\":\"OK\","       +
-                "\"memberId\":"             + found.getMemberId()  + "," +
-                "\"userId\":\""             + found.getUserId()    + "\"," +
-                "\"name\":\""               + found.getName()      + "\"," +
-                "\"alreadyFriend\":"        + alreadyFriend        + "}"
-            );
+                "{\"result\":\"OK\"," +
+                "\"memberId\":" + found.getMemberId() + "," +
+                "\"userId\":\"" + escapeJson(found.getUserId()) + "\"," +
+                "\"name\":\"" + escapeJson(found.getName()) + "\"," +
+                "\"alreadyFriend\":" + alreadyFriend + "}");
 
         } catch (Exception e) {
             e.printStackTrace();
             resp.getWriter().write("{\"result\":\"ERROR\"}");
         }
     }
-}
 
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (c < 32) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+                    break;
+            }
+        }
+        return sb.toString();
+    }
+}

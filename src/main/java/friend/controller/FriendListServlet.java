@@ -27,7 +27,7 @@ public class FriendListServlet extends HttpServlet {
 
         // 비로그인 → 로그인 페이지
         if (session == null || session.getAttribute("loginMember") == null) {
-            resp.sendRedirect(req.getContextPath() + "/member/login.do");
+            resp.sendRedirect(req.getContextPath() + "/login.do");
             return;
         }
 
