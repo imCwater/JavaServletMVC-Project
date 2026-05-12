@@ -46,6 +46,7 @@ public class DiaryListServlet extends HttpServlet {
 		try {
 			// 다이어리 목록 조회 (태그 포함)
 			List<DiaryDTO> diaryList = diaryService.getDiaryList(memberId, year, sort);
+			List<DiaryDTO> writeDiaryList = diaryService.getWritableDiaryList(memberId);
 
 			// 연도 목록 (사이드바 폴더)
 			List<String> yearList = diaryService.getYearList(memberId);
@@ -55,6 +56,7 @@ public class DiaryListServlet extends HttpServlet {
 
 			// ── request에 담아 JSP로 전달 ──────────────────────
 			req.setAttribute("diaryList", diaryList);
+			req.setAttribute("writeDiaryList", writeDiaryList);
 			req.setAttribute("yearList", yearList);
 			req.setAttribute("allTags", allTags);
 			req.setAttribute("selectedYear", year);

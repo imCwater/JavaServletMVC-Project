@@ -371,11 +371,11 @@ body {
               <div class="label">총 관람 편수</div>
             </div>
             <div class="stat-card">
-              <div class="icon">⭐</div>
+              <div class="icon">🍿</div>
               <div class="val">
-                <fmt:formatNumber value="${stat.avgStarRating}" maxFractionDigits="1"/>
+                <fmt:formatNumber value="${stat.avgPopcornRating}" maxFractionDigits="1"/>
               </div>
-              <div class="label">평균 별점</div>
+              <div class="label">평균 팝콘</div>
             </div>
             <div class="stat-card">
               <div class="icon">🎭</div>

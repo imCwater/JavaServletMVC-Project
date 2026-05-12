@@ -34,6 +34,10 @@ public class DiaryService {
 		return list;
 	}
 
+	public List<DiaryDTO> getWritableDiaryList(int memberId) throws Exception {
+		return diaryDAO.getWritableDiaryList(memberId);
+	}
+
 	// ─────────────────────────────────────────────────────────────
 	// 2. 달력용 데이터 조회 (AJAX JSON 응답)
 	// ─────────────────────────────────────────────────────────────
@@ -60,18 +64,18 @@ public class DiaryService {
 	}
 
 	// ─────────────────────────────────────────────────────────────
-	// 5. 감정 태그 + 별점 등록/수정
+	// 5. 감정 태그 + 팝콘 평점 등록/수정
 	// ─────────────────────────────────────────────────────────────
-	public void updateTagsAndStar(int diaryId, int[] tagIds, double starRating) throws Exception {
+	public void updateTagsAndPopcorn(int diaryId, int[] tagIds, double popcornRating) throws Exception {
 		diaryDAO.updateTags(diaryId, tagIds);
-		if (starRating > 0) {
-			diaryDAO.updateStarRating(diaryId, starRating);
+		if (popcornRating > 0) {
+			diaryDAO.updatePopcornRating(diaryId, popcornRating);
 		}
 	}
 
-	public void updateTagsStarAndReview(DiaryDTO diary, int[] tagIds, double starRating, String freshYn, String content)
+	public void updateTagsPopcornAndReview(DiaryDTO diary, int[] tagIds, double popcornRating, String freshYn, String content)
 			throws Exception {
-		updateTagsAndStar(diary.getDiaryId(), tagIds, starRating);
+		updateTagsAndPopcorn(diary.getDiaryId(), tagIds, popcornRating);
 		diaryDAO.saveReviewAndLinkDiary(diary, freshYn, content);
 	}
 
@@ -104,8 +108,8 @@ public class DiaryService {
 		int total = (int) data.getOrDefault("totalCount", 0);
 		stat.setTotalCount(total);
 
-		// 평균 별점
-		stat.setAvgStarRating((double) data.getOrDefault("avgStarRating", 0.0));
+		// 평균 팝콘
+		stat.setAvgPopcornRating((double) data.getOrDefault("avgPopcornRating", 0.0));
 
 		// 가장 많이 간 극장
 		stat.setTopTheater((String) data.getOrDefault("topTheater", "정보 없음"));
@@ -187,7 +191,7 @@ public class DiaryService {
 
 		// 4. 혹평가
 		badges.add(new BadgeDTO("LOW_RATER", "⭐", "혹평가",
-				"별점 1.0점을 5회 이상 줬을 때",
+				"팝콘 1.0점을 5회 이상 줬을 때",
 				lowRatingCnt >= 5, lowRatingCnt >= 5 ? "달성" : null,
 				Math.min(lowRatingCnt, 5), 5));
 
@@ -199,7 +203,7 @@ public class DiaryService {
 
 		// 6. 신선한 눈
 		badges.add(new BadgeDTO("FRESH_EYE", "🔥", "신선한 눈",
-				"별점 4.5 이상을 10회 이상 줬을 때",
+				"팝콘 4.5 이상을 10회 이상 줬을 때",
 				highRatingCnt >= 10, highRatingCnt >= 10 ? "달성" : null,
 				Math.min(highRatingCnt, 10), 10));
 

@@ -21,6 +21,7 @@ public class DiaryDTO {
     private Integer reviewId;       // review_id (FK, NULL 가능 - 리뷰 연동 선택)
     private Date   watchDate;      // watch_date (관람일)
     private double starRating;     // star_rating (1.0~5.0, 0.5 단위)
+    private double popcornRating;  // popcorn_rating (1.0~5.0)
     private Timestamp createdAt;   // created_at
 
     // ── 조인 결과 (MOVIE 테이블 조인) ────────────────────
@@ -87,6 +88,12 @@ public class DiaryDTO {
 	}
 	public void setStarRating(double starRating) {
 		this.starRating = starRating;
+	}
+	public double getPopcornRating() {
+		return popcornRating;
+	}
+	public void setPopcornRating(double popcornRating) {
+		this.popcornRating = popcornRating;
 	}
 	public Timestamp getCreatedAt() {
 		return createdAt;
