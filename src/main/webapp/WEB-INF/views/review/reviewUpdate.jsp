@@ -11,6 +11,8 @@
 <%-- 공통 CSS --%>
 <link rel="stylesheet"
       href="${pageContext.request.contextPath}/css/common-layout.css">
+<link rel="stylesheet"
+      href="${pageContext.request.contextPath}/css/member-admin-layout.css">
 
 <%-- 리뷰 수정 전용 CSS --%>
 <link rel="stylesheet"
@@ -22,7 +24,7 @@
 <div class="page">
 
     <%-- 공통 헤더 --%>
-    <%@ include file="/WEB-INF/views/common/main.jsp" %>
+    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
 
     <div class="review-update-wrap">
 
@@ -148,8 +150,7 @@
         </form>
     </div>
 
-    <%-- 공통 푸터 --%>
-    <%-- <%@ include file="/WEB-INF/views/common/footer.jsp" %> --%>
+    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
 
 </div><%-- /.page --%>
 

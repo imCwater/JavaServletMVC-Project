@@ -8,47 +8,29 @@ import java.util.List;
 
 public class ReviewService {
 
-    // DAO 객체 생성 (DB 통신 담당)
-    private ReviewDAO dao = new ReviewDAO();
-    
-    
-    // 영화별 리뷰 목록
-    /**
-     * 특정 영화의 공개 리뷰 목록 반환
-     */
+    private final ReviewDAO dao = new ReviewDAO();
+
+    /** 영화별 공개 리뷰 목록 */
     public List<ReviewDTO> getReviewListByMovie(int movieId) {
         return dao.getReviewListByMovie(movieId);
     }
 
-    
+    /** 영화별 리뷰 목록 + 조회자 친구 권한 반영 */
+    public List<ReviewDTO> getReviewListByMovie(int movieId, int viewerMemberId) {
+        return dao.getReviewListByMovie(movieId, viewerMemberId);
+    }
 
-    // 리뷰 단건 조회
-    /**
-     * 리뷰 1개 반환
-     */
+    /** 리뷰 1개 반환 */
     public ReviewDTO getReviewById(int reviewId) {
         return dao.getReviewById(reviewId);
     }
 
-    
-    
-    // 리뷰 등록
-    /**
-     * 새 리뷰 등록
-     */
+    /** 새 리뷰 등록 */
     public int insertReview(ReviewDTO dto) {
         return dao.insertReview(dto);
     }
 
-    
-    
-    // 리뷰 수정
-    /**
-     * 리뷰 수정 (본인만 가능)
-     * @param dto 수정할 데이터
-     * @param loginMemberId 현재 로그인한 회원 번호
-     * @return 성공 1, 권한없음 -1, 실패 0
-     */
+    /** 리뷰 수정. 실제 본인 검증은 DAO의 WHERE review_id=? AND member_id=?에서도 한 번 더 처리된다. */
     public int updateReview(ReviewDTO dto, int loginMemberId) {
         // 본인 리뷰가 아니면 수정 불가
         if (dto.getMemberId() != loginMemberId) {
@@ -56,16 +38,8 @@ public class ReviewService {
         }
         return dao.updateReview(dto);
     }
-    
-    
 
-    // 리뷰 삭제
-    /**
-     * 리뷰 삭제 (본인만 가능)
-     * @param reviewId 삭제할 리뷰 번호
-     * @param loginMemberId 현재 로그인한 회원 번호
-     * @return 성공 1, 권한없음 or 리뷰없음 -1
-     */
+    /** 리뷰 삭제 */
     public int deleteReview(int reviewId, int loginMemberId) {
         // 먼저 해당 리뷰 조회
         ReviewDTO dto = dao.getReviewById(reviewId);
@@ -76,24 +50,13 @@ public class ReviewService {
         return dao.deleteReview(reviewId, loginMemberId);
     }
 
-    
-    
-    // 내 리뷰 목록
-    /**
-     * 로그인한 회원의 내 리뷰 목록 반환
-     */
+    /** 특정 회원의 리뷰 목록 */
     public List<ReviewDTO> getMyReviewList(int memberId) {
         return dao.getMyReviewList(memberId);
     }
 
-    
-    
-    // 리뷰 통계    
-    /**     
-     * 특정 영화의 터졌다 통계 반환     
-     */    
-    public ReviewStatDTO getReviewStat(int movieId) {  // ← ReviewDTO ❌ → ReviewStatDTO ✅  
-    	return dao.getReviewStat(movieId);  
-    
+    /** 터졌다 리뷰 통계 */
+    public ReviewStatDTO getReviewStat(int movieId) {
+        return dao.getReviewStat(movieId);
     }
 }

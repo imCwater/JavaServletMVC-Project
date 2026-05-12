@@ -12,6 +12,8 @@
 <%-- 공통 CSS --%>
 <link rel="stylesheet"
       href="${pageContext.request.contextPath}/css/common-layout.css">
+<link rel="stylesheet"
+      href="${pageContext.request.contextPath}/css/member-admin-layout.css">
 
 <%-- 내 리뷰 목록 전용 CSS --%>
 <link rel="stylesheet"
@@ -47,7 +49,7 @@
 <div class="page">
 
     <%-- 공통 헤더 --%>
-    <%@ include file="/WEB-INF/views/common/main.jsp" %>
+    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
 
     <div class="myreview-wrap">
 
@@ -163,7 +165,7 @@
                                     <div class="overlay-content">${review.content}</div>
                                     <c:if test="${isMyPage}">
                                         <div class="overlay-btn-wrap">
-                                            <a href="${pageContext.request.contextPath}/review/update.do?reviewId=${review.reviewId}"
+                                            <a href="${pageContext.request.contextPath}/review/updateForm.do?reviewId=${review.reviewId}"
                                                class="overlay-btn btn-edit">수정</a>
                                             <form action="${pageContext.request.contextPath}/review/delete.do"
                                                   method="post"
@@ -207,6 +209,8 @@
         </div>
 
     </div><%-- /.myreview-wrap --%>
+
+    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
 
 </div><%-- /.page --%>
 
