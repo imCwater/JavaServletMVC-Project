@@ -1,9 +1,9 @@
-package schedule.dto;
+package screen.dto;
 
 public class TheaterDTO {
-	int theaterId;		// 극장 id
-	String theaterName;	// 극장명
-	String location;	// 지역/주소
+	private int theaterId;		// 극장 id
+	private String theaterName;	// 극장명
+	private String location;	// 지역/주소
 	
 	public TheaterDTO() {
 		

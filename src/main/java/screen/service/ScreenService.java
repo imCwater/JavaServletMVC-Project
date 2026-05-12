@@ -27,7 +27,7 @@ public class ScreenService {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return new ArrayList<ScreenDTO>();
 			
 		} finally {
 			DBUtil.close(con);
