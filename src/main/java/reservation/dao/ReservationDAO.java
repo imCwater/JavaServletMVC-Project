@@ -15,7 +15,8 @@ public class ReservationDAO {
 	// reservation 테이블에 예매 기본 정보를 저장하고 생성된 reservation_id를 반환한다.
 	public int insertReservation(Connection con, ReservationDTO rvdto) {
 		int reservationId = 0;
-		String sql = "insert into reservation (member_id, schedule_id, headcount, status) values(?,?,?,'Y')";
+		String sql = "insert into reservation (member_id, schedule_id, headcount, status, total_price) "
+				+ "values(?, ?, ?, 'Y', (select price * ? from schedule where schedule_id = ?))";
 
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -25,6 +26,8 @@ public class ReservationDAO {
 			pst.setInt(1, rvdto.getMember_id());
 			pst.setInt(2, rvdto.getSchedule_id());
 			pst.setInt(3, rvdto.getHeadcount());
+			pst.setInt(4, rvdto.getHeadcount());
+			pst.setInt(5, rvdto.getSchedule_id());
 
 			pst.executeUpdate();
 			rs = pst.getGeneratedKeys();
