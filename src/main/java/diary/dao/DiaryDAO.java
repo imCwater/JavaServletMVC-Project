@@ -39,7 +39,7 @@ public class DiaryDAO {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT d.diary_id, d.movie_id, d.reservation_id, d.review_id, ");
 		sql.append("       d.watch_date, d.star_rating, d.created_at, ");
-		sql.append("       m.title AS movie_title, m.poster_url, ");
+		sql.append("       m.title AS movie_title, m.poster_url, CAST(NULL AS VARCHAR2(100)) AS genre, m.runtime, ");
 		sql.append("       rv.content AS review_content, rv.fresh_yn AS review_fresh_yn, rv.public_yn AS review_public_yn, ");
 		sql.append("       th.theater_name, sc.screen_name ");
 		sql.append("  FROM DIARY_ENTRY d ");
@@ -85,6 +85,8 @@ public class DiaryDAO {
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
 					dto.setMovieTitle(rs.getString("movie_title"));
 					dto.setPosterUrl(rs.getString("poster_url"));
+					dto.setGenre(rs.getString("genre"));
+					dto.setRuntime(rs.getInt("runtime"));
 					dto.setReviewContent(rs.getString("review_content"));
 					dto.setReviewFreshYn(rs.getString("review_fresh_yn"));
 					dto.setReviewPublicYn(rs.getString("review_public_yn"));

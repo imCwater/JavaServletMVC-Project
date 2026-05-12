@@ -431,6 +431,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+.nb-content > .nb-page {
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
 .nb-content::after {
   content: '';
   position: absolute;
@@ -446,19 +450,19 @@ body {
   backdrop-filter: blur(1.5px);
 }
 .nb-content::before {
-  content: '⌄';
+  content: '🠗';
   position: absolute;
   left: 50%;
   bottom: 14px;
   z-index: 19;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   transform: translateX(-50%);
   border-radius: 999px;
   background: rgba(232,168,56,0.88);
   color: #fff;
-  font-size: 18px;
-  line-height: 22px;
+  font-size: 22px;
+  line-height: 30px;
   text-align: center;
   pointer-events: none;
   opacity: 0;
@@ -552,6 +556,7 @@ body {
   padding: 12px 24px 10px;
   display: flex; align-items: center; justify-content: space-between;
   background-image: none;
+  border-top-right-radius: 14px;
 }
 .cal-month-en {
   font-size: 32px; font-weight: 900; color: #fff;
@@ -857,14 +862,6 @@ body {
   left: 0; top: 0; bottom: 0; width: 4px;
   background: #fff;
 }
-/* 오른쪽 날짜 세로 텍스트 */
-.ticket-date-side {
-  position: absolute; right: 10px; top: 0; bottom: 0;
-  display: flex; align-items: center;
-  writing-mode: vertical-rl;
-  font-size: 10px; font-weight: 700; color: #ccc4b8;
-  letter-spacing: 0.05em;
-}
 /* 점선 구분 */
 .ticket-card::after {
   content: ''; position: absolute;
@@ -1060,23 +1057,31 @@ body {
 .sidebar-section,
 .write-sidebar-inner {
   scrollbar-width: thin;
-  scrollbar-color: rgba(176,120,56,0.34) transparent;
+  scrollbar-color: transparent transparent;
+}
+.nb-page.is-scrolled,
+.sidebar-section.is-scrolled,
+.write-sidebar-inner.is-scrolled {
+  scrollbar-color: rgba(176,120,56,0.16) transparent;
 }
 .nb-page::-webkit-scrollbar,
 .sidebar-section::-webkit-scrollbar,
-.write-sidebar-inner::-webkit-scrollbar { width: 6px; }
+.write-sidebar-inner::-webkit-scrollbar { width: 4px; }
 .nb-page::-webkit-scrollbar-track,
 .sidebar-section::-webkit-scrollbar-track,
 .write-sidebar-inner::-webkit-scrollbar-track { background: transparent; }
 .nb-page::-webkit-scrollbar-thumb,
 .sidebar-section::-webkit-scrollbar-thumb,
 .write-sidebar-inner::-webkit-scrollbar-thumb {
-  background: rgba(176,120,56,0.28);
+  background: transparent;
   border-radius: 999px;
 }
-.nb-page::-webkit-scrollbar-thumb:hover,
-.sidebar-section::-webkit-scrollbar-thumb:hover,
-.write-sidebar-inner::-webkit-scrollbar-thumb:hover { background: rgba(176,120,56,0.45); }
+.nb-page.is-scrolled::-webkit-scrollbar-thumb,
+.sidebar-section.is-scrolled::-webkit-scrollbar-thumb,
+.write-sidebar-inner.is-scrolled::-webkit-scrollbar-thumb { background: rgba(176,120,56,0.14); }
+.nb-page.is-scrolled::-webkit-scrollbar-thumb:hover,
+.sidebar-section.is-scrolled::-webkit-scrollbar-thumb:hover,
+.write-sidebar-inner.is-scrolled::-webkit-scrollbar-thumb:hover { background: rgba(176,120,56,0.26); }
 @keyframes pageFlipIn {
   0%   { opacity: 0; transform: rotateY(-12deg) translateX(-20px); }
   100% { opacity: 1; transform: rotateY(0) translateX(0); }
@@ -1087,63 +1092,143 @@ body {
    마스킹 테이프
 ══════════════════════════════════════════════════ */
 .tape {
-  position: absolute; width: 52px; height: 15px; border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+  position: absolute; width: 92px; height: 24px; border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
   background-image: repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(255,255,255,0.22) 4px,rgba(255,255,255,0.22) 5px);
+  opacity: 0.88;
   z-index: 20;
 }
 .tape-yellow { background-color: rgba(255,218,80,0.68); }
 .tape-blue   { background-color: rgba(160,200,240,0.68); }
 .tape-pink   { background-color: rgba(255,182,193,0.68); }
-.tape-tl { top:-8px; left:16px; transform:rotate(-7deg); }
-.tape-tr { top:-8px; right:16px; transform:rotate(6deg); }
+.tape-tl { top: 4px; left: calc(50% - 140px); transform:rotate(-24deg); }
+.tape-tr { right: calc(50% - 140px); bottom: -8px; transform:rotate(-24deg); }
 
 /* ══════════════════════════════════════════════════
    Write Diary — 왼쪽 티켓 사이드바
 ══════════════════════════════════════════════════ */
 .write-sidebar-inner {
   display: flex; flex-direction: column; align-items: center;
-  padding: 10px 10px 12px; gap: 12px; flex: 1; overflow-y: auto;
+  padding: 12px 10px 14px; gap: 14px; flex: 1; overflow-y: auto;
 }
 .write-ticket-slot {
   position: relative; width: 100%;
   display: flex; flex-direction: column; align-items: center;
-  padding-top: 12px;
+  padding-top: 14px;
 }
 .write-ticket {
   position: relative; background: #fff;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 3px 5px 20px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
-  width: 100%; max-width: 196px;
-  transform: rotate(-1.2deg); overflow: visible;
+  border: 1px solid #f0e0b0;
+  border-radius: 14px;
+  box-shadow: 3px 8px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
+  width: 100%; max-width: 224px;
+  transform: rotate(0deg); overflow: hidden;
+  -webkit-clip-path: polygon(
+    0 14px, 2px 8px, 8px 2px, 14px 0,
+    calc(10% - 6px) 0, calc(10% - 5px) 3px, calc(10% - 3px) 5px, 10% 6px, calc(10% + 3px) 5px, calc(10% + 5px) 3px, calc(10% + 6px) 0,
+    calc(20% - 6px) 0, calc(20% - 5px) 3px, calc(20% - 3px) 5px, 20% 6px, calc(20% + 3px) 5px, calc(20% + 5px) 3px, calc(20% + 6px) 0,
+    calc(30% - 6px) 0, calc(30% - 5px) 3px, calc(30% - 3px) 5px, 30% 6px, calc(30% + 3px) 5px, calc(30% + 5px) 3px, calc(30% + 6px) 0,
+    calc(40% - 6px) 0, calc(40% - 5px) 3px, calc(40% - 3px) 5px, 40% 6px, calc(40% + 3px) 5px, calc(40% + 5px) 3px, calc(40% + 6px) 0,
+    calc(50% - 6px) 0, calc(50% - 5px) 3px, calc(50% - 3px) 5px, 50% 6px, calc(50% + 3px) 5px, calc(50% + 5px) 3px, calc(50% + 6px) 0,
+    calc(60% - 6px) 0, calc(60% - 5px) 3px, calc(60% - 3px) 5px, 60% 6px, calc(60% + 3px) 5px, calc(60% + 5px) 3px, calc(60% + 6px) 0,
+    calc(70% - 6px) 0, calc(70% - 5px) 3px, calc(70% - 3px) 5px, 70% 6px, calc(70% + 3px) 5px, calc(70% + 5px) 3px, calc(70% + 6px) 0,
+    calc(80% - 6px) 0, calc(80% - 5px) 3px, calc(80% - 3px) 5px, 80% 6px, calc(80% + 3px) 5px, calc(80% + 5px) 3px, calc(80% + 6px) 0,
+    calc(90% - 6px) 0, calc(90% - 5px) 3px, calc(90% - 3px) 5px, 90% 6px, calc(90% + 3px) 5px, calc(90% + 5px) 3px, calc(90% + 6px) 0,
+    calc(100% - 14px) 0, calc(100% - 8px) 2px, calc(100% - 2px) 8px, 100% 14px,
+    100% calc(50% - 14px), calc(100% - 4px) calc(50% - 13px), calc(100% - 9px) calc(50% - 9px), calc(100% - 13px) calc(50% - 4px), calc(100% - 14px) 50%, calc(100% - 13px) calc(50% + 4px), calc(100% - 9px) calc(50% + 9px), calc(100% - 4px) calc(50% + 13px), 100% calc(50% + 14px),
+    100% calc(100% - 14px), calc(100% - 2px) calc(100% - 8px), calc(100% - 8px) calc(100% - 2px), calc(100% - 14px) 100%,
+    calc(90% + 6px) 100%, calc(90% + 5px) calc(100% - 3px), calc(90% + 3px) calc(100% - 5px), 90% calc(100% - 6px), calc(90% - 3px) calc(100% - 5px), calc(90% - 5px) calc(100% - 3px), calc(90% - 6px) 100%,
+    calc(80% + 6px) 100%, calc(80% + 5px) calc(100% - 3px), calc(80% + 3px) calc(100% - 5px), 80% calc(100% - 6px), calc(80% - 3px) calc(100% - 5px), calc(80% - 5px) calc(100% - 3px), calc(80% - 6px) 100%,
+    calc(70% + 6px) 100%, calc(70% + 5px) calc(100% - 3px), calc(70% + 3px) calc(100% - 5px), 70% calc(100% - 6px), calc(70% - 3px) calc(100% - 5px), calc(70% - 5px) calc(100% - 3px), calc(70% - 6px) 100%,
+    calc(60% + 6px) 100%, calc(60% + 5px) calc(100% - 3px), calc(60% + 3px) calc(100% - 5px), 60% calc(100% - 6px), calc(60% - 3px) calc(100% - 5px), calc(60% - 5px) calc(100% - 3px), calc(60% - 6px) 100%,
+    calc(50% + 6px) 100%, calc(50% + 5px) calc(100% - 3px), calc(50% + 3px) calc(100% - 5px), 50% calc(100% - 6px), calc(50% - 3px) calc(100% - 5px), calc(50% - 5px) calc(100% - 3px), calc(50% - 6px) 100%,
+    calc(40% + 6px) 100%, calc(40% + 5px) calc(100% - 3px), calc(40% + 3px) calc(100% - 5px), 40% calc(100% - 6px), calc(40% - 3px) calc(100% - 5px), calc(40% - 5px) calc(100% - 3px), calc(40% - 6px) 100%,
+    calc(30% + 6px) 100%, calc(30% + 5px) calc(100% - 3px), calc(30% + 3px) calc(100% - 5px), 30% calc(100% - 6px), calc(30% - 3px) calc(100% - 5px), calc(30% - 5px) calc(100% - 3px), calc(30% - 6px) 100%,
+    calc(20% + 6px) 100%, calc(20% + 5px) calc(100% - 3px), calc(20% + 3px) calc(100% - 5px), 20% calc(100% - 6px), calc(20% - 3px) calc(100% - 5px), calc(20% - 5px) calc(100% - 3px), calc(20% - 6px) 100%,
+    calc(10% + 6px) 100%, calc(10% + 5px) calc(100% - 3px), calc(10% + 3px) calc(100% - 5px), 10% calc(100% - 6px), calc(10% - 3px) calc(100% - 5px), calc(10% - 5px) calc(100% - 3px), calc(10% - 6px) 100%,
+    14px 100%, 8px calc(100% - 2px), 2px calc(100% - 8px), 0 calc(100% - 14px),
+    0 calc(50% + 14px), 4px calc(50% + 13px), 9px calc(50% + 9px), 13px calc(50% + 4px), 14px 50%, 13px calc(50% - 4px), 9px calc(50% - 9px), 4px calc(50% - 13px), 0 calc(50% - 14px)
+  );
+  clip-path: polygon(
+    0 14px, 2px 8px, 8px 2px, 14px 0,
+    calc(10% - 6px) 0, calc(10% - 5px) 3px, calc(10% - 3px) 5px, 10% 6px, calc(10% + 3px) 5px, calc(10% + 5px) 3px, calc(10% + 6px) 0,
+    calc(20% - 6px) 0, calc(20% - 5px) 3px, calc(20% - 3px) 5px, 20% 6px, calc(20% + 3px) 5px, calc(20% + 5px) 3px, calc(20% + 6px) 0,
+    calc(30% - 6px) 0, calc(30% - 5px) 3px, calc(30% - 3px) 5px, 30% 6px, calc(30% + 3px) 5px, calc(30% + 5px) 3px, calc(30% + 6px) 0,
+    calc(40% - 6px) 0, calc(40% - 5px) 3px, calc(40% - 3px) 5px, 40% 6px, calc(40% + 3px) 5px, calc(40% + 5px) 3px, calc(40% + 6px) 0,
+    calc(50% - 6px) 0, calc(50% - 5px) 3px, calc(50% - 3px) 5px, 50% 6px, calc(50% + 3px) 5px, calc(50% + 5px) 3px, calc(50% + 6px) 0,
+    calc(60% - 6px) 0, calc(60% - 5px) 3px, calc(60% - 3px) 5px, 60% 6px, calc(60% + 3px) 5px, calc(60% + 5px) 3px, calc(60% + 6px) 0,
+    calc(70% - 6px) 0, calc(70% - 5px) 3px, calc(70% - 3px) 5px, 70% 6px, calc(70% + 3px) 5px, calc(70% + 5px) 3px, calc(70% + 6px) 0,
+    calc(80% - 6px) 0, calc(80% - 5px) 3px, calc(80% - 3px) 5px, 80% 6px, calc(80% + 3px) 5px, calc(80% + 5px) 3px, calc(80% + 6px) 0,
+    calc(90% - 6px) 0, calc(90% - 5px) 3px, calc(90% - 3px) 5px, 90% 6px, calc(90% + 3px) 5px, calc(90% + 5px) 3px, calc(90% + 6px) 0,
+    calc(100% - 14px) 0, calc(100% - 8px) 2px, calc(100% - 2px) 8px, 100% 14px,
+    100% calc(50% - 14px), calc(100% - 4px) calc(50% - 13px), calc(100% - 9px) calc(50% - 9px), calc(100% - 13px) calc(50% - 4px), calc(100% - 14px) 50%, calc(100% - 13px) calc(50% + 4px), calc(100% - 9px) calc(50% + 9px), calc(100% - 4px) calc(50% + 13px), 100% calc(50% + 14px),
+    100% calc(100% - 14px), calc(100% - 2px) calc(100% - 8px), calc(100% - 8px) calc(100% - 2px), calc(100% - 14px) 100%,
+    calc(90% + 6px) 100%, calc(90% + 5px) calc(100% - 3px), calc(90% + 3px) calc(100% - 5px), 90% calc(100% - 6px), calc(90% - 3px) calc(100% - 5px), calc(90% - 5px) calc(100% - 3px), calc(90% - 6px) 100%,
+    calc(80% + 6px) 100%, calc(80% + 5px) calc(100% - 3px), calc(80% + 3px) calc(100% - 5px), 80% calc(100% - 6px), calc(80% - 3px) calc(100% - 5px), calc(80% - 5px) calc(100% - 3px), calc(80% - 6px) 100%,
+    calc(70% + 6px) 100%, calc(70% + 5px) calc(100% - 3px), calc(70% + 3px) calc(100% - 5px), 70% calc(100% - 6px), calc(70% - 3px) calc(100% - 5px), calc(70% - 5px) calc(100% - 3px), calc(70% - 6px) 100%,
+    calc(60% + 6px) 100%, calc(60% + 5px) calc(100% - 3px), calc(60% + 3px) calc(100% - 5px), 60% calc(100% - 6px), calc(60% - 3px) calc(100% - 5px), calc(60% - 5px) calc(100% - 3px), calc(60% - 6px) 100%,
+    calc(50% + 6px) 100%, calc(50% + 5px) calc(100% - 3px), calc(50% + 3px) calc(100% - 5px), 50% calc(100% - 6px), calc(50% - 3px) calc(100% - 5px), calc(50% - 5px) calc(100% - 3px), calc(50% - 6px) 100%,
+    calc(40% + 6px) 100%, calc(40% + 5px) calc(100% - 3px), calc(40% + 3px) calc(100% - 5px), 40% calc(100% - 6px), calc(40% - 3px) calc(100% - 5px), calc(40% - 5px) calc(100% - 3px), calc(40% - 6px) 100%,
+    calc(30% + 6px) 100%, calc(30% + 5px) calc(100% - 3px), calc(30% + 3px) calc(100% - 5px), 30% calc(100% - 6px), calc(30% - 3px) calc(100% - 5px), calc(30% - 5px) calc(100% - 3px), calc(30% - 6px) 100%,
+    calc(20% + 6px) 100%, calc(20% + 5px) calc(100% - 3px), calc(20% + 3px) calc(100% - 5px), 20% calc(100% - 6px), calc(20% - 3px) calc(100% - 5px), calc(20% - 5px) calc(100% - 3px), calc(20% - 6px) 100%,
+    calc(10% + 6px) 100%, calc(10% + 5px) calc(100% - 3px), calc(10% + 3px) calc(100% - 5px), 10% calc(100% - 6px), calc(10% - 3px) calc(100% - 5px), calc(10% - 5px) calc(100% - 3px), calc(10% - 6px) 100%,
+    14px 100%, 8px calc(100% - 2px), 2px calc(100% - 8px), 0 calc(100% - 14px),
+    0 calc(50% + 14px), 4px calc(50% + 13px), 9px calc(50% + 9px), 13px calc(50% + 4px), 14px 50%, 13px calc(50% - 4px), 9px calc(50% - 9px), 4px calc(50% - 13px), 0 calc(50% - 14px)
+  );
 }
-.write-ticket-body { display: flex; overflow: hidden; border-radius: 8px 8px 0 0; }
-.write-ticket-poster { width: 76px; flex-shrink: 0; background: #e0dbd4; min-height: 110px; }
-.write-ticket-poster img { width: 76px; height: 110px; object-fit: cover; display: block; }
+.write-ticket-body { overflow: hidden; border-radius: 14px 14px 0 0; }
+.write-ticket-poster {
+  width: 100%; height: 300px; flex-shrink: 0;
+  background: #e0dbd4; overflow: hidden;
+  border-radius: 14px 14px 0 0;
+}
+.write-ticket-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .write-ticket-poster-ph {
-  width: 76px; height: 110px; display: flex; align-items: center;
-  justify-content: center; font-size: 26px; background: #e8e2da;
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; font-size: 44px; color: #c8bfb4;
+  background: #e8e2da;
 }
-.write-ticket-info { flex: 1; padding: 8px 8px; border-left: 1.5px dashed #e0dbd4; }
-.wti-title { font-size: 10px; font-weight: 800; color: #1a1816; margin-bottom: 6px; line-height: 1.35; }
-.wti-row { font-size: 9px; color: #aaa; margin-bottom: 3px; line-height: 1.4; }
-.wti-row strong { color: #5a534c; }
+.write-ticket-info {
+  position: relative; padding: 14px 14px 13px;
+  border-top: 1.5px dashed #d4c090;
+  background: #fffdf8;
+}
+.wti-kicker {
+  font-size: 8px; font-weight: 800; color: #c07a10;
+  letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px;
+}
+.wti-title { font-size: 14px; font-weight: 900; color: #1a1816; margin-bottom: 9px; line-height: 1.35; }
+.write-ticket-details { display: flex; flex-direction: column; gap: 5px; }
+.wti-row {
+  display: grid; grid-template-columns: 54px minmax(0,1fr); gap: 8px;
+  align-items: baseline; font-size: 10px; line-height: 1.4;
+}
+.wti-row dt { color: #b8b0a4; font-weight: 800; letter-spacing: 0.04em; }
+.wti-row dd { color: #5a534c; font-weight: 700; min-width: 0; word-break: keep-all; overflow-wrap: anywhere; }
 .write-ticket-stub {
   position: relative; background: #fdf5e4;
-  border-top: 1.5px dashed #d4c090; border-radius: 0 0 8px 8px;
-  padding: 5px 10px; text-align: center;
+  border-top: 1px solid #f0e0b0; border-radius: 0 0 14px 14px;
+  padding: 7px 10px; text-align: center;
   font-size: 8px; color: #c07a10; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase; overflow: hidden;
 }
-.write-ticket-stub::before, .write-ticket-stub::after {
-  content: ''; position: absolute; top: -7px;
-  width: 13px; height: 13px; border-radius: 50%;
-  background: #faf6ee; box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
-}
-.write-ticket-stub::before { left: -6px; }
-.write-ticket-stub::after  { right: -6px; }
 
 /* 영화 선택 목록 */
+.ticket-select-header {
+  width: 100%; padding: 0 4px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.ticket-select-label {
+  font-size: 10px; font-weight: 700; color: #b8b0a4;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.ticket-select-sort {
+  flex-shrink: 0; border: 1px solid #e2ddd8;
+  border-radius: 999px; padding: 3px 8px;
+  font-size: 10px; font-weight: 700; color: #8a7660;
+  background: #fffaf0; cursor: pointer;
+}
+.ticket-select-sort:focus { outline: 2px solid #e8c870; outline-offset: 1px; }
 .ticket-select-list { width: 100%; display: flex; flex-direction: column; gap: 5px; }
 .ticket-select-item {
   display: flex; align-items: center; gap: 8px;
@@ -1171,6 +1256,7 @@ body {
   padding: 18px 28px;
   display: flex; align-items: center; gap: 10px; flex-shrink: 0;
   background-image: none;
+  border-top-right-radius: 14px;
 }
 .note-header-icon { font-size: 24px; }
 .note-header-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 0.02em; }
@@ -1193,12 +1279,13 @@ body {
   letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px;
 }
 /* 팝콘 평점 */
-.popcorn-row { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.popcorn-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .pcorn-btn {
   background: none; border: none; cursor: pointer;
-  font-size: 21px; padding: 0 1px; line-height: 1;
+  font-size: 42px; padding: 0 2px; line-height: 1;
   filter: grayscale(1) opacity(0.3); transition: filter 0.1s, transform 0.1s;
 }
+.pcorn-btn img { display: block; width: 42px; height: 42px; object-fit: contain; }
 .pcorn-btn.lit { filter: none; }
 .pcorn-btn:hover { transform: scale(1.18); }
 .pcorn-score { font-size: 12px; font-weight: 700; color: #c07a10; margin-left: 6px; }
@@ -1589,6 +1676,14 @@ body {
       </div>
     </div><!-- /#sidebar-cal -->
 
+    <c:if test="${not empty diaryList}">
+      <c:forEach var="d" items="${diaryList}" varStatus="s">
+        <c:if test="${s.first}">
+          <c:set var="initialWriteDiary" value="${d}" />
+        </c:if>
+      </c:forEach>
+    </c:if>
+
     <!-- ══ Write Diary 사이드바 ══ -->
     <div id="sidebar-write" class="sidebar-section">
       <div class="sidebar-page-title">WRITE DIARY</div>
@@ -1600,19 +1695,38 @@ body {
           <div class="write-ticket">
             <div class="write-ticket-body">
               <div class="write-ticket-poster" id="writePosterCol">
-                <div class="write-ticket-poster-ph">🎬</div>
+                <c:choose>
+                  <c:when test="${not empty initialWriteDiary.posterUrl}">
+                    <img src="${fn:escapeXml(initialWriteDiary.posterUrl)}" alt="${fn:escapeXml(initialWriteDiary.movieTitle)}">
+                  </c:when>
+                  <c:otherwise>
+                    <div class="write-ticket-poster-ph">🎬</div>
+                  </c:otherwise>
+                </c:choose>
               </div>
               <div class="write-ticket-info">
-                <div class="wti-title" id="writeTicketTitle">영화를 선택하세요</div>
-                <div class="wti-row" id="writeTicketDate">날짜: —</div>
-                <div class="wti-row" id="writeTicketTheater">극장: —</div>
+                <div class="wti-kicker">POPFLEX · MY TICKET</div>
+                <div class="wti-title" id="writeTicketTitle"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>—</c:otherwise></c:choose></div>
+                <dl class="write-ticket-details">
+                  <div class="wti-row"><dt>영화 이름</dt><dd id="writeTicketMovieName"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>—</c:otherwise></c:choose></dd></div>
+                  <div class="wti-row"><dt>관람일</dt><dd id="writeTicketDate"><c:choose><c:when test="${not empty initialWriteDiary.watchDate}"><fmt:formatDate value="${initialWriteDiary.watchDate}" pattern="yyyy.MM.dd" /></c:when><c:otherwise>—</c:otherwise></c:choose></dd></div>
+                  <div class="wti-row"><dt>극장</dt><dd id="writeTicketTheater"><c:choose><c:when test="${not empty initialWriteDiary.theaterName}"><c:out value="${initialWriteDiary.theaterName}" /></c:when><c:otherwise>—</c:otherwise></c:choose></dd></div>
+                  <div class="wti-row"><dt>장르</dt><dd id="writeTicketGenre"><c:choose><c:when test="${not empty initialWriteDiary.genre}"><c:out value="${initialWriteDiary.genre}" /></c:when><c:otherwise>—</c:otherwise></c:choose></dd></div>
+                  <div class="wti-row"><dt>러닝타임</dt><dd id="writeTicketRuntime"><c:choose><c:when test="${not empty initialWriteDiary.runtime and initialWriteDiary.runtime > 0}"><c:out value="${initialWriteDiary.runtime}" />분</c:when><c:otherwise>—</c:otherwise></c:choose></dd></div>
+                </dl>
               </div>
             </div>
             <div class="write-ticket-stub">POPFLEX · MY TICKET</div>
           </div>
         </div>
         <!-- 영화 선택 목록 -->
-        <div style="width:100%;font-size:10px;font-weight:700;color:#b8b0a4;letter-spacing:0.08em;text-transform:uppercase;padding:0 4px;">Select Movie</div>
+        <div class="ticket-select-header">
+          <div class="ticket-select-label">Select Movie</div>
+          <select class="ticket-select-sort" id="ticketSelectSort" onchange="sortTicketSelect(this.value)" aria-label="Select Movie 정렬">
+            <option value="newest" selected>최신순</option>
+            <option value="oldest">오래된순</option>
+          </select>
+        </div>
         <div class="ticket-select-list" id="ticketSelectList">
           <c:choose>
             <c:when test="${not empty diaryList}">
@@ -1624,6 +1738,8 @@ body {
                      data-poster="${fn:escapeXml(d.posterUrl)}"
                      data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
                      data-theater="${fn:escapeXml(d.theaterName)}"
+                     data-genre="${fn:escapeXml(d.genre)}"
+                     data-runtime="${fn:escapeXml(d.runtime)}"
                      data-star="${d.starRating}">
                   <div class="tsi-poster">
                     <c:choose>
@@ -1814,15 +1930,21 @@ body {
         <c:when test="${not empty diaryList}">
           <div class="diary-note-wrap">
             <!-- 영화 제목 배너 -->
-            <div class="note-movie-banner" id="writeMovieTitle">영화를 선택하세요</div>
+            <div class="note-movie-banner" id="writeMovieTitle"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>영화를 선택하세요</c:otherwise></c:choose></div>
             <form id="writeForm" action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post">
-              <input type="hidden" name="diaryId"    id="writeDiaryId"   value="">
-              <input type="hidden" name="starRating" id="writeStarInput" value="0">
+              <input type="hidden" name="diaryId"    id="writeDiaryId"   value="${not empty initialWriteDiary.diaryId ? initialWriteDiary.diaryId : ''}">
+              <c:set var="initialPopcornRating" value="${not empty initialWriteDiary.starRating ? initialWriteDiary.starRating : 5}" />
+              <input type="hidden" name="starRating" id="writeStarInput" value="${initialPopcornRating}">
               <input type="hidden" name="freshYn"    id="writeFreshInput" value="">
               <!-- 팝콘 평점 -->
               <div class="note-section">
                 <div class="note-section-lbl">🍿 팝콘 평점</div>
-                <div class="popcorn-row" id="popcornRow"></div>
+                <div class="popcorn-row" id="popcornRow">
+                  <c:forEach var="popcornValue" begin="1" end="5">
+                    <button type="button" class="pcorn-btn${initialPopcornRating >= popcornValue ? ' lit' : ''}" data-v="${popcornValue}"><img src="${pageContext.request.contextPath}/img/Logo.png" alt="팝콘"></button>
+                  </c:forEach>
+                  <span class="pcorn-score"><c:choose><c:when test="${initialPopcornRating > 0}">${initialPopcornRating} / 5</c:when><c:otherwise>미선택</c:otherwise></c:choose></span>
+                </div>
               </div>
               <!-- 신선도 -->
               <div class="note-section">
@@ -2309,7 +2431,6 @@ function renderDated(){
         actionsHtml+
       '</div>'+
       freshHtml+
-      '<div class="ticket-date-side">'+dateStr+'</div>'+
     '</a>';
   }).join('');
 }
@@ -2457,6 +2578,9 @@ function switchPage(page) {
 }
 
 function updateScrollHints(){
+  document.querySelectorAll('.nb-page, .sidebar-section, .write-sidebar-inner').forEach(scroller => {
+    scroller.classList.toggle('is-scrolled', scroller.scrollTop > 0);
+  });
   document.querySelectorAll('.nb-content').forEach(content => {
     const scroller = content.querySelector('.nb-page.active');
     if(!scroller) return;
@@ -2467,8 +2591,8 @@ function updateScrollHints(){
   });
 }
 
-document.querySelectorAll('.nb-page').forEach(page => {
-  page.addEventListener('scroll', updateScrollHints, { passive: true });
+document.querySelectorAll('.nb-page, .sidebar-section, .write-sidebar-inner').forEach(scroller => {
+  scroller.addEventListener('scroll', updateScrollHints, { passive: true });
 });
 window.addEventListener('resize', updateScrollHints);
 new ResizeObserver(updateScrollHints).observe(document.querySelector('.nb-content'));
@@ -2478,7 +2602,30 @@ setTimeout(updateScrollHints, 250);
 /* ══ Write Diary ══ */
 function initWritePage() {
   renderPopcorn(0);
-  const first = document.querySelector('.ticket-select-item');
+  const selected = getSelectedWriteEntry();
+  if (selected) selectWriteEntry(selected);
+}
+
+function getSelectedWriteEntry() {
+  return document.querySelector('#ticketSelectList .ticket-select-item.sel')
+      || document.querySelector('#ticketSelectList .ticket-select-item');
+}
+
+function sortTicketSelect(order) {
+  const list = document.getElementById('ticketSelectList');
+  if (!list) return;
+
+  const direction = order === 'oldest' ? 1 : -1;
+  const items = Array.from(list.querySelectorAll('.ticket-select-item'));
+  items
+    .map((item, index) => ({ item, index, date: item.dataset.date || '' }))
+    .sort((a, b) => {
+      const byDate = a.date.localeCompare(b.date);
+      return byDate !== 0 ? byDate * direction : a.index - b.index;
+    })
+    .forEach(({ item }) => list.appendChild(item));
+
+  const first = list.querySelector('.ticket-select-item');
   if (first) selectWriteEntry(first);
 }
 
@@ -2486,29 +2633,52 @@ function selectWriteEntry(el) {
   document.querySelectorAll('.ticket-select-item').forEach(i => i.classList.remove('sel'));
   el.classList.add('sel');
 
+  const ticketText = value => {
+    const normalized = (value || '').trim();
+    return normalized ? normalized : '—';
+  };
+  const runtimeText = value => {
+    const runtimeMinutes = parseInt(value, 10);
+    return runtimeMinutes > 0 ? runtimeMinutes + '분' : '—';
+  };
   const id      = el.dataset.id      || '';
-  const title   = el.dataset.title   || '—';
+  const title   = ticketText(el.dataset.title);
   const poster  = el.dataset.poster  || '';
-  const date    = el.dataset.date    || '—';
-  const theater = el.dataset.theater || '—';
+  const date    = ticketText(el.dataset.date);
+  const theater = ticketText(el.dataset.theater);
+  const genre   = ticketText(el.dataset.genre);
+  const runtime = runtimeText(el.dataset.runtime);
   const star    = parseFloat(el.dataset.star) || 0;
 
   // 티켓 업데이트
-  document.getElementById('writeTicketTitle').textContent    = title;
-  document.getElementById('writeTicketDate').innerHTML       = '<strong>날짜</strong> ' + date;
-  document.getElementById('writeTicketTheater').innerHTML    = '<strong>극장</strong> ' + theater;
+  document.getElementById('writeTicketTitle').textContent     = title;
+  document.getElementById('writeTicketMovieName').textContent = title;
+  document.getElementById('writeTicketDate').textContent      = date;
+  document.getElementById('writeTicketTheater').textContent   = theater;
+  document.getElementById('writeTicketGenre').textContent     = genre;
+  document.getElementById('writeTicketRuntime').textContent   = runtime;
   const pc = document.getElementById('writePosterCol');
   if (pc) {
-    pc.innerHTML = poster
-      ? '<img src="'+poster+'" alt="'+title+'" onerror="this.parentNode.innerHTML=\'<div class=write-ticket-poster-ph>🎬</div>\'">'
-      : '<div class="write-ticket-poster-ph">🎬</div>';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'write-ticket-poster-ph';
+    placeholder.textContent = '🎬';
+    pc.replaceChildren(placeholder);
+    if (poster) {
+      const img = document.createElement('img');
+      img.src = poster;
+      img.alt = title;
+      img.onerror = () => pc.replaceChildren(placeholder);
+      pc.replaceChildren(img);
+    }
   }
 
   // 폼
   const idEl = document.getElementById('writeDiaryId');
   const tnEl = document.getElementById('writeMovieTitle');
+  const siEl = document.getElementById('writeStarInput');
   if (idEl) idEl.value = id;
   if (tnEl) tnEl.textContent = title;
+  if (siEl) siEl.value = star;
 
   renderPopcorn(star);
   setFresh('');
@@ -2527,7 +2697,10 @@ function renderPopcorn(val) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'pcorn-btn' + (i <= val ? ' lit' : '');
-    btn.textContent = '🍿';
+    const img = document.createElement('img');
+    img.src = CTX + '/img/Logo.png';
+    img.alt = '팝콘';
+    btn.appendChild(img);
     btn.dataset.v = i;
     btn.onmouseenter = () => highlightPopcorn(i);
     btn.onmouseleave = () => renderPopcorn(_curPopcorn);
@@ -2556,6 +2729,8 @@ function setFresh(yn) {
   if (no)  no.className  = 'fresh-btn' + (yn === 'N' ? ' sel-rotten' : '');
   if (inp) inp.value = yn;
 }
+
+initWritePage();
 
 /* ══ Archive ══ */
 function initArchivePage() {
