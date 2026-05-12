@@ -33,26 +33,24 @@ public class ReviewUpdateServlet extends HttpServlet {
         }
 
         //2.reviewId 받기
-        String reviewIdParam = req.getParameter("reviewId");      
-        if (reviewIdParam == null) {     
-        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");    
-        	return;    
+        String reviewIdParam = req.getParameter("reviewId");
+        if (reviewIdParam == null || reviewIdParam.trim().isEmpty()) {
+            resp.sendRedirect(req.getContextPath() + "/review/myList.do");
+            return;
         }
-        
+
         int reviewId = Integer.parseInt(reviewIdParam);
-        
-        //3.기존 리뷰 데이터 조회    
         ReviewDTO dto = service.getReviewById(reviewId);
-        
-        // 리뷰가 없거나 본인 리뷰가 아니면 차단     
+
+        // 리뷰가 없거나 본인 리뷰가 아니면 차단
         if (dto == null || dto.getMemberId() != loginMember.getMemberId()) {
-        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");   
-        	return;      
+            resp.sendRedirect(req.getContextPath() + "/review/myList.do");
+            return;
         }
-    
-        //4.수정 폼으로 이동    
-    	req.setAttribute("review", dto);      
-    	req.getRequestDispatcher("/WEB-INF/views/review/reviewUpdate.jsp").forward(req, resp);
+
+        req.setAttribute("review", dto);
+        req.getRequestDispatcher("/WEB-INF/views/review/reviewUpdate.jsp").forward(req, resp);
+    	
     }
 
     //POST : 수정 처리
@@ -64,43 +62,75 @@ public class ReviewUpdateServlet extends HttpServlet {
 
         //1.로그인 확인
         HttpSession session = req.getSession(false);
-        MemberDTO loginMember = session == null        
-        		? null             
-        		: (MemberDTO) session.getAttribute("loginMember"); 
-        
-        if (loginMember == null) {     
-        	resp.sendRedirect(req.getContextPath() + "/login.do");     
-        	return;
+        MemberDTO loginMember = session == null
+                ? null
+                : (MemberDTO) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            resp.sendRedirect(req.getContextPath() + "/login.do");
+            return;
         }
 
-        //2.폼 데이터 받기
-        int reviewId = Integer.parseInt(req.getParameter("reviewId"));
-        String freshYn  = req.getParameter("freshYn");   // 'Y'=터졌다, 'N'=안터졌다  ← burstYn ❌    
-        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'N'=친구공개  ← 'F' ❌      
-        String content  = req.getParameter("content");
+        String returnUrl = req.getParameter("returnUrl");
 
-        //3.DTO 세팅
-        ReviewDTO dto = new ReviewDTO();
-        dto.setReviewId(reviewId);    
-        dto.setMemberId(loginMember.getMemberId()); // MemberDTO에서 꺼내기   
-        dto.setFreshYn(freshYn);                    // setBurstYn() ❌ → setFreshYn() ✅ 
-        dto.setPublicYn(publicYn);      
-        dto.setContent(content);
+        try {
+            //2.폼 데이터 받기
+            int reviewId = Integer.parseInt(req.getParameter("reviewId"));
+            String freshYn = req.getParameter("freshYn");
+            String publicYn = req.getParameter("publicYn");
+            String content = req.getParameter("content");
 
-        //4.서비스 호출(+본인확인)
-        int result = service.updateReview(dto, loginMember.getMemberId());
+            if (!"Y".equals(freshYn) && !"N".equals(freshYn)) {
+                freshYn = "Y";
+            }
+            if (!"Y".equals(publicYn) && !"N".equals(publicYn)) {
+                publicYn = "Y";
+            }
 
-        if (result == 1) {           
-        	// 성공 → 내 리뷰 목록으로    
-        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");      
-        } else if (result == -1) {        
-        	// 권한 없음     
-        	resp.sendRedirect(req.getContextPath() + "/review/myList.do");
+            //3.DTO 세팅
+            ReviewDTO dto = new ReviewDTO();
+            dto.setReviewId(reviewId);
+            dto.setMemberId(loginMember.getMemberId());
+            dto.setFreshYn(freshYn);
+            dto.setPublicYn(publicYn);
+            dto.setContent(content);
+
+            //4.서비스 호출(+본인확인)
+            int result = service.updateReview(dto, loginMember.getMemberId());
+
+            if (result == 1) {
+                // 성공 → 내 리뷰 목록으로    
+                redirectBack(req, resp, returnUrl, "/review/myList.do");
+            } else {
+                redirectBack(req, resp, addError(returnUrl, "update"), "/review/myList.do");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectBack(req, resp, addError(returnUrl, "update"), "/review/myList.do");
+        }
+    }
+
+    private void redirectBack(HttpServletRequest req, HttpServletResponse resp, String returnUrl, String fallback)
+            throws IOException {
+        if (isSafeReturnUrl(returnUrl)) {
+            resp.sendRedirect(req.getContextPath() + returnUrl);
         } else {
-            // 수정 실패 → 에러 메시지 전달 후 다시 폼으로
-            req.setAttribute("errorMsg", "리뷰 수정에 실패했습니다. 다시 시도해주세요.");
-            req.setAttribute("review", dto);
-            req.getRequestDispatcher("/WEB-INF/views/review/reviewUpdate.jsp").forward(req, resp);
+            resp.sendRedirect(req.getContextPath() + fallback);
         }
+    }
+
+    private boolean isSafeReturnUrl(String returnUrl) {
+        return returnUrl != null
+                && returnUrl.startsWith("/")
+                && !returnUrl.startsWith("//")
+                && !returnUrl.contains("\\");
+    }
+
+    private String addError(String returnUrl, String value) {
+        if (!isSafeReturnUrl(returnUrl)) {
+            return returnUrl;
+        }
+        return returnUrl + (returnUrl.contains("?") ? "&" : "?") + "reviewError=" + value;
     }
 }

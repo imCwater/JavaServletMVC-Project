@@ -23,7 +23,7 @@ import member.dto.MemberDTO;
   GET /diary/calendar.do → JSON (AJAX)
   - 달력 월 이동 시 호출
   - 파라미터: year, month
-  - 반환: [{diaryId, watchDate, movieTitle, posterUrl, starRating}, ...]
+  - 반환: [{diaryId, watchDate, movieTitle, posterUrl, popcornRating}, ...]
  */
 
 @WebServlet("/diary/calendar.do")

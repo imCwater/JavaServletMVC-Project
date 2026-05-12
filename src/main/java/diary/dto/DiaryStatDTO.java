@@ -14,8 +14,8 @@ public class DiaryStatDTO {
 	private int year; // 조회 연도
 	private int totalCount; // 총 관람 편수
 
-	// 평균 별점 (소수점 한 자리, 별점 미입력 시 0.0)
-	private double avgStarRating;
+	// 평균 팝콘 (소수점 한 자리, 미입력 시 0.0)
+	private double avgPopcornRating;
 
 	// 가장 많이 간 극장명 (예매 기반 데이터에서 집계)
 	private String topTheater;
@@ -51,12 +51,12 @@ public class DiaryStatDTO {
 		this.totalCount = totalCount;
 	}
 
-	public double getAvgStarRating() {
-		return avgStarRating;
+	public double getAvgPopcornRating() {
+		return avgPopcornRating;
 	}
 
-	public void setAvgStarRating(double avgStarRating) {
-		this.avgStarRating = avgStarRating;
+	public void setAvgPopcornRating(double avgPopcornRating) {
+		this.avgPopcornRating = avgPopcornRating;
 	}
 
 	public String getTopTheater() {

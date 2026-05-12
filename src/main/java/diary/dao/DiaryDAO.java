@@ -30,7 +30,7 @@ public class DiaryDAO {
 	// ─────────────────────────────────────────────────────────────
 	// 1. 다이어리 목록 조회 (본인 전체, 연도 필터 포함)
 	// - DIARY_ENTRY JOIN MOVIE
-	// - 정렬: 최신순(기본) / 오래된순 / 별점높은순
+		// - 정렬: 최신순(기본) / 오래된순 / 팝콘높은순
 	// ─────────────────────────────────────────────────────────────
 
 	public List<DiaryDTO> getDiaryList(int memberId, String year, String sort) throws Exception {
@@ -38,7 +38,7 @@ public class DiaryDAO {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT d.diary_id, d.movie_id, d.reservation_id, d.review_id, ");
-		sql.append("       d.watch_date, d.star_rating, d.created_at, ");
+		sql.append("       d.watch_date, d.popcorn_rating, d.created_at, ");
 		sql.append("       m.title AS movie_title, m.poster_url, CAST(NULL AS VARCHAR2(100)) AS genre, m.runtime, ");
 		sql.append("       rv.content AS review_content, rv.fresh_yn AS review_fresh_yn, rv.public_yn AS review_public_yn, ");
 		sql.append("       th.theater_name, sc.screen_name ");
@@ -60,7 +60,7 @@ public class DiaryDAO {
 		if ("oldest".equals(sort)) {
 			sql.append(" ORDER BY d.watch_date ASC ");
 		} else if ("star".equals(sort)) {
-			sql.append(" ORDER BY d.star_rating DESC NULLS LAST ");
+			sql.append(" ORDER BY d.popcorn_rating DESC NULLS LAST ");
 		} else {
 			sql.append(" ORDER BY d.watch_date DESC "); // 기본: 최신순
 		}
@@ -81,7 +81,7 @@ public class DiaryDAO {
 					dto.setReservationId((Integer) rs.getObject("reservation_id"));
 					dto.setReviewId((Integer) rs.getObject("review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
-					dto.setStarRating(rs.getDouble("star_rating"));
+					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
 					dto.setMovieTitle(rs.getString("movie_title"));
 					dto.setPosterUrl(rs.getString("poster_url"));
@@ -100,6 +100,53 @@ public class DiaryDAO {
 
 	}
 
+	public List<DiaryDTO> getWritableDiaryList(int memberId) throws Exception {
+		List<DiaryDTO> list = new ArrayList<>();
+
+		String sql = "SELECT d.diary_id, d.movie_id, d.reservation_id, d.review_id, "
+				+ "       d.watch_date, d.popcorn_rating, d.created_at, "
+				+ "       m.title AS movie_title, m.poster_url, CAST(NULL AS VARCHAR2(100)) AS genre, m.runtime, "
+				+ "       th.theater_name, sc.screen_name "
+				+ "  FROM DIARY_ENTRY d "
+				+ "  JOIN MOVIE m ON d.movie_id = m.movie_id "
+				+ "  LEFT JOIN RESERVATION r ON d.reservation_id = r.reservation_id "
+				+ "  LEFT JOIN SCHEDULE sch ON r.schedule_id = sch.schedule_id "
+				+ "  LEFT JOIN SCREEN sc ON sch.screen_id = sc.screen_id "
+				+ "  LEFT JOIN THEATER th ON sc.theater_id = th.theater_id "
+				+ " WHERE d.member_id = ? "
+				+ "   AND d.review_id IS NULL "
+				+ "   AND (r.reservation_id IS NULL OR r.status = 'Y') "
+				+ "   AND (sch.end_time <= CAST(SYSTIMESTAMP AS TIMESTAMP) "
+				+ "        OR (sch.end_time IS NULL AND d.watch_date < TRUNC(SYSDATE))) "
+				+ " ORDER BY d.watch_date DESC ";
+
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					DiaryDTO dto = new DiaryDTO();
+					dto.setDiaryId(rs.getInt("diary_id"));
+					dto.setMemberId(memberId);
+					dto.setMovieId(rs.getInt("movie_id"));
+					dto.setReservationId((Integer) rs.getObject("reservation_id"));
+					dto.setReviewId((Integer) rs.getObject("review_id"));
+					dto.setWatchDate(rs.getDate("watch_date"));
+					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
+					dto.setCreatedAt(rs.getTimestamp("created_at"));
+					dto.setMovieTitle(rs.getString("movie_title"));
+					dto.setPosterUrl(rs.getString("poster_url"));
+					dto.setGenre(rs.getString("genre"));
+					dto.setRuntime(rs.getInt("runtime"));
+					dto.setTheaterName(rs.getString("theater_name"));
+					dto.setScreenName(rs.getString("screen_name"));
+					list.add(dto);
+				}
+			}
+		}
+		return list;
+	}
+
 	// ─────────────────────────────────────────────────────────────
 	// 2. 달력용 조회 (연-월 기준, watch_date 그룹)
 	// - AJAX 요청, JSON으로 내려줄 데이터
@@ -109,7 +156,7 @@ public class DiaryDAO {
 	public List<DiaryDTO> getDiaryByMonth(int memberId, String year, String month) throws Exception {
 		List<DiaryDTO> list = new ArrayList<>();
 
-		String sql = "SELECT d.diary_id, d.movie_id, d.watch_date, d.star_rating, "
+		String sql = "SELECT d.diary_id, d.movie_id, d.watch_date, d.popcorn_rating, "
 				+ "       m.title AS movie_title, m.poster_url " + "  FROM DIARY_ENTRY d "
 				+ "  JOIN MOVIE m ON d.movie_id = m.movie_id " + " WHERE d.member_id = ? "
 				+ "   AND TO_CHAR(d.watch_date, 'YYYY') = ? " + "   AND TO_CHAR(d.watch_date, 'MM')   = ? "
@@ -128,7 +175,7 @@ public class DiaryDAO {
 					dto.setDiaryId(rs.getInt("diary_id"));
 					dto.setMovieId(rs.getInt("movie_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
-					dto.setStarRating(rs.getDouble("star_rating"));
+					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setMovieTitle(rs.getString("movie_title"));
 					dto.setPosterUrl(rs.getString("poster_url"));
 					list.add(dto);
@@ -148,7 +195,7 @@ public class DiaryDAO {
 		DiaryDTO dto = null;
 
 		String sql = "SELECT d.diary_id, d.member_id, d.movie_id, d.reservation_id, d.review_id, "
-				+ "       d.watch_date, d.star_rating, d.created_at, "
+				+ "       d.watch_date, d.popcorn_rating, d.created_at, "
 				+ "       m.title AS movie_title, m.poster_url, m.runtime, " + "       th.theater_name, sc.screen_name "
 				+ "  FROM DIARY_ENTRY d " + "  JOIN MOVIE m ON d.movie_id = m.movie_id "
 				+ "  LEFT JOIN RESERVATION r  ON d.reservation_id = r.reservation_id "
@@ -169,7 +216,7 @@ public class DiaryDAO {
 					dto.setReservationId((Integer) rs.getObject("reservation_id"));
 					dto.setReviewId((Integer) rs.getObject("review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
-					dto.setStarRating(rs.getDouble("star_rating"));
+					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
 					dto.setMovieTitle(rs.getString("movie_title"));
 					dto.setPosterUrl(rs.getString("poster_url"));
@@ -254,7 +301,7 @@ public class DiaryDAO {
 						ps.executeBatch();
 					}
 				}
-				// 별점도 함께 업데이트 (tagUpdate 요청 시 같이 처리)
+				// 팝콘 평점은 별도 메서드에서 함께 처리
 				conn.commit();
 			} catch (Exception e) {
 				conn.rollback();
@@ -264,14 +311,14 @@ public class DiaryDAO {
 	}
 
 	// ─────────────────────────────────────────────────────────────
-	// 7. 별점 업데이트 (단독 업데이트)
+	// 7. 팝콘 평점 업데이트
 	// ─────────────────────────────────────────────────────────────
-	public void updateStarRating(int diaryId, double starRating) throws Exception {
-		String sql = "UPDATE DIARY_ENTRY SET star_rating = ? WHERE diary_id = ?";
+	public void updatePopcornRating(int diaryId, double popcornRating) throws Exception {
+		String sql = "UPDATE DIARY_ENTRY SET popcorn_rating = ? WHERE diary_id = ?";
 
 		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-			ps.setDouble(1, starRating);
+			ps.setDouble(1, popcornRating);
 			ps.setInt(2, diaryId);
 			ps.executeUpdate();
 		}
@@ -420,9 +467,9 @@ public class DiaryDAO {
 		return 0;
 	}
 
-	// 별점 1.0점 기록 횟수 (혹평가 뱃지)
+	// 팝콘 1.0점 기록 횟수 (혹평가 뱃지)
 	public int countLowRating(int memberId) throws Exception {
-		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND star_rating = 1.0";
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND popcorn_rating = 1.0";
 		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, memberId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -432,9 +479,9 @@ public class DiaryDAO {
 		return 0;
 	}
 
-	// 별점 4.5 이상 기록 횟수 (신선한 눈 뱃지)
+	// 팝콘 4.5 이상 기록 횟수 (신선한 눈 뱃지)
 	public int countHighRating(int memberId) throws Exception {
-		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND star_rating >= 4.5";
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND popcorn_rating >= 4.5";
 		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, memberId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -570,7 +617,7 @@ public class DiaryDAO {
 
 	// ─────────────────────────────────────────────────────────────
 	// 10. 연간 통계용 데이터 조회 (DiaryStatDTO 구성용)
-	// - 총 편수, 월별 카운트, 평균 별점, 극장별 카운트
+	// - 총 편수, 월별 카운트, 평균 팝콘, 극장별 카운트
 	// ─────────────────────────────────────────────────────────────
 	public Map<String, Object> getStatData(int memberId, int year) throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -589,16 +636,16 @@ public class DiaryDAO {
 				}
 			}
 
-			// 평균 별점
-			String avgSql = "SELECT AVG(star_rating) AS avg_star FROM DIARY_ENTRY "
+		// 평균 팝콘
+		String avgSql = "SELECT AVG(popcorn_rating) AS avg_popcorn FROM DIARY_ENTRY "
 					+ " WHERE member_id = ? AND TO_CHAR(watch_date,'YYYY') = ? "
-					+ "   AND star_rating IS NOT NULL AND star_rating > 0";
+					+ "   AND popcorn_rating IS NOT NULL AND popcorn_rating > 0";
 			try (PreparedStatement ps = conn.prepareStatement(avgSql)) {
 				ps.setInt(1, memberId);
 				ps.setString(2, yearStr);
 				try (ResultSet rs = ps.executeQuery()) {
 					if (rs.next())
-						result.put("avgStarRating", rs.getDouble("avg_star"));
+						result.put("avgPopcornRating", rs.getDouble("avg_popcorn"));
 				}
 			}
 
@@ -640,6 +687,7 @@ public class DiaryDAO {
 			String tagSql = "SELECT t.tag_name, COUNT(*) AS cnt " + "  FROM DIARY_TAG dt "
 					+ "  JOIN TAG t ON dt.tag_id = t.tag_id " + "  JOIN DIARY_ENTRY d ON dt.diary_id = d.diary_id "
 					+ " WHERE d.member_id = ? AND TO_CHAR(d.watch_date,'YYYY') = ? "
+					+ "   AND d.review_id IS NOT NULL "
 					+ " GROUP BY t.tag_name ORDER BY cnt DESC";
 			List<Map.Entry<String, Integer>> tagFreqList = new ArrayList<>();
 			try (PreparedStatement ps = conn.prepareStatement(tagSql)) {

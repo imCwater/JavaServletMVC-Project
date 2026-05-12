@@ -914,7 +914,7 @@ body {
 
 /* ══════════════════════════════════════════════════
    이달 요약 바 — 티켓 카드 아래
-   ★ 피그마: 이달관람 / 평균별점 / 총티켓
+   ★ 피그마: 이달관람 / 평균팝콘 / 총티켓
 ══════════════════════════════════════════════════ */
 .monthly-summary-bar {
   display: flex;
@@ -983,7 +983,7 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-dt   { font-size: 10px; color: #aaa; margin-bottom: 3px; }
-.card-star { color: #e8a838; font-size: 11px; margin-bottom: 4px; }
+.card-popcorn { color: #e8a838; font-size: 11px; margin-bottom: 4px; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 3px; }
 .card-tag2 {
   background: #fff3dc; border: 1px solid #f0c848;
@@ -1040,7 +1040,7 @@ body {
 .footer-links a:hover { color: #fff; }
 
 /* ══════════════════════════════════════════════════
-   태그/별점 모달
+   태그/팝콘 모달
 ══════════════════════════════════════════════════ */
 .modal-bg {
   display: none; position: fixed; inset: 0;
@@ -1279,27 +1279,27 @@ body {
   letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px;
 }
 /* 팝콘 평점 */
-.popcorn-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.popcorn-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .pcorn-btn {
   background: none; border: none; cursor: pointer;
-  font-size: 42px; padding: 0 2px; line-height: 1;
-  filter: grayscale(1) opacity(0.3); transition: filter 0.1s, transform 0.1s;
+  font-size: 52px; padding: 0 3px; line-height: 1;
+  transition: transform 0.1s;
 }
-.pcorn-btn img { display: block; width: 42px; height: 42px; object-fit: contain; }
-.pcorn-btn.lit { filter: none; }
+.pcorn-btn img { display: block; width: 52px; height: 52px; object-fit: contain; filter: grayscale(1) opacity(0.3); transition: filter 0.1s; }
+.pcorn-btn.lit img { filter: none; }
 .pcorn-btn:hover { transform: scale(1.18); }
 .pcorn-score { font-size: 12px; font-weight: 700; color: #c07a10; margin-left: 6px; }
 /* 신선도 */
 .fresh-row { display: flex; gap: 8px; }
 .fresh-btn {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
   flex: 1; padding: 7px 6px; border-radius: 10px;
   border: 1.5px solid #e2ddd8; background: #fafaf8;
   cursor: pointer; text-align: center;
   font-size: 11px; font-weight: 700; color: #aaa;
   transition: all 0.14s;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
 }
-.fresh-btn .fb-icon { font-size: 18px; }
+.fresh-btn img { width: 20px; height: 20px; object-fit: contain; }
 .fresh-btn.sel-fresh  { border-color: #4caf50; background: #f1f8e9; color: #2e7d32; }
 .fresh-btn.sel-rotten { border-color: #ef5350; background: #fce4ec; color: #c62828; }
 /* 감정 태그 */
@@ -1344,7 +1344,7 @@ body {
 /* ══════════════════════════════════════════════════
    Archive — 왼쪽 사이드바
 ══════════════════════════════════════════════════ */
-.archive-sidebar-inner { display: flex; flex-direction: column; padding: 12px 8px; gap: 10px; flex: 1; overflow-y: auto; }
+.archive-sidebar-inner { display: flex; flex-direction: column; padding: 12px 8px; gap: 12px; flex: 1; overflow-y: auto; }
 .archive-stat-box {
   background: #fff8ed; border-radius: 10px;
   border: 1px solid #f0e0b0; padding: 11px 13px;
@@ -1372,8 +1372,40 @@ body {
   border-radius: 8px; padding: 1px 7px; font-weight: 700;
 }
 .archive-year-btn.asel .archive-year-cnt { background: #e8a838; color: #fff; }
-.archive-detail-ticket { display: none; flex: 1; flex-direction: column; padding: 16px 16px 20px; gap: 14px; }
-#sidebar-archive.detail-mode .archive-sidebar-inner { display: none; }
+.archive-my-film {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid #ead7a6;
+  background: linear-gradient(135deg, #fff8df 0%, #fdf0bd 58%, #f6d86a 100%);
+  padding: 16px 15px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 10px 22px rgba(232,168,56,0.12);
+}
+.archive-my-film::after {
+  content: '';
+  position: absolute;
+  right: -28px;
+  bottom: -34px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 18px solid rgba(255,255,255,0.38);
+}
+.archive-my-film-kicker { font-size: 9px; font-weight: 900; color: #b27712; letter-spacing: 0.18em; text-transform: uppercase; }
+.archive-my-film-title { margin-top: 5px; font-size: 24px; font-weight: 900; color: #1a1816; letter-spacing: 0.04em; }
+.archive-my-film-sub { margin-top: 4px; font-size: 11px; font-weight: 700; color: #8a6b26; }
+.archive-ticket-section-title,
+.archive-detail-section-title { font-size: 10px; font-weight: 900; color: #b8b0a4; letter-spacing: 0.12em; text-transform: uppercase; }
+.archive-ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px 4px 8px;
+}
+.archive-detail-ticket { display: flex; flex-shrink: 0; flex-direction: column; gap: 10px; }
+#sidebar-archive.detail-mode .archive-sidebar-inner { display: flex; }
 #sidebar-archive.detail-mode .archive-detail-ticket { display: flex; }
 .archive-back-btn {
   align-self: flex-start;
@@ -1399,14 +1431,14 @@ body {
 .archive-detail-card-info { padding: 14px 16px 16px; }
 .archive-detail-card-title { font-size: 17px; font-weight: 900; color: #1a1816; line-height: 1.35; }
 .archive-detail-card-meta { margin-top: 8px; font-size: 12px; color: #8a7a68; line-height: 1.6; }
-.archive-detail-card-star { margin-top: 10px; color: #e8a838; font-size: 13px; font-weight: 800; }
+.archive-detail-card-popcorn { margin-top: 10px; color: #e8a838; font-size: 13px; font-weight: 800; }
 
 /* ══════════════════════════════════════════════════
    Archive — 오른쪽 티켓 스크랩북
 ══════════════════════════════════════════════════ */
 .archive-content-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .archive-content-wrap.detail-mode .archive-content-header,
-.archive-content-wrap.detail-mode .archive-scroll { display: none; }
+.archive-content-wrap.detail-mode .archive-default-prompt { display: none; }
 .archive-content-wrap.detail-mode .archive-review-detail { display: flex; }
 .archive-content-header {
   background: #e8a838;
@@ -1416,14 +1448,25 @@ body {
 .archive-content-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 0.02em; }
 .archive-content-sub { font-size: 12px; color: rgba(255,255,255,0.76); margin-top: 3px; }
 .archive-scroll {
-  flex: 1;
   overflow-y: auto;
-  padding: 18px;
   display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: column;
+  gap: 11px;
+}
+.archive-default-prompt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  color: #8a7a68;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.7;
+  background: #fff;
+  background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, rgba(200,190,180,0.14) 27px, rgba(200,190,180,0.14) 28px);
+  background-position: 0 68px;
 }
 .archive-empty {
   flex: 1; display: flex; flex-direction: column;
@@ -1493,8 +1536,7 @@ body {
 }
 .archive-ticket {
   position: relative; display: flex; background: #fff;
-  width: calc(50% - 8px);
-  min-width: 280px;
+  width: 100%;
   border-radius: 8px 8px 6px 6px;
   box-shadow: 2px 3px 14px rgba(0,0,0,0.13);
   text-decoration: none; color: inherit; overflow: visible;
@@ -1556,7 +1598,7 @@ body {
 .at-meta  { font-size:10px; color:#aaa; }
 .at-tags  { display:flex; flex-wrap:wrap; gap:3px; }
 .at-tag   { background:#fff3dc; border:1px solid #f0c848; border-radius:8px; padding:1px 6px; font-size:9px; color:#7a5800; font-weight:600; }
-.at-star  { font-size:11px; color:#e8a838; margin-top:auto; }
+.at-popcorn  { font-size:11px; color:#e8a838; margin-top:auto; }
 .at-stub  {
   position:relative; background:#fdf5e4; border-top:1.5px dashed #d4c090;
   border-radius:0 0 6px 6px; font-size:8px; color:#c07a10; font-weight:700;
@@ -1653,7 +1695,7 @@ body {
           <span class="monthly-val" id="mCount">-</span>
         </div>
         <div class="monthly-row">
-          <span class="monthly-lbl">평균 별점</span>
+          <span class="monthly-lbl">평균 팝콘</span>
           <span class="monthly-val" id="mStar">-</span>
         </div>
         <div class="monthly-row">
@@ -1676,8 +1718,8 @@ body {
       </div>
     </div><!-- /#sidebar-cal -->
 
-    <c:if test="${not empty diaryList}">
-      <c:forEach var="d" items="${diaryList}" varStatus="s">
+    <c:if test="${not empty writeDiaryList}">
+      <c:forEach var="d" items="${writeDiaryList}" varStatus="s">
         <c:if test="${s.first}">
           <c:set var="initialWriteDiary" value="${d}" />
         </c:if>
@@ -1729,19 +1771,17 @@ body {
         </div>
         <div class="ticket-select-list" id="ticketSelectList">
           <c:choose>
-            <c:when test="${not empty diaryList}">
-              <c:forEach var="d" items="${diaryList}" varStatus="s">
-                <fmt:formatDate var="writeWatchDate" value="${d.watchDate}" pattern="yyyy.MM.dd" />
+            <c:when test="${not empty writeDiaryList}">
+              <c:forEach var="d" items="${writeDiaryList}" varStatus="s">
                 <div class="ticket-select-item${s.first ? ' sel' : ''}"
                      onclick="selectWriteEntry(this)"
                      data-id="${d.diaryId}"
                      data-title="${fn:escapeXml(d.movieTitle)}"
                      data-poster="${fn:escapeXml(d.posterUrl)}"
-                     data-date="${writeWatchDate}"
+                     data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
                      data-theater="${fn:escapeXml(d.theaterName)}"
                      data-genre="${fn:escapeXml(d.genre)}"
-                     data-runtime="${fn:escapeXml(d.runtime)}"
-                     data-star="${d.starRating}">
+                     data-runtime="${fn:escapeXml(d.runtime)}">
                   <div class="tsi-poster">
                     <c:choose>
                       <c:when test="${not empty d.posterUrl}">
@@ -1780,7 +1820,7 @@ body {
             <span class="archive-stat-val" id="archThisMonth">-</span>
           </div>
           <div class="archive-stat-row">
-            <span>평균 별점</span>
+            <span>평균 팝콘</span>
             <span class="archive-stat-val" id="archAvgStar">-</span>
           </div>
         </div>
@@ -1795,18 +1835,90 @@ body {
             </button>
           </c:forEach>
         </div>
-      </div>
-      <div class="archive-detail-ticket" id="archiveDetailTicket">
-        <button type="button" class="archive-back-btn" onclick="closeArchiveDetail()">← Archive</button>
-        <div class="archive-detail-card">
-          <div class="archive-detail-poster-wrap">
-            <img class="archive-detail-poster" id="archiveDetailPoster" src="" alt="" style="display:none">
-            <div class="archive-detail-poster-ph" id="archiveDetailPosterPh">🎬</div>
+        <div class="archive-my-film" aria-label="MY FILM">
+          <div class="archive-my-film-kicker">Popflex Archive</div>
+          <div class="archive-my-film-title">MY FILM</div>
+          <div class="archive-my-film-sub">기록한 영화 티켓을 모아둔 페이지</div>
+        </div>
+        <div>
+          <div class="archive-ticket-section-title">Ticket List</div>
+          <div class="archive-ticket-list archive-scroll" id="archiveScroll">
+            <c:set var="archiveCount" value="0" />
+            <c:forEach var="d" items="${diaryList}">
+              <c:if test="${not empty d.reviewId}">
+                <c:set var="archiveCount" value="${archiveCount + 1}" />
+                <a class="archive-ticket"
+                   href="#"
+                   onclick="openArchiveDetail(this);return false;"
+                   data-title="${fn:escapeXml(d.movieTitle)}"
+                   data-poster="${fn:escapeXml(d.posterUrl)}"
+                   data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
+                   data-year="<fmt:formatDate value='${d.watchDate}' pattern='yyyy'/>"
+                   data-theater="${fn:escapeXml(d.theaterName)}"
+                   data-popcorn="${d.popcornRating}"
+                   data-fresh="${d.reviewFreshYn}"
+                   data-review-content="${fn:escapeXml(d.reviewContent)}">
+                  <div class="at-tape at-tape-l"></div>
+                  <div class="at-tape at-tape-r"></div>
+                  <div class="at-poster">
+                    <c:choose>
+                      <c:when test="${not empty d.posterUrl}">
+                        <img src="${d.posterUrl}" alt="${d.movieTitle}"
+                             onerror="this.parentNode.innerHTML='&lt;div class=at-poster-ph&gt;🎬&lt;/div&gt;'">
+                      </c:when>
+                      <c:otherwise><div class="at-poster-ph">🎬</div></c:otherwise>
+                    </c:choose>
+                  </div>
+                  <div class="at-info">
+                    <div class="at-title">${d.movieTitle}</div>
+                    <div class="at-meta">
+                      <fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/>
+                      <c:if test="${not empty d.theaterName}"> · ${d.theaterName}</c:if>
+                    </div>
+                    <c:if test="${not empty d.tagList}">
+                      <div class="at-tags">
+                        <c:forEach var="tag" items="${d.tagList}" end="2">
+                          <span class="at-tag">${tag}</span>
+                        </c:forEach>
+                        <c:if test="${fn:length(d.tagList) > 3}">
+                          <span class="at-tag">+${fn:length(d.tagList)-3}</span>
+                        </c:if>
+                      </div>
+                    </c:if>
+                    <c:if test="${d.popcornRating > 0}">
+                      <div class="at-popcorn">
+                        🍿 <fmt:formatNumber value="${d.popcornRating}" maxFractionDigits="1"/> / 5
+                      </div>
+                    </c:if>
+                  </div>
+                  <div class="at-stub">POPFLEX · FILM TICKET</div>
+                </a>
+              </c:if>
+            </c:forEach>
+            <c:if test="${archiveCount == 0}">
+              <div class="archive-empty">
+                <div class="archive-empty-illust" aria-hidden="true">
+                  <div class="archive-empty-folder"></div>
+                  <div class="archive-empty-bubble">?</div>
+                </div>
+                <div class="archive-empty-title">아직 작성한 다이어리가 없어요.</div>
+                <div class="archive-empty-sub">나만의 Film Diary로 채워보세요!</div>
+              </div>
+            </c:if>
           </div>
-          <div class="archive-detail-card-info">
-            <div class="archive-detail-card-title" id="archiveDetailSideTitle">영화 제목</div>
-            <div class="archive-detail-card-meta" id="archiveDetailSideMeta">관람 정보</div>
-            <div class="archive-detail-card-star" id="archiveDetailSideStar"></div>
+        </div>
+        <div class="archive-detail-ticket" id="archiveDetailTicket">
+          <div class="archive-detail-section-title">Selected Ticket</div>
+          <div class="archive-detail-card">
+            <div class="archive-detail-poster-wrap">
+              <img class="archive-detail-poster" id="archiveDetailPoster" src="" alt="" style="display:none">
+              <div class="archive-detail-poster-ph" id="archiveDetailPosterPh">🎬</div>
+            </div>
+            <div class="archive-detail-card-info">
+              <div class="archive-detail-card-title" id="archiveDetailSideTitle">영화 제목</div>
+              <div class="archive-detail-card-meta" id="archiveDetailSideMeta">관람 정보</div>
+              <div class="archive-detail-card-popcorn" id="archiveDetailSidePopcorn"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1906,7 +2018,7 @@ body {
           </div>
           <div class="summary-item">
             <div class="summary-lbl">&#54217;&#44512; &#48324;&#51216;</div>
-            <div class="summary-val" id="sumStar">-</div>
+            <div class="summary-val" id="sumPopcorn">-</div>
           </div>
           <div class="summary-item">
             <div class="summary-lbl">&#52509; &#54000;&#53011;</div>
@@ -1928,35 +2040,31 @@ body {
         </div>
       </div>
       <c:choose>
-        <c:when test="${not empty diaryList}">
+        <c:when test="${not empty writeDiaryList}">
           <div class="diary-note-wrap">
             <!-- 영화 제목 배너 -->
             <div class="note-movie-banner" id="writeMovieTitle"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>영화를 선택하세요</c:otherwise></c:choose></div>
             <form id="writeForm" action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post">
               <input type="hidden" name="diaryId"    id="writeDiaryId"   value="${not empty initialWriteDiary.diaryId ? initialWriteDiary.diaryId : ''}">
-              <c:set var="initialPopcornRating" value="${not empty initialWriteDiary.starRating ? initialWriteDiary.starRating : 5}" />
-              <input type="hidden" name="starRating" id="writeStarInput" value="${initialPopcornRating}">
+              <c:set var="initialPopcornRating" value="5" />
+              <input type="hidden" name="popcornRating" id="writePopcornInput" value="${initialPopcornRating}">
               <input type="hidden" name="freshYn"    id="writeFreshInput" value="">
               <!-- 팝콘 평점 -->
               <div class="note-section">
                 <div class="note-section-lbl">🍿 팝콘 평점</div>
                 <div class="popcorn-row" id="popcornRow">
                   <c:forEach var="popcornValue" begin="1" end="5">
-                    <button type="button" class="pcorn-btn${initialPopcornRating >= popcornValue ? ' lit' : ''}" data-v="${popcornValue}"><img src="${pageContext.request.contextPath}/img/Logo.png" alt="팝콘"></button>
+                    <button type="button" class="pcorn-btn${initialPopcornRating >= popcornValue ? ' lit' : ''}" data-v="${popcornValue}"><img src="${pageContext.request.contextPath}/img/popflex-logo.png" alt="팝콘"></button>
                   </c:forEach>
                   <span class="pcorn-score"><c:choose><c:when test="${initialPopcornRating > 0}">${initialPopcornRating} / 5</c:when><c:otherwise>미선택</c:otherwise></c:choose></span>
                 </div>
               </div>
-              <!-- 신선도 -->
+              <!-- 팝콘 게이지 -->
               <div class="note-section">
-                <div class="note-section-lbl">🌿 신선도</div>
+                <div class="note-section-lbl">🌿 팝콘 게이지</div>
                 <div class="fresh-row">
-                  <button type="button" class="fresh-btn" id="freshYes" onclick="setFresh('Y')">
-                    <span class="fb-icon">🍿</span>신선해요!
-                  </button>
-                  <button type="button" class="fresh-btn" id="freshNo" onclick="setFresh('N')">
-                    <span class="fb-icon">🥀</span>별로였어요
-                  </button>
+                  <button type="button" class="fresh-btn" id="freshYes" onclick="setFresh('Y')"><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다">터졌다</button>
+                  <button type="button" class="fresh-btn" id="freshNo" onclick="setFresh('N')"><img src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다">안터졌다</button>
                 </div>
               </div>
               <!-- 감정 태그 -->
@@ -2002,71 +2110,9 @@ body {
             <div class="archive-content-sub">나의 다이어리 기록</div>
           </div>
         </div>
-        <div class="archive-scroll" id="archiveScroll">
-          <c:set var="archiveCount" value="0" />
-          <c:forEach var="d" items="${diaryList}">
-            <c:if test="${not empty d.reviewId}">
-              <fmt:formatDate var="archiveWatchDate" value="${d.watchDate}" pattern="yyyy.MM.dd" />
-              <fmt:formatDate var="archiveWatchYear" value="${d.watchDate}" pattern="yyyy" />
-              <c:set var="archiveCount" value="${archiveCount + 1}" />
-                <a class="archive-ticket"
-                   href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}"
-                   onclick="openArchiveDetail(this);return false;"
-                   data-title="${fn:escapeXml(d.movieTitle)}"
-                   data-poster="${fn:escapeXml(d.posterUrl)}"
-                   data-date="${archiveWatchDate}"
-                   data-year="${archiveWatchYear}"
-                   data-theater="${fn:escapeXml(d.theaterName)}"
-                   data-star="${d.starRating}"
-                   data-fresh="${d.reviewFreshYn}"
-                   data-review-content="${fn:escapeXml(d.reviewContent)}">
-                  <div class="at-tape at-tape-l"></div>
-                  <div class="at-tape at-tape-r"></div>
-                  <div class="at-poster">
-                    <c:choose>
-                      <c:when test="${not empty d.posterUrl}">
-                        <img src="${d.posterUrl}" alt="${d.movieTitle}"
-                             onerror="this.parentNode.innerHTML='&lt;div class=at-poster-ph&gt;🎬&lt;/div&gt;'">
-                      </c:when>
-                      <c:otherwise><div class="at-poster-ph">🎬</div></c:otherwise>
-                    </c:choose>
-                  </div>
-                  <div class="at-info">
-                    <div class="at-title">${d.movieTitle}</div>
-                    <div class="at-meta">
-                      <fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/>
-                      <c:if test="${not empty d.theaterName}"> · ${d.theaterName}</c:if>
-                    </div>
-                    <c:if test="${not empty d.tagList}">
-                      <div class="at-tags">
-                        <c:forEach var="tag" items="${d.tagList}" end="2">
-                          <span class="at-tag">${tag}</span>
-                        </c:forEach>
-                        <c:if test="${fn:length(d.tagList) > 3}">
-                          <span class="at-tag">+${fn:length(d.tagList)-3}</span>
-                        </c:if>
-                      </div>
-                    </c:if>
-                    <c:if test="${d.starRating > 0}">
-                      <div class="at-star">
-                        <fmt:formatNumber value="${d.starRating}" maxFractionDigits="1"/>★
-                      </div>
-                    </c:if>
-                  </div>
-                  <div class="at-stub">POPFLEX · FILM TICKET</div>
-                </a>
-            </c:if>
-          </c:forEach>
-          <c:if test="${archiveCount == 0}">
-            <div class="archive-empty">
-              <div class="archive-empty-illust" aria-hidden="true">
-                <div class="archive-empty-folder"></div>
-                <div class="archive-empty-bubble">?</div>
-              </div>
-              <div class="archive-empty-title">아직 작성한 다이어리가 없어요.</div>
-              <div class="archive-empty-sub">나만의 Film Diary로 채워보세요!</div>
-            </div>
-          </c:if>
+        <div class="archive-default-prompt">
+          왼쪽 페이지에서 티켓을 클릭해주세요!<br>
+          해당 영화의 일기를 볼 수 있어요.
         </div>
         <div class="archive-review-detail" id="archiveReviewDetail">
           <div class="archive-review-kicker">Film Diary</div>
@@ -2093,7 +2139,7 @@ body {
       <select class="sort-sel" onchange="changeSort(this.value)">
         <option value="latest" ${selectedSort eq 'latest' ? 'selected' : ''}>최신순</option>
         <option value="oldest" ${selectedSort eq 'oldest' ? 'selected' : ''}>오래된순</option>
-        <option value="star"   ${selectedSort eq 'star'   ? 'selected' : ''}>별점 높은순</option>
+        <option value="star"   ${selectedSort eq 'star'   ? 'selected' : ''}>팝콘 높은순</option>
       </select>
     </div>
 
@@ -2102,7 +2148,8 @@ body {
         <div class="card-grid">
           <c:forEach var="d" items="${diaryList}">
             <a class="diary-card"
-               href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}">
+               href="#"
+               onclick="return false;">
               <div class="card-poster-wrap">
                 <c:choose>
                   <c:when test="${not empty d.posterUrl}">
@@ -2117,8 +2164,8 @@ body {
                 <div class="card-dt">
                   <fmt:formatDate value="${d.watchDate}" pattern="yyyy.MM.dd"/>
                 </div>
-                <c:if test="${d.starRating > 0}">
-                  <div class="card-star">⭐ <fmt:formatNumber value="${d.starRating}" maxFractionDigits="1"/></div>
+                <c:if test="${d.popcornRating > 0}">
+                  <div class="card-popcorn">🍿 <fmt:formatNumber value="${d.popcornRating}" maxFractionDigits="1"/> / 5</div>
                 </c:if>
                 <div class="card-tags">
                   <c:forEach var="tag" items="${d.tagList}" end="2">
@@ -2166,17 +2213,17 @@ body {
   </div>
 </div>
 
-<!-- ══ 태그/별점 모달 ══ -->
+<!-- ══ 태그/팝콘 모달 ══ -->
 <div class="modal-bg" id="tagModal">
   <div class="modal-box">
     <button class="btn-x" onclick="closeModal()">×</button>
-    <div class="modal-ttl">감정 태그 & 별점 수정</div>
+    <div class="modal-ttl">감정 태그 & 팝콘 수정</div>
     <form action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post" class="modal-form">
       <input type="hidden" name="diaryId" id="mDiaryId">
       <div>
-        <div class="modal-lbl">⭐ 별점</div>
-        <div class="star-btns" id="starBtns"></div>
-        <input type="hidden" name="starRating" id="starInput" value="0">
+        <div class="modal-lbl">🍿 팝콘 평점</div>
+        <div class="star-btns" id="popcornBtns"></div>
+        <input type="hidden" name="popcornRating" id="popcornInput" value="0">
       </div>
       <div>
         <div class="modal-lbl">😊 감정 태그 (다중 선택)</div>
@@ -2312,7 +2359,7 @@ function renderCal(y,m,data){
         const sp=document.createElement('span');
         sp.className='cell-ticket-title'; sp.textContent=e.movieTitle||'';
         t.appendChild(sp);
-        t.onclick=ev=>{ev.stopPropagation();location.href=CTX+'/diary/detail.do?diaryId='+e.diaryId;};
+        t.onclick=ev=>{ev.stopPropagation();selectDay(day);};
         wrap.appendChild(t);
       });
       if(entries.length>3){
@@ -2418,13 +2465,9 @@ function renderDated(){
     const tagsHtml = (e.tagList&&e.tagList.length)
       ? '<div class="ticket-tags">'+e.tagList.map(t=>'<span class="ticket-tag">'+t+'</span>').join('')+'</div>'
       : '';
-    const actionsHtml =
-      '<div class="ticket-actions">'+
-        '<a class="ticket-btn" href="'+CTX+'/diary/detail.do?diaryId='+e.diaryId+'">🎞 기록</a>'+
-        '<a class="ticket-btn" href="'+CTX+'/movie/detail.do?movieId='+(e.movieId||'')+'" onclick="event.stopPropagation()">🍿 팝미인진</a>'+
-      '</div>';
+    const actionsHtml = '';
 
-    return '<a class="ticket-card" href="'+CTX+'/diary/detail.do?diaryId='+e.diaryId+'">'+
+    return '<div class="ticket-card">'+
       posterHtml+
       '<div class="ticket-info">'+
         '<div class="ticket-title">'+(e.movieTitle||'')+'</div>'+
@@ -2434,7 +2477,7 @@ function renderDated(){
         actionsHtml+
       '</div>'+
       freshHtml+
-    '</a>';
+    '</div>';
   }).join('');
 }
 
@@ -2468,24 +2511,24 @@ function renderPosters(){
 /* ── 이달 요약 ────────────────────────── */
 function updateMonthlySummary(data){
   const cnt = data.length;
-  const stars = data.filter(d=>d.starRating>0).map(d=>d.starRating);
-  const avg = stars.length ? (stars.reduce((a,b)=>a+b,0)/stars.length).toFixed(1) : null;
+  const popcorns = data.filter(d=>d.popcornRating>0).map(d=>d.popcornRating);
+  const avg = popcorns.length ? (popcorns.reduce((a,b)=>a+b,0)/popcorns.length).toFixed(1) : null;
 
   // 사이드바
   document.getElementById('mCount').textContent  = cnt ? cnt+'편' : '-';
-  document.getElementById('mStar').textContent   = avg ? avg+'점' : '-';
+  document.getElementById('mStar').textContent   = avg ? avg+' / 5' : '-';
   document.getElementById('mTicket').textContent = cnt ? cnt+'장' : '-';
 
   // 하단 요약 바
   document.getElementById('sumCount').textContent  = cnt ? cnt+'편' : '-';
   document.getElementById('sumTicket').textContent = cnt ? cnt+'장' : '-';
 
-  // 별점은 ★로 표시
+  // 평균 팝콘 표시
   if(avg){
     const full = Math.round(parseFloat(avg));
-    document.getElementById('sumStar').textContent = '★'.repeat(Math.min(full,5));
+    document.getElementById('sumPopcorn').textContent = '🍿'.repeat(Math.min(full,5));
   } else {
-    document.getElementById('sumStar').textContent = '-';
+    document.getElementById('sumPopcorn').textContent = '-';
   }
 }
 
@@ -2497,31 +2540,31 @@ function changeSort(v){
 }
 
 /* ── 모달 ──────────────────────────────── */
-function openTagModal(id,tags,star){
+function openTagModal(id,tags,popcorn){
   document.getElementById('mDiaryId').value=id;
-  document.getElementById('starInput').value=star||0;
-  renderStarBtns(parseFloat(star)||0);
+  document.getElementById('popcornInput').value=popcorn||0;
+  renderPopcornBtns(parseFloat(popcorn)||0);
   document.querySelectorAll('.tag-cb').forEach(cb=>{
     cb.checked=tags&&tags.includes(cb.nextElementSibling.textContent.trim());
   });
   document.getElementById('tagModal').classList.add('open');
 }
 function closeModal(){document.getElementById('tagModal').classList.remove('open');}
-function renderStarBtns(val){
-  const row=document.getElementById('starBtns');
+function renderPopcornBtns(val){
+  const row=document.getElementById('popcornBtns');
   row.innerHTML='';
   for(let i=0.5;i<=5;i+=0.5){
     const btn=document.createElement('button');
     btn.type='button';
     btn.style.cssText='background:none;border:none;cursor:pointer;font-size:20px;padding:0 2px;';
-    btn.textContent=i<=val?(i%1===0?'⭐':'✨'):'☆';
+    btn.textContent=i<=val?'🍿':'○';
     btn.dataset.v=i;
-    btn.onclick=function(){document.getElementById('starInput').value=this.dataset.v;renderStarBtns(+this.dataset.v);};
+    btn.onclick=function(){document.getElementById('popcornInput').value=this.dataset.v;renderPopcornBtns(+this.dataset.v);};
     row.appendChild(btn);
     if(i%1===0){const sp=document.createElement('span');sp.style.width='2px';sp.style.display='inline-block';row.appendChild(sp);}
   }
   const disp=document.createElement('span');
-  disp.className='star-disp'; disp.textContent=val>0?val+'점':'미선택';
+  disp.className='star-disp'; disp.textContent=val>0?val+' / 5':'미선택';
   row.appendChild(disp);
 }
 document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
@@ -2651,7 +2694,7 @@ function selectWriteEntry(el) {
   const theater = ticketText(el.dataset.theater);
   const genre   = ticketText(el.dataset.genre);
   const runtime = runtimeText(el.dataset.runtime);
-  const star    = parseFloat(el.dataset.star) || 0;
+  const popcorn = 5;
 
   // 티켓 업데이트
   document.getElementById('writeTicketTitle').textContent     = title;
@@ -2678,12 +2721,12 @@ function selectWriteEntry(el) {
   // 폼
   const idEl = document.getElementById('writeDiaryId');
   const tnEl = document.getElementById('writeMovieTitle');
-  const siEl = document.getElementById('writeStarInput');
+  const siEl = document.getElementById('writePopcornInput');
   if (idEl) idEl.value = id;
   if (tnEl) tnEl.textContent = title;
-  if (siEl) siEl.value = star;
+  if (siEl) siEl.value = popcorn;
 
-  renderPopcorn(star);
+  renderPopcorn(popcorn);
   setFresh('');
   document.querySelectorAll('.note-tag-cb').forEach(cb => cb.checked = false);
   const ta = document.querySelector('#writeForm textarea');
@@ -2701,7 +2744,7 @@ function renderPopcorn(val) {
     btn.type = 'button';
     btn.className = 'pcorn-btn' + (i <= val ? ' lit' : '');
     const img = document.createElement('img');
-    img.src = CTX + '/img/Logo.png';
+    img.src = CTX + '/img/popflex-logo.png';
     img.alt = '팝콘';
     btn.appendChild(img);
     btn.dataset.v = i;
@@ -2709,7 +2752,7 @@ function renderPopcorn(val) {
     btn.onmouseleave = () => renderPopcorn(_curPopcorn);
     btn.onclick = () => {
       _curPopcorn = i;
-      const si = document.getElementById('writeStarInput');
+      const si = document.getElementById('writePopcornInput');
       if (si) si.value = i;
       renderPopcorn(i);
     };
@@ -2755,17 +2798,17 @@ function initArchivePage() {
     if (btn) btn.textContent = yearCount[y];
   });
 
-  // 이번 달 / 평균 별점은 dayMap 기반
+  // 이번 달 / 평균 팝콘은 dayMap 기반
   if (typeof dayMap !== 'undefined') {
-    let mc = 0, totalStar = 0, sc = 0;
+    let mc = 0, totalPopcorn = 0, sc = 0;
     Object.values(dayMap).forEach(arr => arr.forEach(d => {
       mc++;
-      if (d.starRating > 0) { totalStar += d.starRating; sc++; }
+      if (d.popcornRating > 0) { totalPopcorn += d.popcornRating; sc++; }
     }));
     const m1 = document.getElementById('archThisMonth');
     const m2 = document.getElementById('archAvgStar');
     if (m1) m1.textContent = mc > 0 ? mc + '편' : '-';
-    if (m2) m2.textContent = sc > 0 ? (totalStar/sc).toFixed(1) + '점' : '-';
+    if (m2) m2.textContent = sc > 0 ? (totalPopcorn/sc).toFixed(1) + ' / 5' : '-';
   }
   updateScrollHints();
 }
@@ -2778,7 +2821,7 @@ function openArchiveDetail(ticket) {
   const date = data.date || '';
   const year = data.year || '';
   const theater = data.theater || '';
-  const star = Number(data.star);
+  const popcorn = Number(data.popcorn);
   const fresh = data.fresh || '';
   const reviewContent = data.reviewContent || '';
   const meta = [date || year, theater].filter(Boolean).join(' · ');
@@ -2809,7 +2852,7 @@ function openArchiveDetail(ticket) {
 
   const sideTitle = document.getElementById('archiveDetailSideTitle');
   const sideMeta = document.getElementById('archiveDetailSideMeta');
-  const sideStar = document.getElementById('archiveDetailSideStar');
+  const sidePopcorn = document.getElementById('archiveDetailSidePopcorn');
   const reviewTitle = document.getElementById('archiveReviewTitle');
   const reviewMeta = document.getElementById('archiveReviewMeta');
   const reviewFresh = document.getElementById('archiveReviewFresh');
@@ -2817,7 +2860,7 @@ function openArchiveDetail(ticket) {
 
   if (sideTitle) sideTitle.textContent = title;
   if (sideMeta) sideMeta.textContent = meta || '관람 정보 없음';
-  if (sideStar) sideStar.textContent = Number.isFinite(star) && star > 0 ? data.star + '★' : '';
+  if (sidePopcorn) sidePopcorn.textContent = Number.isFinite(popcorn) && popcorn > 0 ? '🍿 ' + data.popcorn + ' / 5' : '';
   if (reviewTitle) reviewTitle.textContent = title;
   if (reviewMeta) reviewMeta.textContent = meta || '관람 정보 없음';
   if (reviewFresh) {

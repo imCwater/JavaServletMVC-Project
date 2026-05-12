@@ -16,8 +16,8 @@ import member.dto.MemberDTO;
 /*
   DiaryTagUpdateServlet
   POST /diary/tagUpdate.do → redirect /diary/list.do
-  - 감정 태그 다중 선택 업데이트 + 별점 업데이트
-  - 파라미터: diaryId, tagIds[] (다중값), starRating
+  - 감정 태그 다중 선택 업데이트 + 팝콘 평점 업데이트
+  - 파라미터: diaryId, tagIds[] (다중값), popcornRating
   - 본인 다이어리만 수정 가능
  */
 
@@ -60,11 +60,10 @@ public class DiaryTagUpdateServlet extends HttpServlet {
             }
         }
 
-        // 별점 (없으면 0 → 업데이트 생략)
-        double starRating = 0;
-        String starStr = req.getParameter("starRating");
-        if (starStr != null && !starStr.isEmpty()) {
-            try { starRating = Double.parseDouble(starStr); }
+        double popcornRating = 0;
+        String popcornStr = req.getParameter("popcornRating");
+        if (popcornStr != null && !popcornStr.isEmpty()) {
+            try { popcornRating = Double.parseDouble(popcornStr); }
             catch (NumberFormatException ignored) {}
         }
 
@@ -79,7 +78,7 @@ public class DiaryTagUpdateServlet extends HttpServlet {
                 return;
             }
 
-            diaryService.updateTagsStarAndReview(detail, tagIds, starRating, freshYn, diaryText);
+            diaryService.updateTagsPopcornAndReview(detail, tagIds, popcornRating, freshYn, diaryText);
 
         } catch (Exception e) {
             e.printStackTrace();
