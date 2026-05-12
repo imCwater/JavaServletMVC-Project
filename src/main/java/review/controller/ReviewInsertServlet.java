@@ -34,10 +34,10 @@ public class ReviewInsertServlet extends HttpServlet {
 
         //2.moviedId 받기
         // 리뷰 작성할 영화 번호 (영화 상세페이지에서 넘어옴)      
-        String movieIdParam = req.getParameter("movieId");     
-        if (movieIdParam == null) {       
-        	resp.sendRedirect(req.getContextPath() + "/main.do");    
-        	return;    
+        String movieIdParam = req.getParameter("movieId");
+        if (movieIdParam == null || movieIdParam.trim().isEmpty()) {
+            resp.sendRedirect(req.getContextPath() + "/main.do");
+            return;
         }
         
         req.setAttribute("movieId", movieIdParam);
@@ -62,32 +62,68 @@ public class ReviewInsertServlet extends HttpServlet {
         	resp.sendRedirect(req.getContextPath() + "/login.do");    
         	return;       
         }
+        
+        String returnUrl = req.getParameter("returnUrl");
 
-        //2.폼 데이터 받기
-        int movieId  = Integer.parseInt(req.getParameter("movieId"));
-        String freshYn  = req.getParameter("freshYn");   // 'Y'=터졌다, 'N'=안터졌다  ← burstYn ❌        
-        String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'N'=친구공개  ← 'F' ❌
-        String content  = req.getParameter("content");
+        try {
+            //2.폼 데이터 받기
+            int movieId = Integer.parseInt(req.getParameter("movieId"));
+            String freshYn = req.getParameter("freshYn");  // 'Y'=터졌다, 'N'=안터졌다  
+            String publicYn = req.getParameter("publicYn");  // 'Y'=전체공개, 'N'=친구공개  
+            String content = req.getParameter("content");
 
-        //3.DTO 구성
-        ReviewDTO dto = new ReviewDTO();
-        dto.setMovieId(movieId);       
-        dto.setMemberId(loginMember.getMemberId()); // MemberDTO에서 꺼내기   
-        dto.setFreshYn(freshYn);                    // setBurstYn() ❌ → setFreshYn() ✅  
-        dto.setPublicYn(publicYn);       
-        dto.setContent(content);
+            if (!"Y".equals(freshYn) && !"N".equals(freshYn)) {
+                freshYn = "Y";
+            }
+            if (!"Y".equals(publicYn) && !"N".equals(publicYn)) {
+                publicYn = "Y";
+            }
 
-        //4.서비스 호출
-        int result = service.insertReview(dto);
+            //3.DTO 구성
+            ReviewDTO dto = new ReviewDTO();
+            dto.setMovieId(movieId);
+            dto.setMemberId(loginMember.getMemberId());  // MemberDTO에서 꺼내기 
+            dto.setFreshYn(freshYn);
+            dto.setPublicYn(publicYn);
+            dto.setContent(content);
 
-        if (result > 0) {
-        	// 성공 → 해당 영화 상세페이지로 이동            
-        	resp.sendRedirect(req.getContextPath() + "/movie/detail.do?movieId=" + movieId);
-        } else {
-            // 등록 실패 → 에러 메시지 전달 후 다시 폼으로
-            req.setAttribute("errorMsg", "리뷰 등록에 실패했습니다. 다시 시도해주세요.");
-            req.setAttribute("movieId", movieId);
-            req.getRequestDispatcher("/WEB-INF/views/review/reviewInsert.jsp").forward(req, resp);
+            //4.서비스 호출
+            int result = service.insertReview(dto);
+
+            if (result > 0) {
+                // 성공 → 해당 영화 상세페이지로 이동  
+                redirectBack(req, resp, returnUrl, "/review/myList.do");
+            } else {
+                // 등록 실패 → 에러 메시지 전달 후 다시 폼으로
+                redirectBack(req, resp, addError(returnUrl, "insert"), "/review/myList.do");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectBack(req, resp, addError(returnUrl, "insert"), "/review/myList.do");
         }
+    }
+
+    private void redirectBack(HttpServletRequest req, HttpServletResponse resp, String returnUrl, String fallback)
+            throws IOException {
+        if (isSafeReturnUrl(returnUrl)) {
+            resp.sendRedirect(req.getContextPath() + returnUrl);
+        } else {
+            resp.sendRedirect(req.getContextPath() + fallback);
+        }
+    }
+
+    private boolean isSafeReturnUrl(String returnUrl) {
+        return returnUrl != null
+                && returnUrl.startsWith("/")
+                && !returnUrl.startsWith("//")
+                && !returnUrl.contains("\\");
+    }
+
+    private String addError(String returnUrl, String value) {
+        if (!isSafeReturnUrl(returnUrl)) {
+            return returnUrl;
+        }
+        return returnUrl + (returnUrl.contains("?") ? "&" : "?") + "reviewError=" + value;
     }
 }
