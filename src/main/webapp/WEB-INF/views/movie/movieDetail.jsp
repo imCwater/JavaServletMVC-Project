@@ -3,8 +3,11 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
+<c:set var="returnUrl" value="/movie/detail.do?movieId=${param.movieId}&movieSeq=${param.movieSeq}" />
+
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -14,6 +17,218 @@
 
 <link rel="stylesheet" href="${ctx}/css/common-layout.css">
 <link rel="stylesheet" href="${ctx}/css/movie/movie-detail.css">
+
+<style>
+/* 영화 상세 리뷰 영역 전용 보정 CSS
+   기존 movie-detail.css가 있어도 이 부분만 덮어서 두 번째 화면 형태로 맞춘다. */
+.review-section {
+    margin-top: 40px;
+    padding-bottom: 70px;
+}
+
+.review-title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin: 12px 0 18px;
+}
+
+.review-stat-box {
+    border: 2px solid #ffae1a;
+    border-radius: 12px;
+    background: #fffdf8;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align: center;
+    padding: 13px 18px;
+    margin-bottom: 14px;
+}
+
+.review-stat-item span {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.review-stat-item strong {
+    display: block;
+    font-size: 18px;
+    font-weight: 900;
+    color: #000;
+}
+
+.review-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 12px;
+}
+
+.review-filter-btn {
+    border: 1px solid #ffae1a;
+    background: #fff8e8;
+    color: #111;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.review-filter-btn.active {
+    background: #ffae1a;
+    color: #111;
+}
+
+.review-write-card,
+.review-my-card,
+.review-list-card {
+    background: #ffae1a;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+}
+
+.review-card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.review-burst-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 900;
+    color: #fff;
+    background: #ff5a35;
+}
+
+.review-burst-pill.no {
+    background: #777;
+}
+
+.review-public-pill {
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 12px;
+    background: #fff;
+    color: #111;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.review-form-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.review-textarea,
+.review-content-box {
+    width: 100%;
+    min-height: 95px;
+    border: 0;
+    border-radius: 4px;
+    background: #fff;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.review-content-box {
+    min-height: 66px;
+    white-space: pre-wrap;
+}
+
+.review-side-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.review-action-btn {
+    min-width: 64px;
+    border: 0;
+    border-radius: 4px;
+    padding: 10px 12px;
+    background: #fff;
+    color: #111;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.review-action-btn.danger {
+    color: #c0392b;
+}
+
+.review-meta-right {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 800;
+    color: #6b3d00;
+}
+
+.review-login-guide,
+.empty-review-box {
+    border: 2px solid #ffae1a;
+    border-radius: 12px;
+    background: #fffdf8;
+    padding: 26px 20px;
+    text-align: center;
+    margin: 16px auto 24px;
+    max-width: 720px;
+}
+
+.review-login-guide a {
+    color: #111;
+    font-weight: 900;
+}
+
+.review-radio-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.review-radio-row label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #111;
+}
+
+.review-radio-row select {
+    border: 0;
+    border-radius: 999px;
+    background: #fff;
+    padding: 7px 22px 7px 10px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+@media (max-width: 720px) {
+    .review-stat-box { grid-template-columns: 1fr; gap: 10px; }
+    .review-form-body { grid-template-columns: 1fr; }
+    .review-side-actions { flex-direction: row; justify-content: flex-end; }
+}
+</style>
 </head>
 
 <body>
@@ -103,10 +318,6 @@
                         </div>
                     </c:if>
 
-                    <div class="fresh-box">
-                        <span class="fresh-icon">🍿</span>
-                        <span>아직 터지기 전입니다</span>
-                    </div>
 
                     <div class="action-buttons">
                         <c:choose>
@@ -203,7 +414,7 @@
             </div>
         </section>
 
-        <!-- REVIEW EMPTY SECTION -->
+        <!-- REVIEW EMPTY SECTION 
         <section class="review-section">
             <div class="section-line"></div>
 
@@ -219,6 +430,154 @@
                     리뷰 작성
                 </a>
             </div>
+        </section>-->
+        
+        <!-- REVIEW SECTION -->
+        <section class="review-section">
+            <div class="section-line"></div>
+
+            <h2 class="review-title">REVIEW</h2>
+
+            <c:choose>
+                <c:when test="${empty reviewList}">
+                    <div class="empty-review-box">
+                        <div class="empty-review-main">아직 작성된 리뷰가 없습니다</div>
+                        <div class="empty-review-sub">이 영화를 처음으로 평가해보세요.</div>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="review-stat-box">
+                        <div class="review-stat-item">
+                            <span>전체 리뷰</span>
+                            <strong>${reviewStat.totalCount}개</strong>
+                        </div>
+                        <div class="review-stat-item">
+                            <span>터졌다</span>
+                            <strong><fmt:formatNumber value="${reviewStat.burstRate}" maxFractionDigits="0" />%</strong>
+                        </div>
+                        <div class="review-stat-item">
+                            <span>안 터졌다</span>
+                            <strong>
+                                <fmt:formatNumber value="${100 - reviewStat.burstRate}" maxFractionDigits="0" />%
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="review-filter-row" aria-label="리뷰 필터">
+                        <button type="button" class="review-filter-btn active" data-filter="all">전체</button>
+                        <button type="button" class="review-filter-btn" data-filter="latest">최신순</button>
+                        <button type="button" class="review-filter-btn" data-filter="oldest">오래된순</button>
+                        <button type="button" class="review-filter-btn" data-filter="fresh">터진 리뷰</button>
+                        <button type="button" class="review-filter-btn" data-filter="notFresh">안터진 리뷰</button>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+
+            <c:choose>
+                <c:when test="${empty sessionScope.loginMember}">
+                    <div class="review-login-guide">
+                        리뷰를 작성하려면 <a href="${ctx}/login.do">로그인</a>이 필요합니다.
+                    </div>
+                </c:when>
+
+                <c:when test="${empty myReview}">
+                    <form class="review-write-card" action="${ctx}/review/insert.do" method="post">
+                        <input type="hidden" name="movieId" value="${movie.movieId}">
+                        <input type="hidden" name="returnUrl" value="${returnUrl}">
+
+                        <div class="review-radio-row">
+                            <label><input type="radio" name="freshYn" value="Y" checked> 🍿 터졌다</label>
+                            <label><input type="radio" name="freshYn" value="N"> 안 터졌다</label>
+
+                            <select name="publicYn" title="공개 범위">
+                                <option value="Y">공개</option>
+                                <option value="N">친구공개</option>
+                            </select>
+                        </div>
+
+                        <div class="review-form-body">
+                            <textarea class="review-textarea" name="content" required maxlength="2000"
+                                      placeholder="리뷰 내용을 입력하세요."></textarea>
+                            <div class="review-side-actions">
+                                <button type="submit" class="review-action-btn">등록</button>
+                            </div>
+                        </div>
+                    </form>
+                </c:when>
+
+                <c:otherwise>
+                    <form class="review-my-card" action="${ctx}/review/update.do" method="post">
+                        <input type="hidden" name="reviewId" value="${myReview.reviewId}">
+                        <input type="hidden" name="returnUrl" value="${returnUrl}">
+
+                        <div class="review-card-top">
+                            <span class="review-burst-pill ${myReview.freshYn eq 'N' ? 'no' : ''}">
+                                🍿
+                                <c:choose>
+                                    <c:when test="${myReview.freshYn eq 'Y'}">터졌다</c:when>
+                                    <c:otherwise>안 터졌다</c:otherwise>
+                                </c:choose>
+                            </span>
+
+                            <select name="publicYn" class="review-public-pill" title="공개 범위">
+                                <option value="Y" ${myReview.publicYn eq 'Y' ? 'selected' : ''}>공개</option>
+                                <option value="N" ${myReview.publicYn eq 'N' ? 'selected' : ''}>친구공개</option>
+                            </select>
+
+                            <label class="review-public-pill">
+                                <input type="radio" name="freshYn" value="Y" ${myReview.freshYn eq 'Y' ? 'checked' : ''}> 터졌다
+                            </label>
+                            <label class="review-public-pill">
+                                <input type="radio" name="freshYn" value="N" ${myReview.freshYn eq 'N' ? 'checked' : ''}> 안터졌다
+                            </label>
+
+                            <span class="review-meta-right">(작성일)</span>
+                        </div>
+
+                        <div class="review-form-body">
+                            <textarea class="review-textarea" name="content" required maxlength="2000">${myReview.content}</textarea>
+                            <div class="review-side-actions">
+                                <button type="submit" class="review-action-btn">수정</button>
+                                <button type="submit"
+                                        formaction="${ctx}/review/delete.do"
+                                        formmethod="post"
+                                        class="review-action-btn danger"
+                                        onclick="return confirm('정말 삭제할까요?');">삭제</button>
+                            </div>
+                        </div>
+                    </form>
+                </c:otherwise>
+            </c:choose>
+
+            <c:forEach var="review" items="${reviewList}">
+                <c:if test="${empty myReview or review.reviewId ne myReview.reviewId}">
+                    <article class="review-list-card">
+                        <div class="review-card-top">
+                            <span class="review-burst-pill ${review.freshYn eq 'N' ? 'no' : ''}">
+                                🍿
+                                <c:choose>
+                                    <c:when test="${review.freshYn eq 'Y'}">터졌다</c:when>
+                                    <c:otherwise>안 터졌다</c:otherwise>
+                                </c:choose>
+                            </span>
+
+                            <span class="review-public-pill">
+                                <c:choose>
+                                    <c:when test="${review.publicYn eq 'Y'}">공개</c:when>
+                                    <c:otherwise>친구공개</c:otherwise>
+                                </c:choose>
+                            </span>
+
+                            <span class="review-meta-right">
+                                ${review.memberName}
+                                <c:if test="${not empty review.createdAt}"> · ${review.createdAt}</c:if>
+                            </span>
+                        </div>
+
+                        <div class="review-content-box">${review.content}</div>
+                    </article>
+                </c:if>
+            </c:forEach>
         </section>
     </main>
 
