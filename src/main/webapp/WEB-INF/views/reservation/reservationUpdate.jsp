@@ -15,7 +15,7 @@
 </head>
 <body data-context-path="${ctx}" data-current-seat-ids="${currentSeatIdCsv}" data-auto-open="true">
   <div class="page">
-    <jsp:include page="/WEB-INF/views/reservation/reservation-header.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main>
       <section class="content page-title">
@@ -88,7 +88,7 @@
       </form>
     </main>
 
-    <jsp:include page="/WEB-INF/views/reservation/reservation-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
   </div>
 
   <script src="${ctx}/js/reservation/scheduleList.js"></script>

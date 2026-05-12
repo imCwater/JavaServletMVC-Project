@@ -16,7 +16,7 @@
 </head>
 <body data-context-path="${ctx}">
   <div class="page">
-    <jsp:include page="/WEB-INF/views/reservation/reservation-header.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main>
       <c:if test="${not empty errorMsg}">
@@ -24,7 +24,16 @@
       </c:if>
 
       <section class="movie" aria-label="영화 정보">
-        <div class="poster" aria-label="영화 포스터 영역"></div>
+        <div class="poster" aria-label="영화 포스터 영역">
+          <c:choose>
+            <c:when test="${not empty movie.posterUrl}">
+              <img src="${fn:escapeXml(movie.posterUrl)}" alt="${fn:escapeXml(movie.title)} 포스터">
+            </c:when>
+            <c:otherwise>
+              <div class="no-poster">NO IMAGE</div>
+            </c:otherwise>
+          </c:choose>
+        </div>
 
         <div class="movie-info">
           <div class="movie-title-row">
@@ -32,14 +41,31 @@
             <span class="badge"><c:out value="${movie.genre}" /></span>
           </div>
           <div class="rating">
-            <span class="rating-mark"><c:out value="${movie.ratingGrade}" /></span>
+            <c:set var="ratingText" value="${empty movie.ratingGrade ? movie.rating : movie.ratingGrade}" />
+            <c:choose>
+              <c:when test="${fn:contains(ratingText, '전체')}">
+                <span class="rating-mark rating-all">ALL</span>
+              </c:when>
+              <c:when test="${fn:contains(ratingText, '12')}">
+                <span class="rating-mark rating-12">12</span>
+              </c:when>
+              <c:when test="${fn:contains(ratingText, '15')}">
+                <span class="rating-mark rating-15">15</span>
+              </c:when>
+              <c:when test="${fn:contains(ratingText, '18') || fn:contains(ratingText, '19') || fn:contains(ratingText, '청소년')}">
+                <span class="rating-mark rating-19">19</span>
+              </c:when>
+              <c:otherwise>
+                <span class="rating-mark rating-unknown">?</span>
+              </c:otherwise>
+            </c:choose>
             <span><c:out value="${movie.rating}" /></span>
           </div>
           <p class="description"><c:out value="${movie.plot}" /></p>
           <div class="movie-actions">
             <c:choose>
               <c:when test="${not empty movie.vodUrl}">
-                <a class="btn" href="${movie.vodUrl}" target="_blank" rel="noopener">예고편 보러 가기</a>
+                <a class="btn" href="${movie.vodUrl}" target="_blank" rel="noopener">예고편 보기</a>
               </c:when>
               <c:otherwise>
                 <button type="button" class="btn" disabled>예고편 없음</button>
@@ -170,7 +196,7 @@
       </c:choose>
     </main>
 
-    <jsp:include page="/WEB-INF/views/reservation/reservation-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
   </div>
 
   <script src="${ctx}/js/reservation/scheduleList.js"></script>

@@ -6,117 +6,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POPFLEX - 관리자</title>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-<style>
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        background: #ece9e3;
-        color: #1c1c1c;
-        font-family: "Malgun Gothic", Arial, sans-serif;
-    }
-    .page {
-        min-height: 100vh;
-        background: #f8f5ef;
-    }
-    .content {
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 38px 24px 70px;
-    }
-    .title-row {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-    h1 {
-        margin: 0;
-        font-size: 28px;
-        line-height: 1.2;
-    }
-    .quick-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .button {
-        height: 38px;
-        padding: 0 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #111;
-        border-radius: 6px;
-        background: #fff;
-        color: #111;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 800;
-    }
-    .button.primary {
-        border-color: #ffad1f;
-        background: #ffad1f;
-    }
-    .metrics {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-    }
-    .metric {
-        padding: 22px 20px;
-        border: 1px solid #ded4c5;
-        border-radius: 8px;
-        background: #fff;
-    }
-    .metric-label {
-        margin-bottom: 12px;
-        color: #70675b;
-        font-size: 13px;
-        font-weight: 800;
-    }
-    .metric-value {
-        font-size: 30px;
-        font-weight: 900;
-    }
-    .message {
-        margin-bottom: 18px;
-        padding: 12px 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 800;
-    }
-    .message.ok {
-        border: 1px solid #91d4ae;
-        background: #edf9f1;
-        color: #116b3a;
-    }
-    .message.error {
-        border: 1px solid #ebb0a8;
-        background: #fff1ef;
-        color: #b23628;
-    }
-    @media (max-width: 760px) {
-        .title-row {
-            display: block;
-        }
-        .quick-actions {
-            margin-top: 16px;
-        }
-        .metrics {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin-style.css">
 </head>
 <body>
 <div class="page">
-    <jsp:include page="/WEB-INF/views/common/member-admin-header.jsp">
-        <jsp:param name="mode" value="admin" />
-        <jsp:param name="current" value="admin" />
-    </jsp:include>
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main class="content">
         <c:if test="${not empty adminMessage}">
@@ -163,8 +62,7 @@
             </div>
         </section>
     </main>
-
-    <jsp:include page="/WEB-INF/views/common/member-admin-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 </body>
 </html>

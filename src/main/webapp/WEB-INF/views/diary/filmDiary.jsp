@@ -1731,12 +1731,13 @@ body {
           <c:choose>
             <c:when test="${not empty diaryList}">
               <c:forEach var="d" items="${diaryList}" varStatus="s">
+                <fmt:formatDate var="writeWatchDate" value="${d.watchDate}" pattern="yyyy.MM.dd" />
                 <div class="ticket-select-item${s.first ? ' sel' : ''}"
                      onclick="selectWriteEntry(this)"
                      data-id="${d.diaryId}"
                      data-title="${fn:escapeXml(d.movieTitle)}"
                      data-poster="${fn:escapeXml(d.posterUrl)}"
-                     data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
+                     data-date="${writeWatchDate}"
                      data-theater="${fn:escapeXml(d.theaterName)}"
                      data-genre="${fn:escapeXml(d.genre)}"
                      data-runtime="${fn:escapeXml(d.runtime)}"
@@ -2005,14 +2006,16 @@ body {
           <c:set var="archiveCount" value="0" />
           <c:forEach var="d" items="${diaryList}">
             <c:if test="${not empty d.reviewId}">
+              <fmt:formatDate var="archiveWatchDate" value="${d.watchDate}" pattern="yyyy.MM.dd" />
+              <fmt:formatDate var="archiveWatchYear" value="${d.watchDate}" pattern="yyyy" />
               <c:set var="archiveCount" value="${archiveCount + 1}" />
                 <a class="archive-ticket"
                    href="${pageContext.request.contextPath}/diary/detail.do?diaryId=${d.diaryId}"
                    onclick="openArchiveDetail(this);return false;"
                    data-title="${fn:escapeXml(d.movieTitle)}"
                    data-poster="${fn:escapeXml(d.posterUrl)}"
-                   data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
-                   data-year="<fmt:formatDate value='${d.watchDate}' pattern='yyyy'/>"
+                   data-date="${archiveWatchDate}"
+                   data-year="${archiveWatchYear}"
                    data-theater="${fn:escapeXml(d.theaterName)}"
                    data-star="${d.starRating}"
                    data-fresh="${d.reviewFreshYn}"

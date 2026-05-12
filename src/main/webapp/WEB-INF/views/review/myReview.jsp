@@ -7,21 +7,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>평가한 영화 - POPFLIX</title>
-
-<%-- 공통 CSS --%>
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/common-layout.css">
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-
-<%-- 내 리뷰 목록 전용 CSS --%>
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/review/myReview.css">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/review/review-style.css">
 </head>
 <body>
-
     <%--
         JSP 내부에서 통계 계산
         fresh_yn = 'Y' → 터졌다 카운트
@@ -49,7 +42,7 @@
 <div class="page">
 
     <%-- 공통 헤더 --%>
-    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <div class="myreview-wrap">
 
@@ -210,7 +203,7 @@
 
     </div><%-- /.myreview-wrap --%>
 
-    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 
 </div><%-- /.page --%>
 

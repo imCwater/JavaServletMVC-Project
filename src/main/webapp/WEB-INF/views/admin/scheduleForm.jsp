@@ -7,143 +7,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POPFLEX - 상영 등록</title>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-<style>
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        background: #ece9e3;
-        color: #1c1c1c;
-        font-family: "Malgun Gothic", Arial, sans-serif;
-    }
-    .page { min-height: 100vh; background: #f8f5ef; }
-    .content {
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 38px 24px 70px;
-    }
-    .title-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 22px;
-    }
-    h1 { margin: 0; font-size: 28px; }
-    .layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 300px;
-        gap: 18px;
-    }
-    .panel {
-        padding: 26px;
-        border: 1px solid #ded4c5;
-        border-radius: 8px;
-        background: #fff;
-    }
-    .panel h2 {
-        margin: 0 0 20px;
-        font-size: 18px;
-    }
-    .field {
-        margin-bottom: 18px;
-    }
-    .field label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 900;
-    }
-    .field input,
-    .field select {
-        width: 100%;
-        height: 42px;
-        padding: 0 12px;
-        border: 1px solid #c9c1b5;
-        border-radius: 6px;
-        background: #fff;
-        font-size: 14px;
-    }
-    .field input:focus,
-    .field select:focus {
-        outline: 2px solid #ffcf76;
-        border-color: #ffad1f;
-    }
-    .grid-2 {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-    }
-    .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 8px;
-    }
-    .button,
-    .submit-btn {
-        height: 40px;
-        padding: 0 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 900;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .button {
-        border: 1px solid #111;
-        background: #fff;
-        color: #111;
-    }
-    .submit-btn {
-        flex: 1;
-        border: 1px solid #ffad1f;
-        background: #ffad1f;
-        color: #111;
-    }
-    .message {
-        margin-bottom: 18px;
-        padding: 12px 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 800;
-    }
-    .message.ok {
-        border: 1px solid #91d4ae;
-        background: #edf9f1;
-        color: #116b3a;
-    }
-    .message.error {
-        border: 1px solid #ebb0a8;
-        background: #fff1ef;
-        color: #b23628;
-    }
-    .hint {
-        margin: 0 0 16px;
-        color: #70675b;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-    @media (max-width: 820px) {
-        .title-row {
-            display: block;
-        }
-        .layout,
-        .grid-2 {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin-style.css">
 </head>
 <body>
 <div class="page">
-    <jsp:include page="/WEB-INF/views/common/member-admin-header.jsp">
-        <jsp:param name="mode" value="admin" />
-        <jsp:param name="current" value="admin" />
-    </jsp:include>
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main class="content">
         <c:if test="${not empty adminMessage}">
@@ -254,8 +127,7 @@
             </aside>
         </div>
     </main>
-
-    <jsp:include page="/WEB-INF/views/common/member-admin-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 </body>
 </html>
