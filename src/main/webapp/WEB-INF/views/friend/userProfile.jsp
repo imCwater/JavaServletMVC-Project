@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -7,32 +8,13 @@
     <meta charset="UTF-8">
     <title>POPFLIX - 유저 프로필</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common-layout.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
 </head>
 <body>
 <div class="page">
 
-    <%-- ===== HEADER =====
-         공통 header JSP가 따로 있으면 이 header 블록을 include로 교체하면 됨.
-         단, /WEB-INF/views/common/main.jsp 처럼 <!DOCTYPE html>, <html>, <body>가 있는 완성 페이지는
-         여기 안에 include하면 HTML이 중복되므로 넣으면 안 됨.
-    --%>
-    <header class="site-header">
-        <a class="logo-area" href="${pageContext.request.contextPath}/main.do">
-            <img class="logo-icon"
-                 src="${pageContext.request.contextPath}/img/logo.png"
-                 alt="POPFLIX">
-            <span class="logo-text">POPFLIX</span>
-        </a>
-        <nav class="nav-menu">
-            <a href="${pageContext.request.contextPath}/reservation/myList.do">내 예매내역</a>
-            <a href="${pageContext.request.contextPath}/friend/list.do">내 친구</a>
-            <a href="${pageContext.request.contextPath}/review/myList.do">내 리뷰</a>
-            <a href="${pageContext.request.contextPath}/diary/list.do">필름 다이어리</a>
-            <a href="${pageContext.request.contextPath}/member/mypage.do">내 마이페이지</a>
-            <a href="${pageContext.request.contextPath}/logout.do">로그아웃</a>
-        </nav>
-    </header>
+    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
 
     <%-- ===== MAIN ===== --%>
     <main class="friend-main">
@@ -126,10 +108,7 @@
 
     </main>
 
-    <%-- footer는 제거함.
-         공통 footer JSP를 사용할 거면 여기에서 공통 footer include만 넣으면 됨.
-         직접 footer HTML과 공통 footer JSP를 둘 다 넣으면 푸터가 두 번 나옴.
-    --%>
+    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
 
 </div>
 

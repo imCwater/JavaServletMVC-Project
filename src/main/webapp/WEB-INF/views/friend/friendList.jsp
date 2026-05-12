@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -7,28 +8,13 @@
     <meta charset="UTF-8">
     <title>POPFLIX - 친구 관리</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common-layout.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
 </head>
 <body>
 <div class="page">
 
-    <%-- ===== HEADER ===== --%>
-    <header class="site-header">
-        <a class="logo-area" href="${pageContext.request.contextPath}/main.do">
-            <img class="logo-icon"
-                 src="${pageContext.request.contextPath}/img/logo.png"
-                 alt="POPFLIX">
-            <span class="logo-text">POPFLIX</span>
-        </a>
-        <nav class="nav-menu">
-            <a href="${pageContext.request.contextPath}/reservation/myList.do">내 예매내역</a>
-            <a href="${pageContext.request.contextPath}/friend/list.do">내 친구</a>
-            <a href="${pageContext.request.contextPath}/review/myList.do">내 리뷰</a>
-            <a href="${pageContext.request.contextPath}/diary/list.do">필름 다이어리</a>
-            <a href="${pageContext.request.contextPath}/member/mypage.do">내 마이페이지</a>
-            <a href="${pageContext.request.contextPath}/logout.do">로그아웃</a>
-        </nav>
-    </header>
+    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
 
     <%-- ===== MAIN ===== --%>
     <main class="friend-main">
@@ -115,7 +101,7 @@
 
     </main>
 
-    
+    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
 
 </div>
 
@@ -125,7 +111,7 @@
 <input type="hidden" id="alreadyFriend" value="">
 
 <script>
-/* ── 회원 검색 ─────────────────────────────────── */
+/*회원 검색*/
 function searchMember() {
     const keyword = document.getElementById('searchInput').value.trim();
     const msg     = document.getElementById('searchMsg');
@@ -182,7 +168,7 @@ function searchMember() {
         });
 }
 
-/* ── 친구 추가 ─────────────────────────────────── */
+/*친구 추가*/
 function addFriend() {
     const targetUserId = document.getElementById('foundUserId').value;
     if (!targetUserId) return;
@@ -213,7 +199,7 @@ function addFriend() {
     .catch(() => alert('서버와 통신 중 오류가 발생했습니다.'));
 }
 
-/* ── 친구 삭제 ─────────────────────────────────── */
+/*친구 삭제*/
 function deleteFriend(btn) {
     const targetId = btn.dataset.targetId;
     const friendId = btn.dataset.friendId;
@@ -242,7 +228,7 @@ function deleteFriend(btn) {
     .catch(() => alert('서버와 통신 중 오류가 발생했습니다.'));
 }
 
-/* ── 엔터키 지원 ────────────────────────────────── */
+/*엔터키 지원*/
 document.getElementById('searchInput')
         .addEventListener('keydown', e => { if (e.key === 'Enter') searchMember(); });
 </script>
