@@ -17,7 +17,7 @@ import member.dto.MemberDTO;
 /*
   DiaryStatServlet
   GET /diary/stat.do?year={year} → diaryStat.jsp
-  - 연간 통계 (총 편수, 평균 별점, 극장, 태그 빈도)
+  - 연간 통계 (총 편수, 평균 팝콘, 극장, 태그 빈도)
   - 뱃지 시스템 (동적 집계, DB 저장 없이 Java 조건 판단)
  */
 
