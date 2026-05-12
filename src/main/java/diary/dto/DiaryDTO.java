@@ -26,6 +26,7 @@ public class DiaryDTO {
     // ── 조인 결과 (MOVIE 테이블 조인) ────────────────────
     private String movieTitle;     // MOVIE.title
     private String posterUrl;      // MOVIE.poster_url
+    private String genre;          // MOVIE.genre
     private int    runtime;        // MOVIE.runtime (분)
 
     // ── 조인 결과 (TAG, DIARY_TAG 조인) ──────────────────
@@ -104,6 +105,12 @@ public class DiaryDTO {
 	}
 	public void setPosterUrl(String posterUrl) {
 		this.posterUrl = posterUrl;
+	}
+	public String getGenre() {
+		return genre;
+	}
+	public void setGenre(String genre) {
+		this.genre = genre;
 	}
 	public int getRuntime() {
 		return runtime;
