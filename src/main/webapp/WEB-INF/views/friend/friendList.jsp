@@ -14,7 +14,7 @@
 
     <%-- ===== HEADER ===== --%>
     <header class="site-header">
-        <a class="logo-area" href="${pageContext.request.contextPath}/index.jsp">
+        <a class="logo-area" href="${pageContext.request.contextPath}/main.do">
             <img class="logo-icon"
                  src="${pageContext.request.contextPath}/img/logo.png"
                  alt="POPFLIX">
@@ -23,7 +23,7 @@
         <nav class="nav-menu">
             <a href="${pageContext.request.contextPath}/reservation/myList.do">내 예매내역</a>
             <a href="${pageContext.request.contextPath}/friend/list.do">내 친구</a>
-            <a href="${pageContext.request.contextPath}/review/list.do">내 리뷰</a>
+            <a href="${pageContext.request.contextPath}/review/myList.do">내 리뷰</a>
             <a href="${pageContext.request.contextPath}/diary/list.do">필름 다이어리</a>
             <a href="${pageContext.request.contextPath}/member/mypage.do">내 마이페이지</a>
             <a href="${pageContext.request.contextPath}/logout.do">로그아웃</a>
@@ -97,7 +97,7 @@
                                 </div>
                                 <button class="btn-delete"
                                         data-friend-id="${f.friendId}"
-                                        data-target-id="${loginMember.memberId == f.memberAId
+                                        data-target-id="${sessionScope.loginMember.memberId == f.memberAId
                                                           ? f.memberBId : f.memberAId}"
                                         onclick="deleteFriend(this)">삭제하기</button>
                             </div>
@@ -115,25 +115,7 @@
 
     </main>
 
-    <%-- ===== FOOTER ===== --%>
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-contact">
-                <p class="footer-contact-title">문의 시간 <span>›</span></p>
-                <p class="footer-phone">010-XXXX-XXXX</p>
-                <p class="footer-time">
-                    평일 10:00 ~ 18:00<br>
-                    (점심 13:00 ~ 14:00)
-                </p>
-            </div>
-            <div class="footer-links">
-                <a href="#">회사소개</a>
-                <a href="#">이용약관</a>
-                <a href="#">개인정보처리방침</a>
-                <a href="#">제휴문의</a>
-            </div>
-        </div>
-    </footer>
+    
 
 </div>
 
@@ -207,7 +189,10 @@ function addFriend() {
 
     fetch('${pageContext.request.contextPath}/friend/insert.do', {
         method : 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
         body   : 'targetUserId=' + encodeURIComponent(targetUserId)
     })
     .then(r => r.json())
@@ -237,7 +222,10 @@ function deleteFriend(btn) {
 
     fetch('${pageContext.request.contextPath}/friend/delete.do', {
         method : 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
         body   : 'targetMemberId=' + encodeURIComponent(targetId)
     })
     .then(r => r.json())
