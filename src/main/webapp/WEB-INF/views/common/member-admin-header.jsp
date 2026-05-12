@@ -35,6 +35,7 @@
                 <a href="${ctx}/reservation/myList.do">예매내역</a>
                 <a href="${ctx}/review/myList.do">리뷰</a>
                 <a href="${ctx}/diary/list.do">필름 다이어리</a>
+                <a href="${ctx}/friend/list.do">내 친구</a>
                 <a href="${ctx}/member/mypage.do">마이페이지</a>
                 <c:if test="${sessionScope.loginMember.admin}">
                     <a href="${ctx}/admin/main.do">관리자</a>
