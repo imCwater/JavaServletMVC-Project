@@ -7,15 +7,12 @@
 <head>
     <meta charset="UTF-8">
     <title>POPFLIX - 유저 프로필</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friend-style.css">
 </head>
 <body>
 <div class="page">
-
-    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
     <%-- ===== MAIN ===== --%>
     <main class="friend-main">
 
@@ -37,7 +34,10 @@
                     <p class="profile-name">${profileMember.name}</p>
                     <p class="profile-userid">@${profileMember.userId}</p>
                 </div>
-
+                
+                <a class="btn-review-view"
+                   href="${pageContext.request.contextPath}/review/myList.do?memberId=${profileMember.memberId}">리뷰 보기</a>
+                
                 <c:choose>
                     <%-- 본인 프로필이면 친구 추가/삭제 버튼 숨김 --%>
                     <c:when test="${isMe}">
@@ -107,9 +107,7 @@
         </section>
 
     </main>
-
-    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 
 <script>

@@ -430,7 +430,7 @@
     flex: 1;
 }
 
-/* ── 신선 / 별로 배지 ────────────────────────────────── */
+/* ── 터짐 / 안터짐 배지 ────────────────────────────────── */
 .review-badge {
     font-size: 12px;
     font-weight: 700;
@@ -482,5 +482,42 @@
 
     .profile-review-grid {
         gap: 10px;
+    }
+}
+
+/* ── 친구 리뷰 보기 버튼 ───────────────────────────── */
+.friend-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-review-view {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 14px;
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-review-view:hover {
+    background: var(--orange-dark);
+}
+
+@media (max-width: 768px) {
+    .friend-card-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

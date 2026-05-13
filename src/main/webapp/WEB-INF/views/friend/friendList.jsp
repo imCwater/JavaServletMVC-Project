@@ -7,15 +7,12 @@
 <head>
     <meta charset="UTF-8">
     <title>POPFLIX - 친구 관리</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friend-style.css">
 </head>
 <body>
 <div class="page">
-
-    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
     <%-- ===== MAIN ===== --%>
     <main class="friend-main">
 
@@ -81,11 +78,15 @@
                                                         pattern="yyyy.MM.dd"/> 친구 추가
                                     </span>
                                 </div>
-                                <button class="btn-delete"
-                                        data-friend-id="${f.friendId}"
-                                        data-target-id="${sessionScope.loginMember.memberId == f.memberAId
-                                                          ? f.memberBId : f.memberAId}"
-                                        onclick="deleteFriend(this)">삭제하기</button>
+                                <div class="friend-card-actions">
+                                    <a class="btn-review-view"
+                                       href="${pageContext.request.contextPath}/review/myList.do?memberId=${sessionScope.loginMember.memberId == f.memberAId ? f.memberBId : f.memberAId}">리뷰 보기</a>
+                                    <button class="btn-delete"
+                                            data-friend-id="${f.friendId}"
+                                            data-target-id="${sessionScope.loginMember.memberId == f.memberAId
+                                                              ? f.memberBId : f.memberAId}"
+                                            onclick="deleteFriend(this)">삭제하기</button>
+                                </div>
                             </div>
                         </c:forEach>
                     </div>
@@ -100,9 +101,7 @@
         </section>
 
     </main>
-
-    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 
 <%-- 숨겨진 검색 결과 보관 --%>

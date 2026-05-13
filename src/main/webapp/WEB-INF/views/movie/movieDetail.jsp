@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -7,7 +6,6 @@
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <c:set var="returnUrl" value="/movie/detail.do?movieId=${param.movieId}&movieSeq=${param.movieSeq}" />
-
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -200,6 +198,18 @@
     font-weight: 900;
 }
 
+.review-no-result { /*상세페이지 리뷰 메뉴 버튼 추가함*/
+    border: 1px dashed #ffae1a;
+    border-radius: 10px;
+    background: #fffdf8;
+    color: #6b3d00;
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+    padding: 20px;
+    margin: 12px 0 16px;
+}
+
 .review-radio-row {
     display: flex;
     align-items: center;
@@ -237,9 +247,9 @@
     <!-- HEADER -->
     <header class="site-header">
         <a href="${ctx}/movie/search.do" class="logo-area">
-    		<img src="${ctx}/img/popflix-logo.png" alt="POPFLIX 로고" class="logo-icon">
-    		<span class="logo-text">POPFLIX</span>
-		</a>
+            <img src="${ctx}/img/popflix-logo.png" alt="POPFLIX 로고" class="logo-icon">
+            <span class="logo-text">POPFLIX</span>
+        </a>
 
         <nav class="nav-menu">
             <a href="${ctx}/reservation/myList.do">내 예매내역</a>
@@ -318,6 +328,21 @@
                         </div>
                     </c:if>
 
+                    <!-- 상세페이지 리뷰 메뉴 버튼 추가함 --> 
+                    <div class="fresh-box">
+                        <span class="fresh-icon">🍿</span>
+                        <c:choose>
+                            <c:when test="${reviewStat.totalCount gt 0}">
+                                <span>
+                                    <fmt:formatNumber value="${reviewStat.burstRate}" maxFractionDigits="0" />%
+                                    터졌다
+                                </span>
+                            </c:when>
+                            <c:otherwise>
+                                <span>아직 터지기 전입니다</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
 
                     <div class="action-buttons">
                         <c:choose>
@@ -431,47 +456,45 @@
                 </a>
             </div>
         </section>-->
-        
+
         <!-- REVIEW SECTION -->
         <section class="review-section">
             <div class="section-line"></div>
 
             <h2 class="review-title">REVIEW</h2>
 
-            <c:choose>
-                <c:when test="${empty reviewList}">
-                    <div class="empty-review-box">
-                        <div class="empty-review-main">아직 작성된 리뷰가 없습니다</div>
-                        <div class="empty-review-sub">이 영화를 처음으로 평가해보세요.</div>
-                    </div>
-                </c:when>
-                <c:otherwise>
-                    <div class="review-stat-box">
-                        <div class="review-stat-item">
-                            <span>전체 리뷰</span>
-                            <strong>${reviewStat.totalCount}개</strong>
-                        </div>
-                        <div class="review-stat-item">
-                            <span>터졌다</span>
-                            <strong><fmt:formatNumber value="${reviewStat.burstRate}" maxFractionDigits="0" />%</strong>
-                        </div>
-                        <div class="review-stat-item">
-                            <span>안 터졌다</span>
-                            <strong>
-                                <fmt:formatNumber value="${100 - reviewStat.burstRate}" maxFractionDigits="0" />%
-                            </strong>
-                        </div>
-                    </div>
+            <%-- 통계/필터는 리뷰가 0개여도 항상 표시한다. 통계는 공개 리뷰 기준이다. --%>
+            <div class="review-stat-box">
+                <div class="review-stat-item">
+                    <span>전체 리뷰</span>
+                    <strong>${reviewStat.totalCount}개</strong>
+                </div>
+                <div class="review-stat-item">
+                    <span>터졌다</span>
+                    <strong><fmt:formatNumber value="${reviewStat.burstRate}" maxFractionDigits="0" />%</strong>
+                </div>
+                <div class="review-stat-item">
+                    <span>안 터졌다</span>
+                    <strong>
+                        <fmt:formatNumber value="${100 - reviewStat.burstRate}" maxFractionDigits="0" />%
+                    </strong>
+                </div>
+            </div>
 
-                    <div class="review-filter-row" aria-label="리뷰 필터">
-                        <button type="button" class="review-filter-btn active" data-filter="all">전체</button>
-                        <button type="button" class="review-filter-btn" data-filter="latest">최신순</button>
-                        <button type="button" class="review-filter-btn" data-filter="oldest">오래된순</button>
-                        <button type="button" class="review-filter-btn" data-filter="fresh">터진 리뷰</button>
-                        <button type="button" class="review-filter-btn" data-filter="notFresh">안터진 리뷰</button>
-                    </div>
-                </c:otherwise>
-            </c:choose>
+            <div class="review-filter-row" aria-label="리뷰 필터">
+                <button type="button" class="review-filter-btn active" data-filter="all">전체</button>
+                <button type="button" class="review-filter-btn" data-filter="latest">최신순</button>
+                <button type="button" class="review-filter-btn" data-filter="oldest">오래된순</button>
+                <button type="button" class="review-filter-btn" data-filter="fresh">터진 리뷰</button>
+                <button type="button" class="review-filter-btn" data-filter="notFresh">안터진 리뷰</button>
+            </div>
+
+            <c:if test="${empty reviewList}">
+                <div class="empty-review-box">
+                    <div class="empty-review-main">아직 작성된 리뷰가 없습니다</div>
+                    <div class="empty-review-sub">이 영화를 처음으로 평가해보세요.</div>
+                </div>
+            </c:if>
 
             <c:choose>
                 <c:when test="${empty sessionScope.loginMember}">
@@ -531,7 +554,14 @@
                                 <input type="radio" name="freshYn" value="N" ${myReview.freshYn eq 'N' ? 'checked' : ''}> 안터졌다
                             </label>
 
-                            <span class="review-meta-right">(작성일)</span>
+                            <span class="review-meta-right">
+							    <c:choose>
+							        <c:when test="${not empty myReview.createdAt}">
+							            작성일 ${myReview.createdAt}
+							        </c:when>
+							        <c:otherwise>작성일</c:otherwise>
+							    </c:choose>
+							</span>
                         </div>
 
                         <div class="review-form-body">
@@ -549,9 +579,13 @@
                 </c:otherwise>
             </c:choose>
 
-            <c:forEach var="review" items="${reviewList}">
-                <c:if test="${empty myReview or review.reviewId ne myReview.reviewId}">
-                    <article class="review-list-card">
+            <!-- 상세페이지 리뷰 메뉴 버튼 추가함 -->
+            <div id="reviewListArea">
+                <c:forEach var="review" items="${reviewList}">
+                    <c:if test="${empty myReview or review.reviewId ne myReview.reviewId}">
+                        <article class="review-list-card"
+                                 data-fresh="${review.freshYn}"
+                                 data-created="${review.createdAt}">
                         <div class="review-card-top">
                             <span class="review-burst-pill ${review.freshYn eq 'N' ? 'no' : ''}">
                                 🍿
@@ -575,9 +609,15 @@
                         </div>
 
                         <div class="review-content-box">${review.content}</div>
-                    </article>
-                </c:if>
-            </c:forEach>
+                        </article>
+                    </c:if>
+                </c:forEach>
+            </div>
+
+            <!-- 상세페이지 리뷰 메뉴 버튼 추가함 -->
+            <div id="reviewNoResult" class="review-no-result" style="display:none;">
+                조건에 맞는 리뷰가 없습니다.
+            </div>
         </section>
     </main>
 
@@ -603,5 +643,71 @@
     </footer>
 
 </div>
+
+<!-- 상세페이지 리뷰 메뉴 버튼 추가함 -->
+<script>
+/* 리뷰 필터/정렬 버튼: JSP로 출력된 리뷰 카드들을 화면에서 바로 필터링한다. */
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = Array.from(document.querySelectorAll('.review-filter-btn'));
+    const listArea = document.getElementById('reviewListArea');
+    const noResult = document.getElementById('reviewNoResult');
+
+    if (!listArea || buttons.length === 0) return;
+
+    function sortCards(cards, direction) {
+        cards.sort(function (a, b) {
+            const aDate = a.dataset.created || '';
+            const bDate = b.dataset.created || '';
+            return direction === 'oldest'
+                ? aDate.localeCompare(bDate)
+                : bDate.localeCompare(aDate);
+        });
+        cards.forEach(function (card) {
+            listArea.appendChild(card);
+        });
+    }
+
+    function applyReviewFilter(filter) {
+        buttons.forEach(function (btn) {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+
+        const cards = Array.from(listArea.querySelectorAll('.review-list-card'));
+
+        if (filter === 'oldest') {
+            sortCards(cards, 'oldest');
+        } else {
+            // 전체/최신순/터진 리뷰/안터진 리뷰는 기본 최신순으로 정렬
+            sortCards(cards, 'latest');
+        }
+
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+            const freshYn = card.dataset.fresh;
+            let visible = true;
+
+            if (filter === 'fresh') {
+                visible = freshYn === 'Y';
+            } else if (filter === 'notFresh') {
+                visible = freshYn === 'N';
+            }
+
+            card.style.display = visible ? '' : 'none';
+            if (visible) visibleCount++;
+        });
+
+        if (noResult) {
+            noResult.style.display = (cards.length > 0 && visibleCount === 0) ? 'block' : 'none';
+        }
+    }
+
+    buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            applyReviewFilter(button.dataset.filter || 'all');
+        });
+    });
+});
+</script>
 </body>
 </html>

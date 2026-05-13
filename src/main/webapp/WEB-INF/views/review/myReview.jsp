@@ -7,21 +7,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>평가한 영화 - POPFLIX</title>
-
-<%-- 공통 CSS --%>
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/common-layout.css">
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-
-<%-- 내 리뷰 목록 전용 CSS --%>
-<link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/review/myReview.css">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/review/review-style.css">
 </head>
 <body>
-
     <%--
         JSP 내부에서 통계 계산
         fresh_yn = 'Y' → 터졌다 카운트
@@ -45,11 +38,17 @@
             <c:set var="freshRate" value="0" />
         </c:otherwise>
     </c:choose>
+    
+    <%-- 다른 회원 평가 목록일 때 이름 표시용. 리뷰가 없으면 회원번호만 표시한다. --%>
+    <c:set var="targetMemberName" value="" />
+    <c:forEach var="review" items="${reviewList}" begin="0" end="0">
+        <c:set var="targetMemberName" value="${review.memberName}" />
+    </c:forEach>
 
 <div class="page">
 
     <%-- 공통 헤더 --%>
-    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <div class="myreview-wrap">
 
@@ -61,16 +60,26 @@
                         내 평가 목록
                     </c:when>
                     <c:otherwise>
-                        평가한 영화 목록
+                        친구 평가 목록
                     </c:otherwise>
                 </c:choose>
             </span>
-            <c:if test="${isMyPage}">
-                <span class="page-title-sub">
-                    ${sessionScope.loginMember.name}
-                    (${sessionScope.loginMember.userId})
-                </span>
-            </c:if>
+            <c:choose>
+                <c:when test="${isMyPage}">
+                    <span class="page-title-sub">
+                        ${sessionScope.loginMember.name}
+                        (${sessionScope.loginMember.userId})
+                    </span>
+                </c:when>
+                <c:otherwise>
+                    <span class="page-title-sub">
+                        <c:choose>
+                            <c:when test="${not empty targetMemberName}">${targetMemberName}님</c:when>
+                            <c:otherwise>회원 #${targetMemberId}</c:otherwise>
+                        </c:choose>
+                    </span>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <%-- 통계 카드 --%>
@@ -94,7 +103,12 @@
 
         <%-- 필터 헤더 --%>
         <div class="section-header">
-            <div class="section-title">평가한 영화</div>
+            <div class="section-title">
+                <c:choose>
+                    <c:when test="${isMyPage}">평가한 영화</c:when>
+                    <c:otherwise>친구가 평가한 영화</c:otherwise>
+                </c:choose>
+            </div>
 
             <form method="get"
                   action="${pageContext.request.contextPath}/review/myList.do"
@@ -114,6 +128,7 @@
                 </select>
             </form>
         </div>
+
 
         <%-- 영화 그리드 --%>
         <div class="movie-grid">
@@ -192,15 +207,13 @@
                                 </c:choose>
                             </div>
 
-                            <%-- 공개 배지 (내 페이지만) --%>
-                            <c:if test="${isMyPage}">
-                                <div class="public-badge">
-                                    <c:choose>
-                                        <c:when test="${review.publicYn eq 'Y'}">전체공개</c:when>
-                                        <c:when test="${review.publicYn eq 'N'}">친구공개</c:when>
-                                    </c:choose>
-                                </div>
-                            </c:if>
+                            <%-- 공개 배지: 친구 평가 목록에서도 표시한다. 수정/삭제 버튼은 isMyPage일 때만 보인다. --%>
+                            <div class="public-badge">
+                                <c:choose>
+                                    <c:when test="${review.publicYn eq 'Y'}">전체공개</c:when>
+                                    <c:when test="${review.publicYn eq 'N'}">친구공개</c:when>
+                                </c:choose>
+                            </div>
 
                         </div>
                     </c:forEach>
@@ -210,7 +223,7 @@
 
     </div><%-- /.myreview-wrap --%>
 
-    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 
 </div><%-- /.page --%>
 

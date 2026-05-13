@@ -6,155 +6,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POPFLEX - 오류 로그</title>
-<link rel="stylesheet" href="${ctx}/css/member-admin-layout.css">
-<style>
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        background: #ece9e3;
-        color: #1c1c1c;
-        font-family: "Malgun Gothic", Arial, sans-serif;
-    }
-    .page {
-        min-height: 100vh;
-        background: #f8f5ef;
-    }
-    .content {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 38px 24px 70px;
-    }
-    .title-row {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-    h1 {
-        margin: 0;
-        font-size: 28px;
-        line-height: 1.2;
-    }
-    .subtitle {
-        margin: 8px 0 0;
-        color: #70675b;
-        font-size: 13px;
-        font-weight: 700;
-    }
-    .actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .button {
-        height: 38px;
-        padding: 0 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #111;
-        border-radius: 6px;
-        background: #fff;
-        color: #111;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-    .button.danger {
-        border-color: #b23628;
-        color: #b23628;
-    }
-    .message {
-        margin-bottom: 18px;
-        padding: 12px 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 800;
-    }
-    .message.ok {
-        border: 1px solid #91d4ae;
-        background: #edf9f1;
-        color: #116b3a;
-    }
-    .empty {
-        padding: 42px 24px;
-        border: 1px solid #ded4c5;
-        border-radius: 8px;
-        background: #fff;
-        text-align: center;
-        color: #70675b;
-        font-weight: 800;
-    }
-    .log-list {
-        display: grid;
-        gap: 14px;
-    }
-    .log-item {
-        border: 1px solid #ded4c5;
-        border-radius: 8px;
-        background: #fff;
-        overflow: hidden;
-    }
-    .log-head {
-        padding: 16px 18px;
-        border-bottom: 1px solid #eadfce;
-        background: #fffaf2;
-    }
-    .log-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        min-height: 24px;
-        padding: 3px 8px;
-        border: 1px solid #d8c8af;
-        border-radius: 999px;
-        background: #fff;
-        font-size: 12px;
-        font-weight: 800;
-    }
-    .exception {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 900;
-        word-break: break-all;
-    }
-    .path {
-        margin: 8px 0 0;
-        color: #5f574c;
-        font-size: 13px;
-        word-break: break-all;
-    }
-    .stack {
-        margin: 0;
-        padding: 16px 18px;
-        overflow-x: auto;
-        background: #151515;
-        color: #f2f2f2;
-        font-family: Consolas, "Courier New", monospace;
-        font-size: 12px;
-        line-height: 1.55;
-        white-space: pre-wrap;
-    }
-    @media (max-width: 760px) {
-        .title-row { display: block; }
-        .actions { margin-top: 16px; }
-    }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/admin-style.css">
 </head>
 <body>
 <div class="page">
-    <jsp:include page="/WEB-INF/views/common/member-admin-header.jsp">
-        <jsp:param name="mode" value="admin" />
-        <jsp:param name="current" value="errorLogs" />
-    </jsp:include>
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main class="content">
         <c:if test="${not empty adminMessage}">
@@ -210,8 +71,7 @@
             </c:otherwise>
         </c:choose>
     </main>
-
-    <jsp:include page="/WEB-INF/views/common/member-admin-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 </body>
 </html>
