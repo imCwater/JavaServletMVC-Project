@@ -78,11 +78,15 @@
                                                         pattern="yyyy.MM.dd"/> 친구 추가
                                     </span>
                                 </div>
-                                <button class="btn-delete"
-                                        data-friend-id="${f.friendId}"
-                                        data-target-id="${sessionScope.loginMember.memberId == f.memberAId
-                                                          ? f.memberBId : f.memberAId}"
-                                        onclick="deleteFriend(this)">삭제하기</button>
+                                <div class="friend-card-actions">
+                                    <a class="btn-review-view"
+                                       href="${pageContext.request.contextPath}/review/myList.do?memberId=${sessionScope.loginMember.memberId == f.memberAId ? f.memberBId : f.memberAId}">리뷰 보기</a>
+                                    <button class="btn-delete"
+                                            data-friend-id="${f.friendId}"
+                                            data-target-id="${sessionScope.loginMember.memberId == f.memberAId
+                                                              ? f.memberBId : f.memberAId}"
+                                            onclick="deleteFriend(this)">삭제하기</button>
+                                </div>
                             </div>
                         </c:forEach>
                     </div>

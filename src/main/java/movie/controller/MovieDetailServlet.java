@@ -20,8 +20,8 @@ import review.service.ReviewService;
 @WebServlet("/movie/detail.do")
 public class MovieDetailServlet extends HttpServlet {
 
-	private MovieService movieService = new MovieService();
-	private final ReviewService reviewService = new ReviewService();
+	private final MovieService movieService = new MovieService();
+    private final ReviewService reviewService = new ReviewService();
 
 
 	@Override

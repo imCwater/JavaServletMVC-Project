@@ -34,7 +34,10 @@
                     <p class="profile-name">${profileMember.name}</p>
                     <p class="profile-userid">@${profileMember.userId}</p>
                 </div>
-
+                
+                <a class="btn-review-view"
+                   href="${pageContext.request.contextPath}/review/myList.do?memberId=${profileMember.memberId}">리뷰 보기</a>
+                
                 <c:choose>
                     <%-- 본인 프로필이면 친구 추가/삭제 버튼 숨김 --%>
                     <c:when test="${isMe}">
