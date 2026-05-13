@@ -15,7 +15,7 @@
 </head>
 <body>
   <div class="page">
-    <jsp:include page="/WEB-INF/views/reservation/reservation-header.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
     <main class="content">
       <section class="page-title">
@@ -100,7 +100,7 @@
       </section>
     </main>
 
-    <jsp:include page="/WEB-INF/views/reservation/reservation-footer.jsp" />
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
   </div>
 </body>
 </html>

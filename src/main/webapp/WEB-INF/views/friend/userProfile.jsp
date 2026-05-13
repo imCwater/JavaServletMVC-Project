@@ -7,15 +7,12 @@
 <head>
     <meta charset="UTF-8">
     <title>POPFLIX - 유저 프로필</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member-admin-layout.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friend-style.css">
 </head>
 <body>
 <div class="page">
-
-    <%@ include file="/WEB-INF/views/common/member-admin-header.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
     <%-- ===== MAIN ===== --%>
     <main class="friend-main">
 
@@ -107,9 +104,7 @@
         </section>
 
     </main>
-
-    <%@ include file="/WEB-INF/views/common/member-admin-footer.jsp" %>
-
+    <jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 </div>
 
 <script>
