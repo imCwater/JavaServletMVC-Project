@@ -548,7 +548,52 @@
                         <h2 class="section-title">리뷰</h2>
                         <a class="text-link" href="${pageContext.request.contextPath}/review/myList.do">전체보기</a>
                     </div>
-                    <div class="empty-box">리뷰 기능 연동 전입니다. 이후 내 리뷰 요약이 이 영역에 표시됩니다.</div>
+
+                    <c:choose>
+                        <c:when test="${reviewLoadError}">
+                            <div class="empty-box">리뷰 내역을 불러올 수 없습니다.</div>
+                        </c:when>
+                        <c:when test="${empty reviewList}">
+                            <div class="empty-box">아직 작성한 리뷰가 없습니다.</div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="review-list">
+                                <c:forEach var="review" items="${reviewList}" varStatus="loop">
+                                    <c:if test="${loop.index lt 3}">
+                                        <article class="review-item">
+                                            <div class="item-top">
+                                                <div class="item-title">
+                                                    <c:choose>
+                                                        <c:when test="${not empty review.movieTitle}">
+                                                            <c:out value="${review.movieTitle}" />
+                                                        </c:when>
+                                                        <c:otherwise>영화 #<c:out value="${review.movieId}" /></c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                                <span class="status-badge">
+                                                    <c:choose>
+                                                        <c:when test="${review.freshYn eq 'Y'}">터졌다</c:when>
+                                                        <c:otherwise>안터졌다</c:otherwise>
+                                                    </c:choose>
+                                                </span>
+                                            </div>
+                                            <div class="item-meta">
+                                                <c:choose>
+                                                    <c:when test="${review.publicYn eq 'Y'}">공개</c:when>
+                                                    <c:otherwise>친구공개</c:otherwise>
+                                                </c:choose>
+                                                <c:if test="${not empty review.createdAt}">
+                                                    · <c:out value="${review.createdAt}" />
+                                                </c:if>
+                                                <br>
+                                                <c:out value="${review.content}" />
+                                            </div>
+                                        </article>
+                                    </c:if>
+                                </c:forEach>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
                 </section>
             </div>
         </div>
