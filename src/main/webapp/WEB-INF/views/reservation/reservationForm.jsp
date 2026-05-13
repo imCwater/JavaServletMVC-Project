@@ -38,7 +38,13 @@
         <div class="movie-info">
           <div class="movie-title-row">
             <h1><c:out value="${movie.title}" /></h1>
-            <span class="badge"><c:out value="${movie.genre}" /></span>
+            <c:if test="${not empty movie.genre}">
+              <div class="genre-list" aria-label="장르">
+                <c:forTokens var="genre" items="${movie.genre}" delims=",">
+                  <span class="badge"><c:out value="${fn:trim(genre)}" /></span>
+                </c:forTokens>
+              </div>
+            </c:if>
           </div>
           <div class="rating">
             <c:set var="ratingText" value="${empty movie.ratingGrade ? movie.rating : movie.ratingGrade}" />
@@ -62,6 +68,28 @@
             <span><c:out value="${movie.rating}" /></span>
           </div>
           <p class="description"><c:out value="${movie.plot}" /></p>
+
+          <c:if test="${not empty movie.keywords}">
+            <div class="keyword-list">
+              <c:forTokens var="keyword" items="${movie.keywords}" delims=",">
+                <span class="keyword-pill"><c:out value="${fn:trim(keyword)}" /></span>
+              </c:forTokens>
+            </div>
+          </c:if>
+
+          <div class="like">
+            <c:choose>
+              <c:when test="${reviewStat.totalCount gt 0}">
+                <img src="${ctx}/img/popped.png" alt="터졌다" width="18" height="18">
+                <span><fmt:formatNumber value="${reviewStat.burstRate}" maxFractionDigits="0" />% 터졌어요</span>
+              </c:when>
+              <c:otherwise>
+                <img src="${ctx}/img/unpopcorn.png" alt="안터졌다" width="18" height="18">
+                <span>아직 터지기 전입니다</span>
+              </c:otherwise>
+            </c:choose>
+          </div>
+
           <div class="movie-actions">
             <c:choose>
               <c:when test="${not empty movie.vodUrl}">
@@ -71,25 +99,23 @@
                 <button type="button" class="btn" disabled>예고편 없음</button>
               </c:otherwise>
             </c:choose>
-            <c:choose>
-              <c:when test="${not empty scheduleList}">
-                <button type="button" class="btn" id="openBookingButton">예매하기</button>
-              </c:when>
-              <c:otherwise>
-                <button type="button" class="btn" id="openBookingButton" disabled>예매하기</button>
-              </c:otherwise>
-            </c:choose>
           </div>
         </div>
 
         <aside class="meta" aria-label="상세 정보">
           <dl>
             <dt>감독</dt>
-            <dd><c:out value="${movie.directorNm}" /></dd>
+            <dd><c:out value="${empty movie.directorNm ? '정보 없음' : movie.directorNm}" /></dd>
+            <dt>배우</dt>
+            <dd><c:out value="${empty movie.actorNm ? '정보 없음' : movie.actorNm}" /></dd>
             <dt>배급</dt>
-            <dd><c:out value="${movie.company}" /></dd>
+            <dd><c:out value="${empty movie.company ? '정보 없음' : movie.company}" /></dd>
             <dt>개봉일</dt>
-            <dd><c:out value="${movie.releaseDate}" /></dd>
+            <dd><c:out value="${empty movie.releaseDate ? '정보 없음' : movie.releaseDate}" /></dd>
+            <dt>상영시간</dt>
+            <dd><c:out value="${empty movie.runtime ? '정보 없음' : movie.runtime}" /><c:if test="${not empty movie.runtime}">분</c:if></dd>
+            <dt>관람기준</dt>
+            <dd><c:out value="${empty movie.ratingGrade ? '정보 없음' : movie.ratingGrade}" /></dd>
           </dl>
         </aside>
       </section>
@@ -117,7 +143,7 @@
               </select>
             </div>
 
-            <section class="controls" id="bookingControls" aria-label="예매 조건 선택" hidden>
+            <section class="controls" id="bookingControls" aria-label="예매 조건 선택">
               <label class="field">
                 <span>영화관</span>
                 <select id="theaterSelect" aria-label="영화관 선택">
@@ -161,7 +187,7 @@
               </label>
             </section>
 
-            <section class="booking" id="bookingSection" aria-label="좌석 예매" hidden>
+            <section class="booking" id="bookingSection" aria-label="좌석 예매">
               <div>
                 <div class="schedule">
                   <div>영화관: <strong><span id="theaterText">-</span></strong></div>

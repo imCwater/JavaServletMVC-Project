@@ -5,6 +5,9 @@
 <head>
 <meta charset="UTF-8">
 <title>나의 뱃지 - 팝플릭스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -328,22 +331,215 @@ body {
 }
 
 /* ── 푸터 ── */
-.footer-wave-wrap { position: relative; margin-top: 76px; overflow: hidden; }
-.footer-wave-wrap svg { display: block; width: 100%; }
-.footer-content {
-  background: #f0a028; padding: 32px 48px 48px;
-  display: flex; justify-content: flex-end; gap: 80px; align-items: flex-start;
+/* common header / footer */
+.site-header {
+  position: relative;
+  z-index: 20;
+  width: min(1180px, calc(100% - 56px));
+  height: 78px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
 }
-.footer-contact { color: #fff; }
-.footer-contact-lbl { font-size: 16px; font-weight: 700; margin-bottom: 6px; opacity: 0.85; }
-.footer-contact-num { font-size: 28px; font-weight: 900; line-height: 1.2; }
-.footer-contact-time { font-size: 12px; opacity: 0.7; margin-top: 4px; line-height: 1.7; }
-.footer-links { display: flex; flex-direction: column; gap: 8px; text-align: right; }
-.footer-links a { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; text-decoration: none; }
-.footer-links a:hover { color: #fff; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #101010;
+  text-decoration: none;
+  font-family: "Chewy", cursive;
+  font-size: 20px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.brand img { width: 34px; height: 34px; object-fit: contain; display: block; }
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.nav a { color: #111; text-decoration: none; }
+.footer {
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 96px;
+  min-height: 220px;
+  background: #FFB020;
+  overflow: visible;
+  z-index: 1;
+}
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -64px;
+  width: 200%;
+  height: 66px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath fill='%23FFB020' d='M0 66C240 38 480 38 720 66C960 94 1200 94 1440 66V120H0V66Z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 960px 66px;
+  animation: footerWave 18s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes footerWave { from { transform: translateX(0); } to { transform: translateX(-960px); } }
+.footer-popcorn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 18px);
+  height: 50vh;
+  min-height: 320px;
+  pointer-events: none;
+  z-index: -1;
+}
+.popcorn-kernel {
+  position: absolute;
+  bottom: 0;
+  width: var(--kernel-size);
+  height: var(--kernel-size);
+  object-fit: contain;
+  opacity: 0;
+  filter: drop-shadow(0 10px 10px rgba(102, 51, 0, 0.22));
+  animation: popcornBounce var(--kernel-speed) ease-in-out infinite;
+  animation-delay: var(--kernel-delay);
+  transform-origin: center bottom;
+}
+.popcorn-kernel:nth-child(1) { --kernel-size: 28px; --kernel-speed: 4.8s; --kernel-delay: -0.4s; left: 7%; }
+.popcorn-kernel:nth-child(2) { --kernel-size: 42px; --kernel-speed: 5.6s; --kernel-delay: -2.1s; left: 16%; }
+.popcorn-kernel:nth-child(3) { --kernel-size: 34px; --kernel-speed: 4.4s; --kernel-delay: -1.2s; left: 25%; }
+.popcorn-kernel:nth-child(4) { --kernel-size: 52px; --kernel-speed: 6.2s; --kernel-delay: -3.4s; left: 34%; }
+.popcorn-kernel:nth-child(5) { --kernel-size: 24px; --kernel-speed: 5.1s; --kernel-delay: -2.8s; left: 42%; }
+.popcorn-kernel:nth-child(6) { --kernel-size: 38px; --kernel-speed: 4.7s; --kernel-delay: -0.9s; left: 50%; }
+.popcorn-kernel:nth-child(7) { --kernel-size: 46px; --kernel-speed: 5.8s; --kernel-delay: -4.1s; left: 59%; }
+.popcorn-kernel:nth-child(8) { --kernel-size: 30px; --kernel-speed: 4.9s; --kernel-delay: -1.7s; left: 67%; }
+.popcorn-kernel:nth-child(9) { --kernel-size: 56px; --kernel-speed: 6.4s; --kernel-delay: -3.1s; left: 75%; }
+.popcorn-kernel:nth-child(10) { --kernel-size: 36px; --kernel-speed: 5.3s; --kernel-delay: -0.2s; left: 83%; }
+.popcorn-kernel:nth-child(11) { --kernel-size: 44px; --kernel-speed: 5.9s; --kernel-delay: -2.5s; left: 91%; }
+.popcorn-kernel:nth-child(12) { --kernel-size: 32px; --kernel-speed: 4.6s; --kernel-delay: -3.8s; left: 12%; }
+@keyframes popcornBounce {
+  0% { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.84) rotate(0deg); }
+  10% { opacity: 0.95; }
+  50% { opacity: 1; transform: translate3d(var(--kernel-drift, 0), -50vh, 0) scale(1) rotate(var(--kernel-rotate, 210deg)); }
+  100% { opacity: 0; transform: translate3d(var(--kernel-end-drift, 0), 20px, 0) scale(0.9) rotate(var(--kernel-end-rotate, 320deg)); }
+}
+.popcorn-kernel:nth-child(odd) { --kernel-drift: 42px; --kernel-end-drift: 72px; --kernel-rotate: 240deg; --kernel-end-rotate: 390deg; }
+.popcorn-kernel:nth-child(even) { --kernel-drift: -34px; --kernel-end-drift: -58px; --kernel-rotate: -220deg; --kernel-end-rotate: -360deg; }
+.footer-inner {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 44px 0 28px;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  gap: 72px;
+  align-items: end;
+  font-size: 12px;
+  font-weight: 800;
+}
+.contact { text-align: left; line-height: 1.9; }
+.contact-title { font-size: 14px; margin-bottom: 4px; }
+.footer-links { display: grid; gap: 11px; font-size: 11px; font-weight: 800; text-align: left; }
+@media (max-width: 900px) {
+  .site-header,
+  .footer-inner { width: min(100% - 28px, 680px); }
+  .site-header { height: auto; padding: 18px 0; flex-direction: column; align-items: flex-start; }
+  .nav { width: 100%; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+}
+
+/* POPFLIX visual tone override: keep diary structure, align color/weight */
+:root {
+  --diary-bg: #FFF4DE;
+  --diary-box: #FFB020;
+  --diary-point: #FF5C3B;
+  --diary-ink: #151515;
+  --diary-line: rgba(21, 21, 21, 0.16);
+  --diary-soft: rgba(255, 255, 255, 0.48);
+}
+
+body {
+  background: var(--diary-bg);
+  color: var(--diary-ink);
+  font-family: "Noto Sans KR", Arial, sans-serif;
+  font-weight: 500;
+}
+
+.book-cover {
+  background:
+    repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(255,255,255,0.08) 3px, rgba(255,255,255,0.08) 6px),
+    linear-gradient(145deg, #FFB020 0%, #F59C19 48%, #FF5C3B 100%);
+}
+
+.page-layer-3 { background: #ffd889; }
+.page-layer-2 { background: #ffe4aa; }
+.page-layer-1 { background: #fff0cf; }
+
+.sidebar,
+.notebook-body,
+.nb-content,
+.badge-body,
+.badge-card,
+.badge-card.locked,
+.empty-earned {
+  background: #fff;
+  border-color: var(--diary-line);
+  color: var(--diary-ink);
+}
+
+.badge-header {
+  background: var(--diary-box);
+  color: var(--diary-ink);
+}
+
+.badge-header-title,
+.section-title,
+.sidebar-page-title,
+.badge-name,
+.empty-earned-title {
+  color: var(--diary-ink);
+  font-weight: 800;
+}
+
+.sidebar a.active,
+.sidebar .stat-link[style],
+.badge-earned-count {
+  background: #fff !important;
+  border-color: var(--diary-point) !important;
+  color: var(--diary-ink) !important;
+}
+
+.badge-progress-fill {
+  background: var(--diary-box);
+  color: var(--diary-ink);
+}
+
+.badge-check,
+.badge-date,
+.stat-link {
+  color: var(--diary-point);
+  font-weight: 800;
+}
+
+.sidebar a,
+.stat-link,
+.badge-status-done,
+.badge-remain {
+  font-weight: 800;
+}
+
 </style>
 </head>
 <body>
+
+<jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
 <div class="book-outer">
   <div class="book-cover"></div>
@@ -463,28 +659,7 @@ body {
   </div><!-- /.page-wrap -->
 </div><!-- /.book-outer -->
 
-<!-- 푸터 -->
-<div class="footer-wave-wrap">
-  <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg"
-       preserveAspectRatio="none" height="80" width="100%"
-       style="background:#faf6ee;">
-    <path d="M0,80 L0,50 C200,80 400,20 600,45 C800,70 1000,15 1200,40 C1300,52 1380,60 1440,50 L1440,80 Z"
-          fill="#f0a028"/>
-  </svg>
-  <div class="footer-content">
-    <div class="footer-contact">
-      <div class="footer-contact-lbl">문의 시간 &gt;</div>
-      <div class="footer-contact-num">010-xxxx-xxxx</div>
-      <div class="footer-contact-time">월 - 금 10:00 - 18:00<br>(주말/공휴일 휴무)</div>
-    </div>
-    <div class="footer-links">
-      <a href="#">회사소개</a>
-      <a href="#">이용약관</a>
-      <a href="#">개인정보처리방침</a>
-      <a href="#">제휴문의</a>
-    </div>
-  </div>
-</div>
+<jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 
 <script>
 (function(){

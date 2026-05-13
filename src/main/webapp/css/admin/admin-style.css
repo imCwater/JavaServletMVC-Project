@@ -146,8 +146,7 @@ h2 {
 .button:hover,
 .role-button:hover,
 .danger-button:hover,
-.submit-btn:hover,
-.button.primary {
+.submit-btn:hover {
   background: var(--point);
   color: #fff;
   transform: translateY(-1px);

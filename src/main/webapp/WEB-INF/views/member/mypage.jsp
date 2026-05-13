@@ -178,8 +178,8 @@
                           </div>
                           <span class="status-badge">
                             <c:choose>
-                              <c:when test="${review.freshYn eq 'Y'}">터졌다</c:when>
-                              <c:otherwise>안터졌다</c:otherwise>
+                              <c:when test="${review.freshYn eq 'Y'}"><img src="${ctx}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다</c:when>
+                              <c:otherwise><img src="${ctx}/img/unpopcorn.png" alt="안터졌다" width="18" height="18"> 안터졌다</c:otherwise>
                             </c:choose>
                           </span>
                         </div>

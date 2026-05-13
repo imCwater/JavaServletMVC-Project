@@ -5,7 +5,7 @@
 
 <header class="site-header">
   <a class="brand" href="${ctx}/main.do">
-    <img src="${ctx}/img/Logo.png" alt="Popflix">
+    <img src="${ctx}/img/popflex-logo.png" alt="Popflix">
     <span>POPFLIX</span>
   </a>
   <nav class="nav" aria-label="주요 메뉴">
