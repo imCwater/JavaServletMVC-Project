@@ -336,12 +336,14 @@ h2 {
   color: var(--point);
 }
 
-.reservation-list {
+.reservation-list,
+.review-list {
   display: grid;
   gap: 10px;
 }
 
-.reservation-item {
+.reservation-item,
+.review-item {
   padding: 16px 18px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.36);

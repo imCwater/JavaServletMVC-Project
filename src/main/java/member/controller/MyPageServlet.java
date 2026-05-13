@@ -3,6 +3,7 @@ package member.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,12 +16,15 @@ import member.dto.MemberDTO;
 import member.service.MemberService;
 import reservation.dto.ReservationDTO;
 import reservation.service.ReservationService;
+import review.dto.ReviewDTO;
+import review.service.ReviewService;
 
 @WebServlet("/member/mypage.do")
 public class MyPageServlet extends HttpServlet {
 
     private final MemberService memberService = new MemberService();
     private final ReservationService reservationService = new ReservationService();
+    private final ReviewService reviewService = new ReviewService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -48,6 +52,7 @@ public class MyPageServlet extends HttpServlet {
         session.setAttribute("loginMember", member);
         request.setAttribute("member", member);
         setReservationSummary(request, member.getMemberId());
+        setReviewSummary(request, member.getMemberId());
         request.getRequestDispatcher("/WEB-INF/views/member/mypage.jsp")
                .forward(request, response);
     }
@@ -59,6 +64,15 @@ public class MyPageServlet extends HttpServlet {
             request.setAttribute("reservationList", reservationList);
         } catch (SQLException e) {
             request.setAttribute("reservationLoadError", true);
+        }
+    }
+
+    private void setReviewSummary(HttpServletRequest request, int memberId) {
+        try {
+            List<ReviewDTO> reviewList = reviewService.getMyReviewList(memberId);
+            request.setAttribute("reviewList", reviewList);
+        } catch (RuntimeException e) {
+            request.setAttribute("reviewLoadError", true);
         }
     }
 
