@@ -281,7 +281,7 @@ body {
 }
 .badge-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(232,168,56,0.2); }
 .badge-check { position: absolute; top: 10px; right: 12px; font-size: 13px; color: #e8a838; }
-.badge-icon { font-size: 34px; display: block; margin-bottom: 7px; line-height: 1; }
+.badge-icon { width: 38px; height: 38px; display: block; margin: 0 auto 7px; object-fit: contain; }
 .badge-name { font-size: 14px; font-weight: 800; margin-bottom: 3px; color: #1a1816; }
 .badge-desc { font-size: 11px; color: #aaa; margin-bottom: 6px; }
 .badge-status-done { font-size: 12px; color: #888; font-weight: 600; }
@@ -411,7 +411,7 @@ body {
                     <c:if test="${b.earned}">
                       <div class="badge-card">
                         <span class="badge-check">✔</span>
-                        <span class="badge-icon">${b.icon}</span>
+                        <img class="badge-icon" src="${pageContext.request.contextPath}/img/${b.icon}" alt="${b.name}">
                         <div class="badge-name">${b.name}</div>
                         <div class="badge-desc">${b.desc}</div>
                         <div class="badge-status-done">달성 완료</div>
@@ -436,7 +436,7 @@ body {
                 <c:if test="${!b.earned}">
                   <div class="badge-card locked">
                     <span class="badge-lock">🔒</span>
-                    <span class="badge-icon">${b.icon}</span>
+                    <img class="badge-icon" src="${pageContext.request.contextPath}/img/${b.icon}" alt="${b.name}">
                     <div class="badge-name">${b.name}</div>
                     <div class="badge-desc">${b.desc}</div>
                     <div class="badge-progress-bar">

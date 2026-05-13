@@ -6,7 +6,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>필름 다이어리 - 팝플릭스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════════
    리셋 & 기본
@@ -124,7 +128,7 @@ body {
   position: relative;
   max-width: min(1440px, calc(100vw - 40px));
   /* 기본 상태: 브라우저 한 화면 안에 위아래 여백을 두고 보이게 */
-  margin: 24px auto 70px;
+  margin: 48px auto 70px;
   padding-bottom: 20px;
 }
 
@@ -509,21 +513,21 @@ body {
 .poster-display {
   flex: 1;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  align-items: center; justify-content: flex-start;
   padding: 12px 16px;
   min-height: 170px;
 }
 .poster-date-lbl {
   font-size: 11px; font-weight: 700; color: #c8bfb4;
-  margin-bottom: 14px; letter-spacing: 0.06em;
+  margin: 4px 0 10px; letter-spacing: 0.06em;
 }
 .photocard-stack {
   position: relative;
-  width: 190px; height: 220px;
+  width: 220px; height: 220px;
 }
 .photocard {
   position: absolute;
-  width: 136px; height: 192px;
+  width: 144px; height: 204px;
   border-radius: 10px; object-fit: cover;
   border: 3px solid #fff;
   box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.1);
@@ -532,20 +536,30 @@ body {
   transform-origin: bottom center;
 }
 /* 항상 펼쳐진 팬 형태 (hover 없이도 전부 보임) */
-.photocard:nth-child(1) { transform: rotate(-12deg); left: 0;   top: 22px; z-index: 1; }
-.photocard:nth-child(2) { transform: rotate(-1deg);  left: 28px; top: 6px;  z-index: 2; }
-.photocard:nth-child(3) { transform: rotate(10deg);  left: 52px; top: 22px; z-index: 3; }
+.photocard-stack.poster-count-1 .photocard:nth-child(1) { transform: rotate(0deg); left: 38px; top: 8px; z-index: 2; }
+.photocard-stack.poster-count-2 .photocard:nth-child(1) { transform: rotate(-8deg); left: 24px; top: 12px; z-index: 1; }
+.photocard-stack.poster-count-2 .photocard:nth-child(2) { transform: rotate(8deg); left: 52px; top: 12px; z-index: 2; }
+.photocard-stack.poster-count-3 .photocard:nth-child(1) { transform: rotate(-10deg); left: 14px; top: 16px; z-index: 1; }
+.photocard-stack.poster-count-3 .photocard:nth-child(2) { transform: rotate(0deg); left: 38px; top: 8px; z-index: 2; }
+.photocard-stack.poster-count-3 .photocard:nth-child(3) { transform: rotate(10deg); left: 62px; top: 16px; z-index: 3; }
 /* 개별 카드 호버 → 유지 회전 + 위로 올라오며 확대 */
 .photocard:nth-child(1):hover { transform: rotate(-12deg) scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
 .photocard:nth-child(2):hover { transform: rotate(-1deg)  scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
 .photocard:nth-child(3):hover { transform: rotate(10deg)  scale(1.13) translateY(-14px); z-index: 10 !important; box-shadow: 0 14px 36px rgba(0,0,0,0.30); }
 .photocard-ph {
-  position: absolute; left: 7px; top: 5px;
-  width: 122px; height: 178px;
+  position: absolute; left: 50%; top: 50%;
+  width: 144px; height: 204px;
   border-radius: 8px;
   background: #f0ece4; border: 2px dashed #d8d0c8;
   display: flex; align-items: center; justify-content: center;
+  transform: translate(-50%, -50%);
   font-size: 40px; color: #c8bfb4;
+}
+.photocard-ph img {
+  display: block;
+  max-width: 78%;
+  max-height: 78%;
+  object-fit: contain;
 }
 
 /* ══════════════════════════════════════════════════
@@ -996,48 +1010,146 @@ body {
 }
 
 /* ══════════════════════════════════════════════════
-   푸터
+   공통 헤더 / 푸터 (reservation scheduleList.css 기준)
 ══════════════════════════════════════════════════ */
-.footer-wave-wrap {
+.site-header {
   position: relative;
-  margin-top: 40px;
-  overflow: hidden;
-}
-.footer-wave-wrap svg {
-  display: block;
-  width: 100%;
-}
-.footer-content {
-  background: #f0a028;
-  padding: 32px 48px 48px;
+  z-index: 2;
+  width: min(1180px, calc(100% - 56px));
+  height: 78px;
+  margin: 0 auto;
   display: flex;
-  justify-content: flex-end;
-  gap: 80px;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
 }
-.footer-contact {
-  color: #fff;
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #101010;
+  text-decoration: none;
+  font-family: "Chewy", cursive;
+  font-size: 20px;
+  line-height: 1;
+  white-space: nowrap;
 }
-.footer-contact-lbl {
-  font-size: 16px; font-weight: 700; margin-bottom: 6px;
-  opacity: 0.85;
+.brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display: block;
 }
-.footer-contact-num {
-  font-size: 28px; font-weight: 900; line-height: 1.2;
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
-.footer-contact-time {
-  font-size: 12px; opacity: 0.7; margin-top: 4px;
-  line-height: 1.7;
-}
-.footer-links {
-  display: flex; flex-direction: column; gap: 8px;
-  text-align: right;
-}
-.footer-links a {
-  color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600;
+.nav a {
+  color: #111;
   text-decoration: none;
 }
-.footer-links a:hover { color: #fff; }
+.footer {
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 96px;
+  min-height: 220px;
+  background: #FFB020;
+  overflow: visible;
+  z-index: 1;
+}
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -64px;
+  width: 200%;
+  height: 66px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath fill='%23FFB020' d='M0 66C240 38 480 38 720 66C960 94 1200 94 1440 66V120H0V66Z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 960px 66px;
+  animation: footerWave 18s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes footerWave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-960px); }
+}
+.footer-popcorn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 18px);
+  height: 50vh;
+  min-height: 320px;
+  pointer-events: none;
+  z-index: -1;
+}
+.popcorn-kernel {
+  position: absolute;
+  bottom: 0;
+  width: var(--kernel-size);
+  height: var(--kernel-size);
+  object-fit: contain;
+  opacity: 0;
+  filter: drop-shadow(0 10px 10px rgba(102, 51, 0, 0.22));
+  animation: popcornBounce var(--kernel-speed) ease-in-out infinite;
+  animation-delay: var(--kernel-delay);
+  transform-origin: center bottom;
+}
+.popcorn-kernel:nth-child(1) { --kernel-size: 28px; --kernel-speed: 4.8s; --kernel-delay: -0.4s; left: 7%; }
+.popcorn-kernel:nth-child(2) { --kernel-size: 42px; --kernel-speed: 5.6s; --kernel-delay: -2.1s; left: 16%; }
+.popcorn-kernel:nth-child(3) { --kernel-size: 34px; --kernel-speed: 4.4s; --kernel-delay: -1.2s; left: 25%; }
+.popcorn-kernel:nth-child(4) { --kernel-size: 52px; --kernel-speed: 6.2s; --kernel-delay: -3.4s; left: 34%; }
+.popcorn-kernel:nth-child(5) { --kernel-size: 24px; --kernel-speed: 5.1s; --kernel-delay: -2.8s; left: 42%; }
+.popcorn-kernel:nth-child(6) { --kernel-size: 38px; --kernel-speed: 4.7s; --kernel-delay: -0.9s; left: 50%; }
+.popcorn-kernel:nth-child(7) { --kernel-size: 46px; --kernel-speed: 5.8s; --kernel-delay: -4.1s; left: 59%; }
+.popcorn-kernel:nth-child(8) { --kernel-size: 30px; --kernel-speed: 4.9s; --kernel-delay: -1.7s; left: 67%; }
+.popcorn-kernel:nth-child(9) { --kernel-size: 56px; --kernel-speed: 6.4s; --kernel-delay: -3.1s; left: 75%; }
+.popcorn-kernel:nth-child(10) { --kernel-size: 36px; --kernel-speed: 5.3s; --kernel-delay: -0.2s; left: 83%; }
+.popcorn-kernel:nth-child(11) { --kernel-size: 44px; --kernel-speed: 5.9s; --kernel-delay: -2.5s; left: 91%; }
+.popcorn-kernel:nth-child(12) { --kernel-size: 32px; --kernel-speed: 4.6s; --kernel-delay: -3.8s; left: 12%; }
+@keyframes popcornBounce {
+  0% { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.84) rotate(0deg); }
+  10% { opacity: 0.95; }
+  50% { opacity: 1; transform: translate3d(var(--kernel-drift, 0), -50vh, 0) scale(1) rotate(var(--kernel-rotate, 210deg)); }
+  100% { opacity: 0; transform: translate3d(var(--kernel-end-drift, 0), 20px, 0) scale(0.9) rotate(var(--kernel-end-rotate, 320deg)); }
+}
+.popcorn-kernel:nth-child(odd) { --kernel-drift: 42px; --kernel-end-drift: 72px; --kernel-rotate: 240deg; --kernel-end-rotate: 390deg; }
+.popcorn-kernel:nth-child(even) { --kernel-drift: -34px; --kernel-end-drift: -58px; --kernel-rotate: -220deg; --kernel-end-rotate: -360deg; }
+.footer-inner {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 44px 0 28px;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  gap: 72px;
+  align-items: end;
+  font-size: 12px;
+  font-weight: 800;
+}
+.contact { text-align: left; line-height: 1.9; }
+.contact-title { font-size: 14px; margin-bottom: 4px; }
+.footer-links {
+  display: grid;
+  gap: 11px;
+  font-size: 11px;
+  font-weight: 800;
+}
+@media (max-width: 900px) {
+  .site-header,
+  .footer-inner { width: min(100% - 28px, 680px); }
+  .site-header { height: auto; padding: 18px 0; flex-direction: column; align-items: flex-start; }
+  .nav { width: 100%; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+}
 
 /* ══════════════════════════════════════════════════
    태그/팝콘 모달
@@ -1397,14 +1509,37 @@ body {
 .archive-ticket-section-title,
 .archive-detail-section-title { font-size: 10px; font-weight: 900; color: #b8b0a4; letter-spacing: 0.12em; text-transform: uppercase; }
 .archive-ticket-list {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  max-height: 260px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 360px;
   overflow-y: auto;
-  padding: 6px 4px 8px;
+  padding: 6px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(176,120,56,0.24) transparent;
 }
-.archive-detail-ticket { display: flex; flex-shrink: 0; flex-direction: column; gap: 10px; }
+.archive-ticket-list::-webkit-scrollbar { width: 4px; }
+.archive-ticket-list::-webkit-scrollbar-track { background: transparent; }
+.archive-ticket-list::-webkit-scrollbar-thumb { background: rgba(176,120,56,0.18); border-radius: 999px; }
+.archive-ticket-list.archive-scroll {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 342px;
+  min-height: 0;
+  padding: 7px 5px 12px;
+  overflow-y: auto;
+  flex-direction: initial;
+}
+.archive-detail-ticket {
+  position: relative;
+  display: none;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 8px;
+  overflow: visible;
+}
 #sidebar-archive.detail-mode .archive-sidebar-inner { display: flex; }
 #sidebar-archive.detail-mode .archive-detail-ticket { display: flex; }
 .archive-back-btn {
@@ -1420,18 +1555,44 @@ body {
 }
 .archive-detail-card {
   background: #fff;
-  border: 1px solid #e6e0d8;
+  border: 1px solid #f0e0b0;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 3px 8px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
 }
-.archive-detail-poster-wrap { background: #eee8df; min-height: 220px; display: flex; align-items: center; justify-content: center; }
-.archive-detail-poster { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+.archive-detail-card.write-ticket { width: 100%; max-width: 224px; }
+.archive-detail-poster-wrap {
+  background: #e0dbd4;
+  height: 300px;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+}
+.archive-detail-poster { width: 100%; height: 100%; max-height: none; object-fit: cover; display: block; }
 .archive-detail-poster-ph { display: none; font-size: 46px; color: #b8b0a4; }
-.archive-detail-card-info { padding: 14px 16px 16px; }
-.archive-detail-card-title { font-size: 17px; font-weight: 900; color: #1a1816; line-height: 1.35; }
+.archive-detail-card-info {
+  position: relative;
+  padding: 14px 14px 13px;
+  border-top: 1.5px dashed #d4c090;
+  background: #fffdf8;
+}
+.archive-detail-card-title { font-size: 14px; font-weight: 900; color: #1a1816; line-height: 1.35; }
 .archive-detail-card-meta { margin-top: 8px; font-size: 12px; color: #8a7a68; line-height: 1.6; }
-.archive-detail-card-popcorn { margin-top: 10px; color: #e8a838; font-size: 13px; font-weight: 800; }
+.archive-detail-card-popcorn { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; color: #e8a838; font-size: 13px; font-weight: 800; }
+.archive-detail-card-popcorn img { width: 15px; height: 15px; object-fit: contain; display: block; }
+.archive-empty-heading {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1.5px solid #eee4d6;
+  font-size: 18px;
+  font-weight: 900;
+  color: #1a1816;
+  letter-spacing: 0.08em;
+	text-align: left;
+}
 
 /* ══════════════════════════════════════════════════
    Archive — 오른쪽 티켓 스크랩북
@@ -1469,7 +1630,7 @@ body {
   background-position: 0 68px;
 }
 .archive-empty {
-  flex: 1; display: flex; flex-direction: column;
+  flex: 1 1 auto; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 10px;
   text-align: center; padding: 44px 24px; color: #5a534c;
 }
@@ -1535,10 +1696,11 @@ body {
   color: #b0a898;
 }
 .archive-ticket {
-  position: relative; display: flex; background: #fff;
+  position: relative; display: flex; flex-direction: column; background: #fff;
   width: 100%;
-  border-radius: 8px 8px 6px 6px;
-  box-shadow: 2px 3px 14px rgba(0,0,0,0.13);
+  min-height: 176px;
+  border-radius: 10px 10px 8px 8px;
+  box-shadow: 2px 4px 14px rgba(0,0,0,0.12);
   text-decoration: none; color: inherit; overflow: visible;
   transition: transform 0.18s, box-shadow 0.18s;
 }
@@ -1547,20 +1709,38 @@ body {
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  padding: 28px 32px;
+  overflow: hidden;
+  background: #fff;
+}
+.archive-review-note-header { border-top-right-radius: 0; }
+.archive-review-note-body {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 24px;
   overflow-y: auto;
   background: #fff;
-  background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, rgba(200,190,180,0.14) 27px, rgba(200,190,180,0.14) 28px);
-  background-position: 0 68px;
+  background-image: repeating-linear-gradient(to bottom,transparent 0px,transparent 27px,rgba(160,140,120,0.11) 27px,rgba(160,140,120,0.11) 28px);
+  background-position: 0 80px;
 }
-.archive-review-kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.16em; color: #c8bfb4; text-transform: uppercase; }
-.archive-review-title { margin-top: 10px; font-size: 24px; font-weight: 900; color: #1a1816; line-height: 1.3; }
-.archive-review-meta { margin-top: 8px; font-size: 12px; color: #9a8b7c; }
+.archive-review-kicker { font-size: 12px; color: rgba(255,255,255,0.76); margin-top: 3px; }
+.archive-review-title { margin-top: 0; }
+.archive-review-meta-card {
+  margin: 12px 22px 0;
+  padding: 13px 14px;
+  border: 1.5px solid #e2ddd8;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.72);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+.archive-review-meta { font-size: 12px; font-weight: 700; color: #8a7a68; }
+.archive-review-rating-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 9px; }
+.archive-review-popcorn { display: inline-flex; align-items: center; gap: 5px; color: #c07a10; font-size: 12px; font-weight: 800; }
+.archive-review-popcorn img,
+.archive-review-fresh img { width: 15px; height: 15px; object-fit: contain; display: block; }
 .archive-review-fresh {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
-  margin-top: 16px;
+  gap: 5px;
   padding: 6px 12px;
   border-radius: 999px;
   background: #fff3dc;
@@ -1569,17 +1749,103 @@ body {
   font-size: 12px;
   font-weight: 800;
 }
+.archive-review-fresh.is-rotten { background: #fce4ec; border-color: #ef9a9a; color: #c62828; }
+.archive-review-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.archive-review-tag {
+  background: #fff3dc;
+  border: 1.5px solid #e8a838;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #7a5a00;
+  font-weight: 700;
+}
+.archive-review-tag.is-empty { background: #f5f3ef; border-color: #e2ddd8; color: #9a8b7c; }
+.archive-review-section { padding-top: 16px; }
 .archive-review-content {
-  margin-top: 24px;
-  padding: 22px 0 32px;
+  margin: 10px 22px 0;
+  padding: 14px 14px 28px;
+  border: 1.5px solid #e2ddd8;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.58);
   color: #3a3228;
   font-size: 15px;
   line-height: 1.9;
   white-space: pre-wrap;
 }
+.archive-review-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.archive-review-actions { display: flex; align-items: center; gap: 6px; }
+.archive-review-action-btn {
+  border: 1.5px solid #e8c870;
+  background: #fff8ed;
+  color: #9a6418;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.archive-review-action-btn:hover { background: #fff4d0; border-color: #e8a838; }
+.archive-review-action-btn.danger { border-color: #ef9a9a; background: #fff5f5; color: #c62828; }
+.archive-review-action-btn.danger:hover { background: #fce4ec; }
+.archive-edit-form { display: none; }
+.archive-review-detail.edit-mode .archive-read-view { display: none; }
+.archive-review-detail.edit-mode .archive-edit-form { display: block; }
+.archive-edit-form .note-section { padding-top: 13px; }
+.archive-edit-pcorn-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 3px;
+  transition: transform 0.1s;
+}
+.archive-edit-pcorn-btn img { display: block; width: 44px; height: 44px; object-fit: contain; filter: grayscale(1) opacity(0.3); transition: filter 0.1s; }
+.archive-edit-pcorn-btn.lit img { filter: none; }
+.archive-edit-pcorn-btn:hover { transform: scale(1.14); }
+.archive-edit-actions { display: flex; gap: 8px; margin: 12px 22px 16px; }
+.archive-edit-actions .note-save-btn { flex: 1; margin: 0; }
+.archive-edit-cancel {
+  flex: 0 0 94px;
+  border: 1.5px solid #e2ddd8;
+  background: #fafaf8;
+  color: #8a7a68;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.archive-edit-cancel:hover { background: #f5f3ef; }
+.archive-detail-card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.archive-detail-card-tag {
+  background: #fff3dc;
+  border: 1px solid #f0c848;
+  border-radius: 10px;
+  padding: 2px 7px;
+  font-size: 10px;
+  color: #7a5800;
+  font-weight: 700;
+}
+.archive-detail-card-tag.is-empty { background: #f5f3ef; border-color: #e2ddd8; color: #9a8b7c; }
+.archive-detail-tape {
+  width: 76px;
+  height: 20px;
+  z-index: 24;
+}
+.archive-detail-tape-l { top: 2px; left: calc(50% - 122px); transform: rotate(-24deg); }
+.archive-detail-tape-r { right: calc(50% - 122px); bottom: -2px; transform: rotate(-24deg); }
+.archive-ticket-tag-data { display: none; }
 .archive-ticket:nth-child(odd)  { transform: rotate(-0.5deg); }
 .archive-ticket:nth-child(even) { transform: rotate(0.4deg); }
 .archive-ticket:hover { transform: rotate(0) translateY(-4px) !important; box-shadow: 3px 8px 28px rgba(0,0,0,0.2); z-index: 5; }
+.archive-ticket.is-selected {
+  outline: 2px solid #e8a838;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(232,168,56,0.18), 3px 8px 24px rgba(0,0,0,0.2);
+}
+.archive-ticket.is-selected .at-stub { background: #fff4d0; color: #9a6418; }
+.archive-ticket .at-tape {
+  display: none;
+}
 .at-tape {
   position: absolute; top: -8px; width: 46px; height: 13px; border-radius: 2px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 5;
@@ -1587,22 +1853,22 @@ body {
 }
 .at-tape-l { left:14px; transform:rotate(-5deg); background-color:rgba(255,218,80,0.62); }
 .at-tape-r { right:14px; transform:rotate(4deg);  background-color:rgba(160,200,240,0.62); }
-.at-poster { width: 70px; flex-shrink: 0; }
-.at-poster img { width:70px; height:102px; object-fit:cover; border-radius:8px 0 0 0; display:block; }
+.at-poster { width: 100%; height: 92px; flex-shrink: 0; background:#e8e2da; border-radius:10px 10px 0 0; overflow:hidden; }
+.at-poster img { width:100%; height:92px; object-fit:cover; border-radius:10px 10px 0 0; display:block; }
 .at-poster-ph {
-  width:70px; height:102px; background:#e8e2da; border-radius:8px 0 0 0;
+  width:100%; height:92px; background:#e8e2da; border-radius:10px 10px 0 0;
   display:flex; align-items:center; justify-content:center; font-size:22px;
 }
-.at-info { flex:1; padding:10px 12px; border-left:1.5px dashed #e0dbd4; display:flex; flex-direction:column; gap:4px; }
-.at-title { font-size:13px; font-weight:800; }
-.at-meta  { font-size:10px; color:#aaa; }
-.at-tags  { display:flex; flex-wrap:wrap; gap:3px; }
+.at-info { flex:1; padding:9px 8px 8px; border-top:1.5px dashed #e0dbd4; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.at-title { font-size:10px; font-weight:900; line-height:1.25; min-height:25px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.at-meta  { font-size:8px; color:#aaa; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.at-tags  { display:none; }
 .at-tag   { background:#fff3dc; border:1px solid #f0c848; border-radius:8px; padding:1px 6px; font-size:9px; color:#7a5800; font-weight:600; }
-.at-popcorn  { font-size:11px; color:#e8a838; margin-top:auto; }
+.at-popcorn  { font-size:9px; color:#e8a838; margin-top:auto; }
 .at-stub  {
   position:relative; background:#fdf5e4; border-top:1.5px dashed #d4c090;
-  border-radius:0 0 6px 6px; font-size:8px; color:#c07a10; font-weight:700;
-  letter-spacing:0.1em; text-align:center; padding:4px 10px; text-transform:uppercase; overflow:hidden;
+  border-radius:0 0 8px 8px; font-size:6px; color:#c07a10; font-weight:800;
+  letter-spacing:0.08em; text-align:center; padding:4px 5px; text-transform:uppercase; overflow:hidden;
 }
 .at-stub::before, .at-stub::after { content:''; position:absolute; top:-7px; width:13px; height:13px; border-radius:50%; background:#faf6ee; }
 .at-stub::before { left:-6px; }
@@ -1614,6 +1880,17 @@ body {
   padding: 28px; width: 480px; max-width: 95vw; max-height: 80vh;
   overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
+.save-success-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.save-success-box .btn-x { position: absolute; top: 18px; right: 18px; float: none; }
+.save-success-box .modal-ttl { width: 100%; padding: 0 26px; }
+.save-success-box .modal-lbl { width: 100%; text-align: center; }
+.save-success-box .btn-save { min-width: 120px; padding-left: 24px; padding-right: 24px; }
 .modal-ttl { font-size: 17px; font-weight: 800; margin-bottom: 20px; }
 .modal-form { display: flex; flex-direction: column; gap: 16px; }
 .modal-lbl { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
@@ -1642,6 +1919,8 @@ body {
 </style>
 </head>
 <body>
+
+<jsp:include page="/WEB-INF/views/common/site-header.jsp" />
 
 <!-- ══ 커버 오프닝 ══ -->
 <div id="cover-overlay">
@@ -1713,7 +1992,7 @@ body {
       <div class="poster-display">
         <div class="poster-date-lbl" id="posterDateLbl">날짜를 선택하세요</div>
         <div class="photocard-stack" id="photocardStack">
-          <div class="photocard-ph">🎬</div>
+          <div class="photocard-ph"><img src="${pageContext.request.contextPath}/img/emptyReserv.png" alt="예매 내역 없음"></div>
         </div>
       </div>
     </div><!-- /#sidebar-cal -->
@@ -1776,7 +2055,7 @@ body {
                 <div class="ticket-select-item${s.first ? ' sel' : ''}"
                      onclick="selectWriteEntry(this)"
                      data-id="${d.diaryId}"
-                     data-title="${fn:escapeXml(d.movieTitle)}"
+                      data-title="${fn:escapeXml(d.movieTitle)}"
                      data-poster="${fn:escapeXml(d.posterUrl)}"
                      data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
                      data-theater="${fn:escapeXml(d.theaterName)}"
@@ -1796,12 +2075,12 @@ body {
                   </div>
                 </div>
               </c:forEach>
-            </c:when>
-            <c:otherwise>
-              <div style="text-align:center;padding:20px;color:#ccc;font-size:12px;">기록된 영화가 없어요</div>
-            </c:otherwise>
-          </c:choose>
-        </div>
+			</c:when>
+			<c:otherwise>
+			  <div style="text-align:center;padding:20px;color:#ccc;font-size:12px;">기록할 영화가 없어요</div>
+			</c:otherwise>
+		  </c:choose>
+		</div>
       </div>
     </div><!-- /#sidebar-write -->
 
@@ -1812,7 +2091,7 @@ body {
         <div class="archive-stat-box">
           <div class="archive-stat-title">📊 나의 기록</div>
           <div class="archive-stat-row">
-            <span>총 관람</span>
+			<span>총 다이어리 기록</span>
             <span class="archive-stat-val" id="archTotal">-</span>
           </div>
           <div class="archive-stat-row">
@@ -1835,21 +2114,38 @@ body {
             </button>
           </c:forEach>
         </div>
-        <div class="archive-my-film" aria-label="MY FILM">
-          <div class="archive-my-film-kicker">Popflex Archive</div>
-          <div class="archive-my-film-title">MY FILM</div>
-          <div class="archive-my-film-sub">기록한 영화 티켓을 모아둔 페이지</div>
-        </div>
-        <div>
-          <div class="archive-ticket-section-title">Ticket List</div>
-          <div class="archive-ticket-list archive-scroll" id="archiveScroll">
-            <c:set var="archiveCount" value="0" />
-            <c:forEach var="d" items="${diaryList}">
-              <c:if test="${not empty d.reviewId}">
-                <c:set var="archiveCount" value="${archiveCount + 1}" />
+        <c:set var="archiveCount" value="0" />
+        <c:forEach var="d" items="${diaryList}">
+          <c:if test="${not empty d.reviewId}">
+            <c:set var="archiveCount" value="${archiveCount + 1}" />
+          </c:if>
+		</c:forEach>
+		<c:if test="${archiveCount > 0}">
+		  <div class="archive-empty-heading">SELECT TICKET</div>
+		  <div class="archive-detail-ticket" id="archiveDetailTicket">
+			<div class="tape tape-yellow archive-detail-tape archive-detail-tape-l"></div>
+			<div class="tape tape-blue archive-detail-tape archive-detail-tape-r"></div>
+			<div class="archive-detail-card write-ticket">
+			  <div class="archive-detail-poster-wrap">
+				<img class="archive-detail-poster" id="archiveDetailPoster" src="" alt="" style="display:none">
+				<div class="archive-detail-poster-ph" id="archiveDetailPosterPh">🎬</div>
+			  </div>
+			  <div class="archive-detail-card-info">
+				<div class="archive-detail-card-title" id="archiveDetailSideTitle">영화 제목</div>
+				<div class="archive-detail-card-meta" id="archiveDetailSideMeta">관람 정보</div>
+				<div class="archive-detail-card-popcorn" id="archiveDetailSidePopcorn"></div>
+				<div class="archive-detail-card-tags" id="archiveDetailSideTags"></div>
+			  </div>
+			</div>
+		  </div>
+		  <div>
+			<div class="archive-ticket-list archive-scroll" id="archiveScroll">
+              <c:forEach var="d" items="${diaryList}">
+                <c:if test="${not empty d.reviewId}">
                 <a class="archive-ticket"
                    href="#"
                    onclick="openArchiveDetail(this);return false;"
+                   data-diary-id="${d.diaryId}"
                    data-title="${fn:escapeXml(d.movieTitle)}"
                    data-poster="${fn:escapeXml(d.posterUrl)}"
                    data-date="<fmt:formatDate value='${d.watchDate}' pattern='yyyy.MM.dd'/>"
@@ -1890,37 +2186,32 @@ body {
                         🍿 <fmt:formatNumber value="${d.popcornRating}" maxFractionDigits="1"/> / 5
                       </div>
                     </c:if>
+                    <c:if test="${not empty d.tagList}">
+                      <div class="archive-ticket-tag-data" aria-hidden="true">
+                        <c:forEach var="tag" items="${d.tagList}">
+                          <span data-tag="${fn:escapeXml(tag)}"></span>
+                        </c:forEach>
+                      </div>
+                    </c:if>
                   </div>
                   <div class="at-stub">POPFLEX · FILM TICKET</div>
                 </a>
-              </c:if>
-            </c:forEach>
-            <c:if test="${archiveCount == 0}">
-              <div class="archive-empty">
-                <div class="archive-empty-illust" aria-hidden="true">
-                  <div class="archive-empty-folder"></div>
-                  <div class="archive-empty-bubble">?</div>
-                </div>
-                <div class="archive-empty-title">아직 작성한 다이어리가 없어요.</div>
-                <div class="archive-empty-sub">나만의 Film Diary로 채워보세요!</div>
-              </div>
-            </c:if>
-          </div>
-        </div>
-        <div class="archive-detail-ticket" id="archiveDetailTicket">
-          <div class="archive-detail-section-title">Selected Ticket</div>
-          <div class="archive-detail-card">
-            <div class="archive-detail-poster-wrap">
-              <img class="archive-detail-poster" id="archiveDetailPoster" src="" alt="" style="display:none">
-              <div class="archive-detail-poster-ph" id="archiveDetailPosterPh">🎬</div>
+                </c:if>
+			  </c:forEach>
+			</div>
+		  </div>
+        </c:if>
+		<c:if test="${archiveCount == 0}">
+		  <div class="archive-empty-heading">SELECT FILM</div>
+		  <div class="archive-empty">
+            <div class="archive-empty-illust" aria-hidden="true">
+              <div class="archive-empty-folder"></div>
+              <div class="archive-empty-bubble">?</div>
             </div>
-            <div class="archive-detail-card-info">
-              <div class="archive-detail-card-title" id="archiveDetailSideTitle">영화 제목</div>
-              <div class="archive-detail-card-meta" id="archiveDetailSideMeta">관람 정보</div>
-              <div class="archive-detail-card-popcorn" id="archiveDetailSidePopcorn"></div>
-            </div>
+            <div class="archive-empty-title">아직 작성한 다이어리가 없어요.</div>
+            <div class="archive-empty-sub">나만의 Film Diary로 채워보세요!</div>
           </div>
-        </div>
+        </c:if>
       </div>
     </div><!-- /#sidebar-archive -->
 
@@ -2039,11 +2330,9 @@ body {
           <div class="note-header-sub">나만의 영화 기록을 남겨보세요</div>
         </div>
       </div>
-      <c:choose>
-        <c:when test="${not empty writeDiaryList}">
-          <div class="diary-note-wrap">
-            <!-- 영화 제목 배너 -->
-            <div class="note-movie-banner" id="writeMovieTitle"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>영화를 선택하세요</c:otherwise></c:choose></div>
+		  <div class="diary-note-wrap">
+			<!-- 영화 제목 배너 -->
+			<div class="note-movie-banner" id="writeMovieTitle"><c:choose><c:when test="${not empty initialWriteDiary.movieTitle}"><c:out value="${initialWriteDiary.movieTitle}" /></c:when><c:otherwise>영화를 선택하세요</c:otherwise></c:choose></div>
             <form id="writeForm" action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post">
               <input type="hidden" name="diaryId"    id="writeDiaryId"   value="${not empty initialWriteDiary.diaryId ? initialWriteDiary.diaryId : ''}">
               <c:set var="initialPopcornRating" value="5" />
@@ -2088,18 +2377,10 @@ body {
                   oninput="document.getElementById('writeCharCount').textContent=this.value.length+'/5000'"></textarea>
                 <span class="note-charcount" id="writeCharCount">0/5000</span>
               </div>
-              <button type="submit" class="note-save-btn">다이어리 저장하기 ✓</button>
-            </form>
-          </div>
-        </c:when>
-        <c:otherwise>
-          <div class="write-empty-state">
-            <div class="we-icon">🎬</div>
-            <div class="we-txt">아직 기록된 영화가 없어요<br>영화를 예매하면 자동으로 기록됩니다</div>
-          </div>
-        </c:otherwise>
-      </c:choose>
-    </div><!-- /#page-write -->
+			  <button type="submit" class="note-save-btn">다이어리 저장하기 ✓</button>
+			</form>
+		  </div>
+	</div><!-- /#page-write -->
 
     <!-- ══ Archive 페이지 ══ -->
     <div id="page-archive" class="nb-page">
@@ -2110,16 +2391,82 @@ body {
             <div class="archive-content-sub">나의 다이어리 기록</div>
           </div>
         </div>
-        <div class="archive-default-prompt">
-          왼쪽 페이지에서 티켓을 클릭해주세요!<br>
-          해당 영화의 일기를 볼 수 있어요.
+		<div class="archive-default-prompt">
+		  왼쪽 페이지에서 티켓을 클릭해주세요!<br>
+		  해당 영화의 일기를 볼 수 있어요.
         </div>
         <div class="archive-review-detail" id="archiveReviewDetail">
-          <div class="archive-review-kicker">Film Diary</div>
-          <div class="archive-review-title" id="archiveReviewTitle">영화 제목</div>
-          <div class="archive-review-meta" id="archiveReviewMeta">관람 정보</div>
-          <div class="archive-review-fresh" id="archiveReviewFresh">터졌다</div>
-          <div class="archive-review-content" id="archiveReviewContent"></div>
+          <div class="diary-note-header archive-review-note-header">
+            <span class="note-header-icon">🎞</span>
+            <div>
+              <div class="note-header-title">Archive Note</div>
+              <div class="archive-review-kicker">지난 필름 다이어리</div>
+            </div>
+          </div>
+          <div class="archive-review-note-body">
+            <div class="note-movie-banner archive-review-title" id="archiveReviewTitle">영화 제목</div>
+            <div class="archive-review-meta-card">
+              <div class="archive-review-meta" id="archiveReviewMeta">관람 정보</div>
+              <div class="archive-review-rating-row">
+                <span class="archive-review-popcorn" id="archiveReviewPopcorn"></span>
+                <span class="archive-review-fresh" id="archiveReviewFresh">터졌다</span>
+              </div>
+              <div class="archive-review-tags" id="archiveReviewTags"></div>
+            </div>
+            <div class="note-section archive-review-section archive-review-section-head">
+              <div class="note-section-lbl">📖 나의 필름 다이어리</div>
+              <div class="archive-review-actions">
+                <button type="button" class="archive-review-action-btn" onclick="startArchiveEdit()">수정</button>
+                <button type="button" class="archive-review-action-btn danger" onclick="openArchiveDeleteConfirm()">삭제</button>
+              </div>
+            </div>
+            <div class="archive-read-view">
+              <div class="archive-review-content" id="archiveReviewContent"></div>
+            </div>
+            <form id="archiveEditForm" class="archive-edit-form" action="${pageContext.request.contextPath}/diary/tagUpdate.do" method="post">
+              <input type="hidden" name="diaryId" id="archiveEditDiaryId">
+              <input type="hidden" name="returnTo" value="archive">
+              <input type="hidden" name="popcornRating" id="archiveEditPopcornInput" value="0">
+              <input type="hidden" name="freshYn" id="archiveEditFreshInput" value="">
+              <div class="note-section">
+                <div class="note-section-lbl">🍿 팝콘 평점</div>
+                <div class="popcorn-row" id="archiveEditPopcornRow"></div>
+              </div>
+              <div class="note-section">
+                <div class="note-section-lbl">🌿 팝콘 게이지</div>
+                <div class="fresh-row">
+                  <button type="button" class="fresh-btn" id="archiveFreshYes" onclick="setArchiveEditFresh('Y')"><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다">터졌다</button>
+                  <button type="button" class="fresh-btn" id="archiveFreshNo" onclick="setArchiveEditFresh('N')"><img src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다">안터졌다</button>
+                </div>
+              </div>
+              <div class="note-section">
+                <div class="note-section-lbl">😊 감정 태그 <span style="font-size:9px;color:#ccc;font-weight:400;text-transform:none">(복수 선택)</span></div>
+                <div class="note-tags-row">
+                  <c:forEach var="tag" items="${allTags}">
+                    <input type="checkbox" class="note-tag-cb archive-edit-tag-cb" name="tagIds"
+                           id="arcTag_${tag.tagId}" value="${tag.tagId}">
+                    <label class="note-tag-lbl" for="arcTag_${tag.tagId}">${tag.tagName}</label>
+                  </c:forEach>
+                </div>
+              </div>
+              <div class="note-section">
+                <div class="note-section-lbl">📖 나의 필름 다이어리</div>
+              </div>
+              <div class="note-textarea-wrap">
+                <textarea class="note-textarea" name="diaryText" id="archiveEditText" maxlength="5000"
+                  placeholder="이 영화에 대한 나만의 다이어리를 남겨보세요."
+                  oninput="document.getElementById('archiveEditCharCount').textContent=this.value.length+'/5000'"></textarea>
+                <span class="note-charcount" id="archiveEditCharCount">0/5000</span>
+              </div>
+              <div class="archive-edit-actions">
+                <button type="button" class="archive-edit-cancel" onclick="cancelArchiveEdit()">취소</button>
+                <button type="submit" class="note-save-btn">다이어리 수정</button>
+              </div>
+            </form>
+            <form id="archiveDeleteForm" action="${pageContext.request.contextPath}/diary/delete.do" method="post" style="display:none">
+              <input type="hidden" name="diaryId" id="archiveDeleteDiaryId">
+            </form>
+          </div>
         </div>
       </div>
     </div><!-- /#page-archive -->
@@ -2190,28 +2537,7 @@ body {
   </div>
 </div>
 
-<!-- ══ 푸터 (피그마: 오렌지 물결 푸터) ══ -->
-<div class="footer-wave-wrap">
-  <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg"
-       preserveAspectRatio="none" height="80" width="100%"
-       style="background:#faf6ee;">
-    <path d="M0,80 L0,50 C200,80 400,20 600,45 C800,70 1000,15 1200,40 C1300,52 1380,60 1440,50 L1440,80 Z"
-          fill="#f0a028"/>
-  </svg>
-  <div class="footer-content">
-    <div class="footer-contact">
-      <div class="footer-contact-lbl">문의 시간 &gt;</div>
-      <div class="footer-contact-num">010-xxxx-xxxx</div>
-      <div class="footer-contact-time">월 - 금 10:00 - 18:00<br>(주말/공휴일 휴무)</div>
-    </div>
-    <div class="footer-links">
-      <a href="#">회사소개</a>
-      <a href="#">이용약관</a>
-      <a href="#">개인정보처리방침</a>
-      <a href="#">제휴문의</a>
-    </div>
-  </div>
-</div>
+<jsp:include page="/WEB-INF/views/common/site-footer.jsp" />
 
 <!-- ══ 태그/팝콘 모달 ══ -->
 <div class="modal-bg" id="tagModal">
@@ -2240,6 +2566,38 @@ body {
   </div>
 </div>
 
+<!-- ══ 다이어리 저장 완료 모달 ══ -->
+<div class="modal-bg${param.saved eq '1' ? ' open' : ''}" id="saveSuccessModal">
+  <div class="modal-box save-success-box">
+    <button class="btn-x" onclick="closeSaveSuccessModal()">×</button>
+    <div class="modal-ttl">당신의 기록이 필름에 새겨졌어요!</div>
+    <div class="modal-lbl" style="line-height:1.7;color:#8a7a68;text-transform:none;letter-spacing:0;">
+      Archive 페이지에서 지난 일기를 확인할 수 있어요.
+    </div>
+    <button type="button" class="btn-save" onclick="closeSaveSuccessModal()">확인</button>
+  </div>
+</div>
+
+<!-- ══ Archive 수정/삭제 완료 모달 ══ -->
+<div class="modal-bg${param.updated eq '1' or param.deleted eq '1' ? ' open' : ''}" id="archiveResultModal">
+  <div class="modal-box save-success-box">
+    <button class="btn-x" onclick="closeArchiveResultModal()">×</button>
+    <div class="modal-ttl"><c:choose><c:when test="${param.deleted eq '1'}">다이어리가 삭제되었습니다!</c:when><c:otherwise>다이어리가 수정되었습니다!</c:otherwise></c:choose></div>
+    <button type="button" class="btn-save" onclick="closeArchiveResultModal()">확인</button>
+  </div>
+</div>
+
+<!-- ══ Archive 삭제 확인 모달 ══ -->
+<div class="modal-bg" id="archiveDeleteModal">
+  <div class="modal-box save-success-box">
+    <button class="btn-x" onclick="closeArchiveDeleteConfirm()">×</button>
+    <div class="modal-ttl">다이어리를 삭제하시겠습니까?</div>
+    <div class="archive-edit-actions" style="margin:0;justify-content:center;">
+      <button type="button" class="archive-edit-cancel" onclick="closeArchiveDeleteConfirm()">아니오</button>
+      <button type="button" class="note-save-btn" style="margin:0;flex:0 0 120px;" onclick="confirmArchiveDelete()">예</button>
+    </div>
+  </div>
+</div>
 <!-- ══ JavaScript ══ -->
 <script>
 const CTX = '${pageContext.request.contextPath}';
@@ -2248,6 +2606,7 @@ const MONTHS_EN = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE',
 const MONTHS_S  = ['JAN','FEB','MAR','APR','MAY','JUN',
                    'JUL','AUG','SEP','OCT','NOV','DEC'];
 const DOW_FULL = ['S','M','T','W','T','F','S'];
+let archiveCurrentTicket = null;
 
 /* ── 커버 ──────────────────────────────── */
 document.getElementById('coverYear').textContent = new Date().getFullYear();
@@ -2488,12 +2847,15 @@ function renderPosters(){
   if(!stack) return;
   lbl.textContent = curM+'월 '+selD+'일';
   const entries = dayMap[selD]||[];
+  const posterEntries = entries.slice(0,3);
+  stack.className = 'photocard-stack';
   stack.innerHTML='';
   if(!entries.length){
-    stack.innerHTML='<div class="photocard-ph">🎬</div>';
+    stack.innerHTML='<div class="photocard-ph"><img src="${pageContext.request.contextPath}/img/emptyReserv.png" alt="예매 내역 없음"></div>';
     return;
   }
-  entries.slice(0,3).forEach(e=>{
+  stack.classList.add('poster-count-'+posterEntries.length);
+  posterEntries.forEach(e=>{
     if(e.posterUrl){
       const img=document.createElement('img');
       img.className='photocard'; img.src=e.posterUrl; img.alt=e.movieTitle||'';
@@ -2511,7 +2873,9 @@ function renderPosters(){
 /* ── 이달 요약 ────────────────────────── */
 function updateMonthlySummary(data){
   const cnt = data.length;
-  const popcorns = data.filter(d=>d.popcornRating>0).map(d=>d.popcornRating);
+  const popcorns = data
+    .filter(d=>d.reviewId != null && d.popcornRating>0)
+    .map(d=>d.popcornRating);
   const avg = popcorns.length ? (popcorns.reduce((a,b)=>a+b,0)/popcorns.length).toFixed(1) : null;
 
   // 사이드바
@@ -2568,6 +2932,24 @@ function renderPopcornBtns(val){
   row.appendChild(disp);
 }
 document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function closeSaveSuccessModal(){
+  const modal = document.getElementById('saveSuccessModal');
+  if (modal) modal.classList.remove('open');
+}
+document.getElementById('saveSuccessModal').addEventListener('click',function(e){if(e.target===this)closeSaveSuccessModal();});
+const archiveResultModal = document.getElementById('archiveResultModal');
+if (archiveResultModal) archiveResultModal.addEventListener('click',function(e){if(e.target===this)closeArchiveResultModal();});
+const archiveDeleteModal = document.getElementById('archiveDeleteModal');
+if (archiveDeleteModal) archiveDeleteModal.addEventListener('click',function(e){if(e.target===this)closeArchiveDeleteConfirm();});
+const archiveEditForm = document.getElementById('archiveEditForm');
+if (archiveEditForm) archiveEditForm.addEventListener('submit', function(e) {
+  const text = document.getElementById('archiveEditText');
+  if (text && !text.value.trim()) {
+    e.preventDefault();
+    text.focus();
+  }
+});
 
 /* 내부 스크롤에서는 달력 높이를 바꾸지 않는다. */
 (function(){
@@ -2647,7 +3029,9 @@ setTimeout(updateScrollHints, 250);
 
 /* ══ Write Diary ══ */
 function initWritePage() {
-  renderPopcorn(0);
+  renderPopcorn(5);
+  const si = document.getElementById('writePopcornInput');
+  if (si) si.value = 5;
   const selected = getSelectedWriteEntry();
   if (selected) selectWriteEntry(selected);
 }
@@ -2798,23 +3182,167 @@ function initArchivePage() {
     if (btn) btn.textContent = yearCount[y];
   });
 
-  // 이번 달 / 평균 팝콘은 dayMap 기반
-  if (typeof dayMap !== 'undefined') {
-    let mc = 0, totalPopcorn = 0, sc = 0;
-    Object.values(dayMap).forEach(arr => arr.forEach(d => {
-      mc++;
-      if (d.popcornRating > 0) { totalPopcorn += d.popcornRating; sc++; }
-    }));
-    const m1 = document.getElementById('archThisMonth');
-    const m2 = document.getElementById('archAvgStar');
-    if (m1) m1.textContent = mc > 0 ? mc + '편' : '-';
-    if (m2) m2.textContent = sc > 0 ? (totalPopcorn/sc).toFixed(1) + ' / 5' : '-';
-  }
+  const now = new Date();
+  const currentYear = String(now.getFullYear());
+  const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+  let thisMonthCount = 0, totalPopcorn = 0, popcornCount = 0;
+
+  tickets.forEach(t => {
+    const parts = (t.dataset.date || '').split('.');
+    if (parts[0] === currentYear && parts[1] === currentMonth) thisMonthCount++;
+
+    const popcorn = Number(t.dataset.popcorn);
+    if (Number.isFinite(popcorn) && popcorn > 0) {
+      totalPopcorn += popcorn;
+      popcornCount++;
+    }
+  });
+
+  const m1 = document.getElementById('archThisMonth');
+  const m2 = document.getElementById('archAvgStar');
+  if (m1) m1.textContent = thisMonthCount + '편';
+  if (m2) m2.textContent = popcornCount > 0 ? (totalPopcorn/popcornCount).toFixed(1) + ' / 5' : '-';
   updateScrollHints();
+}
+
+function renderArchiveTags(container, tags, className) {
+  if (!container) return;
+  container.innerHTML = '';
+  if (!tags.length) {
+    const empty = document.createElement('span');
+    empty.className = className + ' is-empty';
+    empty.textContent = '선택한 태그 없음';
+    container.appendChild(empty);
+    return;
+  }
+  tags.forEach(tag => {
+    const chip = document.createElement('span');
+    chip.className = className;
+    chip.textContent = tag;
+    container.appendChild(chip);
+  });
+}
+
+function setArchiveReviewMode(editing) {
+  const detail = document.getElementById('archiveReviewDetail');
+  if (detail) detail.classList.toggle('edit-mode', editing);
+  updateScrollHints();
+}
+
+function renderArchiveEditPopcorn(val) {
+  const row = document.getElementById('archiveEditPopcornRow');
+  if (!row) return;
+  const current = Number.isFinite(Number(val)) && Number(val) > 0 ? Number(val) : 5;
+  row.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'archive-edit-pcorn-btn' + (i <= current ? ' lit' : '');
+    btn.dataset.v = i;
+    const img = document.createElement('img');
+    img.src = CTX + '/img/popflex-logo.png';
+    img.alt = '팝콘';
+    btn.appendChild(img);
+    btn.onclick = function() {
+      const input = document.getElementById('archiveEditPopcornInput');
+      if (input) input.value = this.dataset.v;
+      renderArchiveEditPopcorn(Number(this.dataset.v));
+    };
+    row.appendChild(btn);
+  }
+  const score = document.createElement('span');
+  score.className = 'pcorn-score';
+  score.textContent = current + ' / 5';
+  row.appendChild(score);
+}
+
+function setArchiveEditFresh(yn) {
+  const yes = document.getElementById('archiveFreshYes');
+  const no = document.getElementById('archiveFreshNo');
+  const input = document.getElementById('archiveEditFreshInput');
+  if (yes) yes.className = 'fresh-btn' + (yn === 'Y' ? ' sel-fresh' : '');
+  if (no) no.className = 'fresh-btn' + (yn === 'N' ? ' sel-rotten' : '');
+  if (input) input.value = yn;
+}
+
+function syncArchiveEditForm(data, tags) {
+  const diaryId = data.diaryId || '';
+  const popcorn = Number(data.popcorn) > 0 ? Number(data.popcorn) : 5;
+  const fresh = data.fresh === 'N' ? 'N' : 'Y';
+  const content = data.reviewContent || '';
+
+  const editDiaryId = document.getElementById('archiveEditDiaryId');
+  const deleteDiaryId = document.getElementById('archiveDeleteDiaryId');
+  const popcornInput = document.getElementById('archiveEditPopcornInput');
+  const text = document.getElementById('archiveEditText');
+  const count = document.getElementById('archiveEditCharCount');
+
+  if (editDiaryId) editDiaryId.value = diaryId;
+  if (deleteDiaryId) deleteDiaryId.value = diaryId;
+  if (popcornInput) popcornInput.value = popcorn;
+  if (text) text.value = content;
+  if (count) count.textContent = content.length + '/5000';
+  renderArchiveEditPopcorn(popcorn);
+  setArchiveEditFresh(fresh);
+
+  document.querySelectorAll('.archive-edit-tag-cb').forEach(cb => {
+    const label = document.querySelector('label[for="' + cb.id + '"]');
+    const name = label ? label.textContent.trim() : '';
+    cb.checked = tags.includes(name);
+  });
+}
+
+function startArchiveEdit() {
+  if (!archiveCurrentTicket) return;
+  setArchiveReviewMode(true);
+}
+
+function cancelArchiveEdit() {
+  if (archiveCurrentTicket) {
+    const tags = Array.from(archiveCurrentTicket.querySelectorAll('.archive-ticket-tag-data [data-tag]'))
+      .map(tag => tag.dataset.tag)
+      .filter(Boolean);
+    syncArchiveEditForm(archiveCurrentTicket.dataset, tags);
+  }
+  setArchiveReviewMode(false);
+}
+
+function openArchiveDeleteConfirm() {
+  if (!archiveCurrentTicket) return;
+  const modal = document.getElementById('archiveDeleteModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeArchiveDeleteConfirm() {
+  const modal = document.getElementById('archiveDeleteModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function confirmArchiveDelete() {
+  const form = document.getElementById('archiveDeleteForm');
+  if (form) form.submit();
+}
+
+function closeArchiveResultModal() {
+  const modal = document.getElementById('archiveResultModal');
+  if (modal) modal.classList.remove('open');
+}
+function setArchiveSelectedTicket(ticket) {
+  document.querySelectorAll('.archive-ticket.is-selected').forEach(item => {
+    item.classList.remove('is-selected');
+    item.removeAttribute('aria-current');
+  });
+  if (!ticket) return;
+  ticket.classList.add('is-selected');
+  ticket.setAttribute('aria-current', 'true');
 }
 
 function openArchiveDetail(ticket) {
   if (!ticket) return;
+
+  archiveCurrentTicket = ticket;
+  setArchiveSelectedTicket(ticket);
+  setArchiveReviewMode(false);
 
   const data = ticket.dataset;
   const title = data.title || '영화 제목';
@@ -2824,7 +3352,12 @@ function openArchiveDetail(ticket) {
   const popcorn = Number(data.popcorn);
   const fresh = data.fresh || '';
   const reviewContent = data.reviewContent || '';
+  const tags = Array.from(ticket.querySelectorAll('.archive-ticket-tag-data [data-tag]'))
+    .map(tag => tag.dataset.tag)
+    .filter(Boolean);
   const meta = [date || year, theater].filter(Boolean).join(' · ');
+  const popcornText = Number.isFinite(popcorn) && popcorn > 0 ? data.popcorn + ' / 5' : '팝콘 미선택';
+  const popcornHtml = '<img src="' + CTX + '/img/popflex-logo.png" alt="팝콘"> ' + popcornText;
 
   const poster = document.getElementById('archiveDetailPoster');
   const posterPh = document.getElementById('archiveDetailPosterPh');
@@ -2853,22 +3386,30 @@ function openArchiveDetail(ticket) {
   const sideTitle = document.getElementById('archiveDetailSideTitle');
   const sideMeta = document.getElementById('archiveDetailSideMeta');
   const sidePopcorn = document.getElementById('archiveDetailSidePopcorn');
+  const sideTags = document.getElementById('archiveDetailSideTags');
   const reviewTitle = document.getElementById('archiveReviewTitle');
   const reviewMeta = document.getElementById('archiveReviewMeta');
+  const reviewPopcorn = document.getElementById('archiveReviewPopcorn');
   const reviewFresh = document.getElementById('archiveReviewFresh');
+  const reviewTags = document.getElementById('archiveReviewTags');
   const reviewText = document.getElementById('archiveReviewContent');
 
   if (sideTitle) sideTitle.textContent = title;
   if (sideMeta) sideMeta.textContent = meta || '관람 정보 없음';
-  if (sidePopcorn) sidePopcorn.textContent = Number.isFinite(popcorn) && popcorn > 0 ? '🍿 ' + data.popcorn + ' / 5' : '';
+  if (sidePopcorn) sidePopcorn.innerHTML = popcornHtml;
+  renderArchiveTags(sideTags, tags, 'archive-detail-card-tag');
   if (reviewTitle) reviewTitle.textContent = title;
   if (reviewMeta) reviewMeta.textContent = meta || '관람 정보 없음';
+  if (reviewPopcorn) reviewPopcorn.innerHTML = popcornHtml;
+  renderArchiveTags(reviewTags, tags, 'archive-review-tag');
   if (reviewFresh) {
+    reviewFresh.className = 'archive-review-fresh';
     if (fresh === 'Y') {
-      reviewFresh.textContent = '🍿 신선해요!';
+      reviewFresh.innerHTML = '<img src="' + CTX + '/img/popped.png" alt="터졌다"> 터졌다';
       reviewFresh.style.display = 'inline-flex';
     } else if (fresh === 'N') {
-      reviewFresh.textContent = '🥀 별로였어요';
+      reviewFresh.innerHTML = '<img src="' + CTX + '/img/unpopcorn.png" alt="안터졌다"> 안터졌다';
+      reviewFresh.classList.add('is-rotten');
       reviewFresh.style.display = 'inline-flex';
     } else {
       reviewFresh.textContent = '';
@@ -2876,6 +3417,7 @@ function openArchiveDetail(ticket) {
     }
   }
   if (reviewText) reviewText.textContent = reviewContent || '저장된 리뷰 내용이 없어요.';
+  syncArchiveEditForm(data, tags);
 
   const sidebar = document.getElementById('sidebar-archive');
   const wrap = document.querySelector('.archive-content-wrap');
@@ -2891,6 +3433,9 @@ function closeArchiveDetail() {
   if (sidebar) sidebar.classList.remove('detail-mode');
   if (wrap) wrap.classList.remove('detail-mode');
   if (reviewDetail) reviewDetail.scrollTop = 0;
+  archiveCurrentTicket = null;
+  setArchiveReviewMode(false);
+  setArchiveSelectedTicket(null);
   updateScrollHints();
 }
 
