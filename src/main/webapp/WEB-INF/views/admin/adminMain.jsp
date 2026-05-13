@@ -36,7 +36,7 @@
         <div class="title-row">
             <h1>관리자 홈</h1>
             <div class="quick-actions">
-                <a class="button primary" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
+                <a class="button" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
                 <a class="button" href="${ctx}/admin/memberList.do">회원 관리</a>
                 <a class="button" href="${ctx}/admin/scheduleList.do">상영 목록</a>
                 <a class="button" href="${ctx}/admin/errorLogs.do">오류 로그 보기</a>

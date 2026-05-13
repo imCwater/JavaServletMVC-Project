@@ -28,11 +28,14 @@
 
         <div class="title-row">
             <h1>회원 관리</h1>
-            <form class="search-form" action="${ctx}/admin/memberList.do" method="get">
-                <input type="text" name="keyword" value="${fn:escapeXml(keyword)}" placeholder="아이디, 이름, 이메일 검색">
-                <button class="button primary" type="submit">검색</button>
-                <a class="button" href="${ctx}/admin/memberList.do">초기화</a>
-            </form>
+            <div class="quick-actions">
+                <a class="button" href="${ctx}/admin/main.do">관리자 홈</a>
+                <form class="search-form" action="${ctx}/admin/memberList.do" method="get">
+                    <input type="text" name="keyword" value="${fn:escapeXml(keyword)}" placeholder="아이디, 이름, 이메일 검색">
+                    <button class="button" type="submit">검색</button>
+                    <a class="button" href="${ctx}/admin/memberList.do">초기화</a>
+                </form>
+            </div>
         </div>
 
         <div class="table-wrap">

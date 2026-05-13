@@ -84,7 +84,14 @@
                                 <div class="review-top-row">
                                     <span class="review-movie-title">${r.movieTitle}</span>
                                     <span class="review-badge ${r.freshYn eq 'Y' ? 'fresh' : 'rotten'}">
-                                        ${r.freshYn eq 'Y' ? '터졌다' : '안터졌다'}
+                                        <c:choose>
+                                            <c:when test="${r.freshYn eq 'Y'}">
+                                                <img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다" width="18" height="18"> 안터졌다
+                                            </c:otherwise>
+                                        </c:choose>
                                     </span>
                                     <c:if test="${r.publicYn eq 'N'}">
                                         <span class="review-private-badge">친구공개</span>

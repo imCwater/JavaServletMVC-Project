@@ -34,6 +34,7 @@ body {
   transition: opacity 0.7s ease;
 }
 #cover-overlay.hidden { opacity: 0; pointer-events: none; }
+html.skip-diary-cover #cover-overlay { display: none; }
 
 .diary-book {
   display: flex;
@@ -126,6 +127,7 @@ body {
 ══════════════════════════════════════════════════ */
 .book-outer {
   position: relative;
+  z-index: 3;
   max-width: min(1440px, calc(100vw - 40px));
   /* 기본 상태: 브라우저 한 화면 안에 위아래 여백을 두고 보이게 */
   margin: 48px auto 70px;
@@ -957,6 +959,8 @@ body {
    하단 전체 기록 섹션
 ══════════════════════════════════════════════════ */
 .all-records-section {
+  position: relative;
+  z-index: 3;
   background: #fff;
   border: 1px solid #e6e0d8;
   border-radius: 12px;
@@ -1014,7 +1018,7 @@ body {
 ══════════════════════════════════════════════════ */
 .site-header {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   width: min(1180px, calc(100% - 56px));
   height: 78px;
   margin: 0 auto;
@@ -1059,7 +1063,8 @@ body {
   min-height: 220px;
   background: #FFB020;
   overflow: visible;
-  z-index: 1;
+  isolation: isolate;
+  z-index: 0;
 }
 .footer::before {
   content: "";
@@ -1916,11 +1921,192 @@ body {
   background: none; border: none;
   font-size: 20px; float: right; cursor: pointer; color: #bbb;
 }
+
+/* POPFLIX visual tone override: keep diary structure, align color/weight */
+:root {
+  --diary-bg: #FFF4DE;
+  --diary-box: #FFB020;
+  --diary-point: #FF5C3B;
+  --diary-ink: #151515;
+  --diary-line: rgba(21, 21, 21, 0.16);
+  --diary-soft: rgba(255, 255, 255, 0.48);
+}
+
+body,
+#cover-overlay {
+  background: var(--diary-bg);
+  color: var(--diary-ink);
+  font-family: "Noto Sans KR", Arial, sans-serif;
+  font-weight: 500;
+}
+
+.book-cover {
+  background:
+    repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(255,255,255,0.08) 3px, rgba(255,255,255,0.08) 6px),
+    linear-gradient(145deg, #FFB020 0%, #F59C19 48%, #FF5C3B 100%);
+}
+
+.page-layer-3 { background: #ffd889; }
+.page-layer-2 { background: #ffe4aa; }
+.page-layer-1 { background: #fff0cf; }
+
+.sidebar,
+.notebook-body,
+.nb-content,
+.cal-body,
+.note-body,
+.archive-review-note-body,
+.all-records-section,
+.modal-box {
+  background: #fff;
+  border-color: var(--diary-line);
+}
+
+.sidebar-page-title,
+.friend-title,
+.all-records-title,
+.note-section-title,
+.archive-empty-title,
+.archive-content-title,
+.note-header-title,
+.stat-header-title,
+.badge-header-title,
+.diary-note-title {
+  color: var(--diary-ink);
+  font-weight: 800;
+}
+
+.diary-note-header,
+.week-header,
+.note-header,
+.archive-content-header,
+.stat-header,
+.badge-header {
+  background: var(--diary-box);
+  color: var(--diary-ink);
+}
+
+.note-header-title,
+.note-header-sub,
+.archive-content-title,
+.archive-content-sub,
+.week-title,
+.week-day-lbl,
+.week-day-num,
+.empty-title,
+.empty-sub {
+  color: var(--diary-ink);
+}
+
+.sidebar a.active,
+.sidebar .stat-link[style],
+.cal-cell.selected,
+.cal-cell.today,
+.ticket-select-item.sel,
+.archive-year-btn.asel {
+  background: #fff !important;
+  border-color: var(--diary-point) !important;
+  color: var(--diary-ink) !important;
+}
+
+.stat-link,
+.archive-stat-box,
+.archive-my-film,
+.monthly-summary-bar,
+.ticket-card,
+.diary-card,
+.stat-card,
+.chart-box,
+.badge-card,
+.badge-card.locked,
+.search-result-card,
+.write-ticket,
+.archive-detail-card {
+  background: var(--diary-soft);
+  border-color: var(--diary-line);
+  color: var(--diary-ink);
+}
+
+.note-save-btn,
+.btn-save,
+.fresh-btn.sel-fresh,
+.tag-cb:checked + .tag-lbl,
+.note-tag-cb:checked + .note-tag-lbl,
+.archive-review-tag,
+.archive-detail-card-tag,
+.card-tag2,
+.ticket-tag,
+.at-tag,
+.fresh-badge {
+  background: #fff;
+  border-color: var(--diary-point);
+  color: var(--diary-ink);
+  font-weight: 800;
+}
+
+.note-save-btn:hover,
+.btn-save:hover {
+  background: var(--diary-point);
+  color: #fff;
+}
+
+.book-year,
+.card-popcorn,
+.archive-detail-card-popcorn,
+.archive-review-popcorn,
+.pcorn-score,
+.stat-card .val,
+.badge-date,
+.archive-stat-title,
+.wti-kicker {
+  color: var(--diary-point);
+  font-weight: 800;
+}
+
+.summary-lbl,
+.summary-val {
+  color: var(--diary-ink);
+}
+
+.sidebar a,
+.stat-link,
+.ticket-btn,
+.archive-year-btn,
+.sort-sel,
+.ticket-select-sort,
+.tag-lbl,
+.note-tag-lbl,
+.fresh-btn {
+  font-weight: 800;
+}
 </style>
 </head>
 <body>
 
 <jsp:include page="/WEB-INF/views/common/site-header.jsp" />
+
+<script>
+(function(){
+  const ctx = '${pageContext.request.contextPath}';
+  const currentPath = window.location.pathname;
+  const diaryRoot = ctx + '/diary/';
+  const isDiaryList = currentPath === ctx + '/diary/list.do';
+  let showCover = false;
+
+  try {
+    const referrer = document.referrer ? new URL(document.referrer) : null;
+    const cameFromSameOrigin = referrer && referrer.origin === window.location.origin;
+    const cameFromDiary = cameFromSameOrigin && referrer.pathname.indexOf(diaryRoot) === 0;
+    showCover = isDiaryList && cameFromSameOrigin && !cameFromDiary;
+  } catch (e) {
+    showCover = false;
+  }
+
+  if (!showCover) {
+    document.documentElement.classList.add('skip-diary-cover');
+  }
+})();
+</script>
 
 <!-- ══ 커버 오프닝 ══ -->
 <div id="cover-overlay">
@@ -2409,7 +2595,7 @@ body {
               <div class="archive-review-meta" id="archiveReviewMeta">관람 정보</div>
               <div class="archive-review-rating-row">
                 <span class="archive-review-popcorn" id="archiveReviewPopcorn"></span>
-                <span class="archive-review-fresh" id="archiveReviewFresh">터졌다</span>
+                <span class="archive-review-fresh" id="archiveReviewFresh"><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다</span>
               </div>
               <div class="archive-review-tags" id="archiveReviewTags"></div>
             </div>
@@ -2609,18 +2795,20 @@ const DOW_FULL = ['S','M','T','W','T','F','S'];
 let archiveCurrentTicket = null;
 
 /* ── 커버 ──────────────────────────────── */
-document.getElementById('coverYear').textContent = new Date().getFullYear();
+const coverYear = document.getElementById('coverYear');
+if (coverYear) {
+  coverYear.textContent = new Date().getFullYear();
+}
 (function(){
-  if(sessionStorage.getItem('dv')){
-    document.getElementById('cover-overlay').style.display='none';
-  } else {
-    sessionStorage.setItem('dv','1');
-    setTimeout(()=>{
-      const el = document.getElementById('cover-overlay');
-      el.classList.add('hidden');
-      setTimeout(()=>el.remove(), 800);
-    }, 3400);
+  const el = document.getElementById('cover-overlay');
+  if (!el || document.documentElement.classList.contains('skip-diary-cover')) {
+    if (el) el.remove();
+    return;
   }
+  setTimeout(()=>{
+    el.classList.add('hidden');
+    setTimeout(()=>el.remove(), 800);
+  }, 3400);
 })();
 
 /* ── 스프링 링 ─────────────────────────── */
@@ -2813,7 +3001,7 @@ function renderDated(){
   items.innerHTML = entries.map(e=>{
     const dateStr = e.watchDate ? String(e.watchDate).substring(0,10).replace(/-/g,'.') : '';
     const freshHtml = e.freshYn
-      ? '<div class="fresh-badge'+(e.freshYn==='Y'?'':' bad')+'">'+(e.freshYn==='Y'?'★ 신선':'★ 비신선')+'</div>'
+      ? '<div class="fresh-badge'+(e.freshYn==='Y'?'':' bad')+'"><img src="'+CTX+'/img/'+(e.freshYn==='Y'?'popped.png':'unpopcorn.png')+'" alt="'+(e.freshYn==='Y'?'터졌다':'안터졌다')+'" width="18" height="18"> '+(e.freshYn==='Y'?'터졌다':'안터졌다')+'</div>'
       : '';
     const posterHtml = e.posterUrl
       ? '<img class="ticket-poster" src="'+e.posterUrl+'" onerror="this.style.display=\'none\'">'

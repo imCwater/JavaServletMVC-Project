@@ -82,14 +82,14 @@
                     <input type="radio" id="freshY" name="freshYn" value="Y"
                            ${review.freshYn eq 'Y' ? 'checked' : ''}>
                     <label for="freshY">
-                        <span class="toggle-icon">&#128293;</span>
+                        <img class="toggle-icon" src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="22" height="22">
                         터졌다!
                     </label>
 
                     <input type="radio" id="freshN" name="freshYn" value="N"
                            ${review.freshYn eq 'N' ? 'checked' : ''}>
                     <label for="freshN">
-                        <span class="toggle-icon">&#128532;</span>
+                        <img class="toggle-icon" src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다" width="22" height="22">
                         안터졌다
                     </label>
                 </div>

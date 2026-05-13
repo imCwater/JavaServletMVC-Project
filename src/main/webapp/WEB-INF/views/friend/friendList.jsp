@@ -7,7 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>POPFLIX - 친구 관리</title>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friendList.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/friend/friend-style.css">
 </head>
 <body>

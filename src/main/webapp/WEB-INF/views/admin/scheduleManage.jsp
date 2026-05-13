@@ -27,7 +27,10 @@
 
         <div class="title-row">
             <h1>상영 정보 관리</h1>
-            <a class="button primary" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
+            <div class="quick-actions">
+                <a class="button" href="${ctx}/admin/main.do">관리자 홈</a>
+                <a class="button" href="${ctx}/admin/scheduleForm.do">상영 등록</a>
+            </div>
         </div>
 
         <div class="table-wrap">

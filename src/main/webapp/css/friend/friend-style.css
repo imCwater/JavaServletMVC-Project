@@ -196,6 +196,7 @@ input[type="text"] {
   margin-top: auto;
   min-height: 220px;
   background: var(--box);
+  overflow: visible;
   z-index: 1;
 }
 .footer::before {
@@ -209,12 +210,71 @@ input[type="text"] {
   background-repeat: repeat-x;
   background-size: 960px 66px;
   animation: footerWave 18s linear infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 @keyframes footerWave {
   from { transform: translateX(0); }
   to { transform: translateX(-960px); }
 }
-.footer-popcorn { display: none; }
+.footer-popcorn {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: min(52vh, 440px);
+  min-height: 260px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.popcorn-kernel {
+  position: absolute;
+  bottom: 0;
+  width: var(--kernel-size);
+  height: var(--kernel-size);
+  object-fit: contain;
+  opacity: 0;
+  filter: drop-shadow(0 10px 10px rgba(102, 51, 0, 0.22));
+  animation: popcornBounce var(--kernel-speed) ease-in-out infinite;
+  animation-delay: var(--kernel-delay);
+  transform-origin: center bottom;
+}
+
+.popcorn-kernel:nth-child(1) { --kernel-size: 28px; --kernel-speed: 4.8s; --kernel-delay: -0.4s; left: 7%; }
+.popcorn-kernel:nth-child(2) { --kernel-size: 42px; --kernel-speed: 5.6s; --kernel-delay: -2.1s; left: 16%; }
+.popcorn-kernel:nth-child(3) { --kernel-size: 34px; --kernel-speed: 4.4s; --kernel-delay: -1.2s; left: 25%; }
+.popcorn-kernel:nth-child(4) { --kernel-size: 52px; --kernel-speed: 6.2s; --kernel-delay: -3.4s; left: 34%; }
+.popcorn-kernel:nth-child(5) { --kernel-size: 24px; --kernel-speed: 5.1s; --kernel-delay: -2.8s; left: 42%; }
+.popcorn-kernel:nth-child(6) { --kernel-size: 38px; --kernel-speed: 4.7s; --kernel-delay: -0.9s; left: 50%; }
+.popcorn-kernel:nth-child(7) { --kernel-size: 46px; --kernel-speed: 5.8s; --kernel-delay: -4.1s; left: 59%; }
+.popcorn-kernel:nth-child(8) { --kernel-size: 30px; --kernel-speed: 4.9s; --kernel-delay: -1.7s; left: 67%; }
+.popcorn-kernel:nth-child(9) { --kernel-size: 56px; --kernel-speed: 6.4s; --kernel-delay: -3.1s; left: 75%; }
+.popcorn-kernel:nth-child(10) { --kernel-size: 36px; --kernel-speed: 5.3s; --kernel-delay: -0.2s; left: 83%; }
+.popcorn-kernel:nth-child(11) { --kernel-size: 44px; --kernel-speed: 5.9s; --kernel-delay: -2.5s; left: 91%; }
+.popcorn-kernel:nth-child(12) { --kernel-size: 32px; --kernel-speed: 4.6s; --kernel-delay: -3.8s; left: 12%; }
+
+@keyframes popcornBounce {
+  0% { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.84) rotate(0deg); }
+  10% { opacity: 0.95; }
+  50% { opacity: 1; transform: translate3d(var(--kernel-drift, 0), -34vh, 0) scale(1) rotate(var(--kernel-rotate, 210deg)); }
+  100% { opacity: 0; transform: translate3d(var(--kernel-end-drift, 0), 20px, 0) scale(0.9) rotate(var(--kernel-end-rotate, 320deg)); }
+}
+
+.popcorn-kernel:nth-child(odd) {
+  --kernel-drift: 42px;
+  --kernel-end-drift: 72px;
+  --kernel-rotate: 240deg;
+  --kernel-end-rotate: 390deg;
+}
+
+.popcorn-kernel:nth-child(even) {
+  --kernel-drift: -34px;
+  --kernel-end-drift: -58px;
+  --kernel-rotate: -220deg;
+  --kernel-end-rotate: -360deg;
+}
+
 .footer-inner {
   position: relative;
   z-index: 2;

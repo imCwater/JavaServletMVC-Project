@@ -14,6 +14,7 @@ import movie.dto.MovieDTO;
 import reservation.dto.ReservationScheduleDTO;
 import reservation.dto.ReservationTheaterDTO;
 import reservation.service.ReservationService;
+import review.service.ReviewService;
 
 @WebServlet("/reservation/form.do")
 // 예매 시작 화면 컨트롤러
@@ -21,6 +22,7 @@ import reservation.service.ReservationService;
 public class ReservationFormServlet extends HttpServlet {
 
 	private ReservationService reservationService = new ReservationService();
+	private ReviewService reviewService = new ReviewService();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -56,6 +58,7 @@ public class ReservationFormServlet extends HttpServlet {
 				reservationService.ensureDefaultSchedulesForMovie(movieId);
 				scheduleList = reservationService.getReservationScheduleListByMovieId(movieId);
 				theaterList = reservationService.getTheaterList();
+				req.setAttribute("reviewStat", reviewService.getReviewStat(movie.getMovieId()));
 			}
 
 			req.setAttribute("movieId", movieId);

@@ -86,12 +86,12 @@
         <div class="stat-card">
             <div class="stat-item">전체 <strong>${totalCount}</strong>편</div>
             <div class="stat-divider">|</div>
-            <div class="stat-item">터졌다 <strong>${freshCount}</strong>편</div>
+            <div class="stat-item"><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다 <strong>${freshCount}</strong>편</div>
             <div class="stat-divider">|</div>
-            <div class="stat-item">안터졌다 <strong>${notFreshCount}</strong>편</div>
+            <div class="stat-item"><img src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다" width="18" height="18"> 안터졌다 <strong>${notFreshCount}</strong>편</div>
             <div class="burst-bar-wrap">
                 <div class="burst-bar-label">
-                    <span>터졌다 비율</span>
+                    <span><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다 비율</span>
                     <span><fmt:formatNumber value="${freshRate}" maxFractionDigits="1" />%</span>
                 </div>
                 <div class="burst-bar">
@@ -151,10 +151,10 @@
                             <%-- 터졌다 배지 --%>
                             <c:choose>
                                 <c:when test="${review.freshYn eq 'Y'}">
-                                    <span class="burst-badge yes">터졌다</span>
+                                    <span class="burst-badge yes"><img src="${pageContext.request.contextPath}/img/popped.png" alt="터졌다" width="18" height="18"> 터졌다</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <span class="burst-badge no">안터졌다</span>
+                                    <span class="burst-badge no"><img src="${pageContext.request.contextPath}/img/unpopcorn.png" alt="안터졌다" width="18" height="18"> 안터졌다</span>
                                 </c:otherwise>
                             </c:choose>
 

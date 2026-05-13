@@ -129,6 +129,13 @@
       align-items: center;
       gap: 10px;
       margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .genre-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     h1 {
@@ -199,6 +206,26 @@
       font-size: 13px;
       line-height: 1.65;
       font-weight: 500;
+    }
+
+    .keyword-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-width: 560px;
+      margin-top: 18px;
+    }
+
+    .keyword-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: #6b3300;
+      font-size: 12px;
+      font-weight: 900;
     }
 
     .like {
@@ -277,6 +304,244 @@
       height: 1px;
       margin: 70px auto 30px;
       background: var(--line);
+    }
+
+    .review-section {
+      width: min(1080px, calc(100% - 56px));
+      margin: 0 auto;
+      padding-bottom: 96px;
+    }
+
+    .review-section .divider {
+      width: 100%;
+    }
+
+    .review-heading-row {
+      margin-bottom: 18px;
+    }
+
+    .review-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .review-stat-box {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+      padding: 18px 24px;
+      border-radius: 14px;
+      background: var(--box);
+      font-weight: 800;
+    }
+
+    .review-stat-item {
+      min-height: 72px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .review-stat-item span {
+      display: block;
+      margin-bottom: 6px;
+      color: #6b3300;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .review-stat-item strong {
+      display: block;
+      color: #151515;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .review-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .review-filter-btn {
+      min-width: 0;
+      height: 34px;
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: #141414;
+      padding: 0 14px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .review-filter-btn:hover,
+    .review-filter-btn.active {
+      background: var(--point);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .review-write-card,
+    .review-my-card,
+    .review-list-card,
+    .empty-review-box,
+    .review-login-guide {
+      margin-bottom: 16px;
+      padding: 18px 24px;
+      border-radius: 14px;
+      background: var(--box);
+    }
+
+    .review-card-top {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .review-burst-pill,
+    .review-public-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: #141414;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .review-burst-pill {
+      background: var(--point);
+      color: #fff;
+    }
+
+    .review-burst-pill.no {
+      background: #595959;
+    }
+
+    .review-public-pill input {
+      margin: 0 6px 0 0;
+    }
+
+    .review-radio-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .review-radio-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .review-radio-row input {
+      margin: 0;
+    }
+
+    .review-form-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .review-textarea,
+    .review-content-box {
+      width: 100%;
+      min-height: 95px;
+      border: 0;
+      border-radius: 10px;
+      background: #fff;
+      color: #151515;
+      padding: 14px;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    .review-content-box {
+      min-height: 66px;
+      white-space: pre-wrap;
+    }
+
+    .review-side-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .review-action-btn {
+      min-width: 80px;
+      height: 40px;
+      padding: 0 18px;
+    }
+
+    .review-action-btn.danger {
+      color: #c0392b;
+    }
+
+    .review-action-btn.danger:hover {
+      color: #fff;
+    }
+
+    .review-meta-right {
+      margin-left: auto;
+      color: #6b3300;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .empty-review-box,
+    .review-login-guide,
+    .review-no-result {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .empty-review-main {
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .empty-review-sub {
+      color: #6b3300;
+      font-size: 12px;
+    }
+
+    .review-login-guide a {
+      color: #111;
+      font-weight: 900;
+    }
+
+    .review-no-result {
+      margin: 12px 0 16px;
+      padding: 20px;
+      border: 1px dashed rgba(21, 21, 21, 0.28);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.42);
+      color: #6b3300;
     }
 
     .controls {
@@ -876,6 +1141,7 @@
       .controls,
       .booking,
       .footer-inner,
+      .review-section,
       .content {
         width: min(100% - 28px, 680px);
       }
@@ -923,8 +1189,15 @@
       .controls,
       .booking,
       .summary-grid,
-      .detail-grid {
+      .detail-grid,
+      .review-stat-box,
+      .review-form-body {
         grid-template-columns: 1fr;
+      }
+
+      .review-side-actions {
+        flex-direction: row;
+        justify-content: flex-end;
       }
 
       .reservation-table,
