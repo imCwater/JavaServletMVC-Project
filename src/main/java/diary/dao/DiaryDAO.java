@@ -27,6 +27,11 @@ public class DiaryDAO {
 		return common.DBUtil.getConnection();
 	}
 
+	private Integer getNullableInt(ResultSet rs, String columnName) throws SQLException {
+		int value = rs.getInt(columnName);
+		return rs.wasNull() ? null : value;
+	}
+
 	// ─────────────────────────────────────────────────────────────
 	// 1. 다이어리 목록 조회 (본인 전체, 연도 필터 포함)
 	// - DIARY_ENTRY JOIN MOVIE
@@ -78,8 +83,8 @@ public class DiaryDAO {
 					dto.setDiaryId(rs.getInt("diary_id"));
 					dto.setMemberId(memberId);
 					dto.setMovieId(rs.getInt("movie_id"));
-					dto.setReservationId((Integer) rs.getObject("reservation_id"));
-					dto.setReviewId((Integer) rs.getObject("review_id"));
+					dto.setReservationId(getNullableInt(rs, "reservation_id"));
+					dto.setReviewId(getNullableInt(rs, "review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
 					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
@@ -116,8 +121,6 @@ public class DiaryDAO {
 				+ " WHERE d.member_id = ? "
 				+ "   AND d.review_id IS NULL "
 				+ "   AND (r.reservation_id IS NULL OR r.status = 'Y') "
-				+ "   AND (sch.end_time <= CAST(SYSTIMESTAMP AS TIMESTAMP) "
-				+ "        OR (sch.end_time IS NULL AND d.watch_date < TRUNC(SYSDATE))) "
 				+ " ORDER BY d.watch_date DESC ";
 
 		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -129,8 +132,8 @@ public class DiaryDAO {
 					dto.setDiaryId(rs.getInt("diary_id"));
 					dto.setMemberId(memberId);
 					dto.setMovieId(rs.getInt("movie_id"));
-					dto.setReservationId((Integer) rs.getObject("reservation_id"));
-					dto.setReviewId((Integer) rs.getObject("review_id"));
+					dto.setReservationId(getNullableInt(rs, "reservation_id"));
+					dto.setReviewId(getNullableInt(rs, "review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
 					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
@@ -156,7 +159,7 @@ public class DiaryDAO {
 	public List<DiaryDTO> getDiaryByMonth(int memberId, String year, String month) throws Exception {
 		List<DiaryDTO> list = new ArrayList<>();
 
-		String sql = "SELECT d.diary_id, d.movie_id, d.watch_date, d.popcorn_rating, "
+		String sql = "SELECT d.diary_id, d.movie_id, d.review_id, d.watch_date, d.popcorn_rating, "
 				+ "       m.title AS movie_title, m.poster_url " + "  FROM DIARY_ENTRY d "
 				+ "  JOIN MOVIE m ON d.movie_id = m.movie_id " + " WHERE d.member_id = ? "
 				+ "   AND TO_CHAR(d.watch_date, 'YYYY') = ? " + "   AND TO_CHAR(d.watch_date, 'MM')   = ? "
@@ -174,6 +177,7 @@ public class DiaryDAO {
 					DiaryDTO dto = new DiaryDTO();
 					dto.setDiaryId(rs.getInt("diary_id"));
 					dto.setMovieId(rs.getInt("movie_id"));
+					dto.setReviewId(getNullableInt(rs, "review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
 					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setMovieTitle(rs.getString("movie_title"));
@@ -213,8 +217,8 @@ public class DiaryDAO {
 					dto.setDiaryId(rs.getInt("diary_id"));
 					dto.setMemberId(rs.getInt("member_id"));
 					dto.setMovieId(rs.getInt("movie_id"));
-					dto.setReservationId((Integer) rs.getObject("reservation_id"));
-					dto.setReviewId((Integer) rs.getObject("review_id"));
+					dto.setReservationId(getNullableInt(rs, "reservation_id"));
+					dto.setReviewId(getNullableInt(rs, "review_id"));
 					dto.setWatchDate(rs.getDate("watch_date"));
 					dto.setPopcornRating(rs.getDouble("popcorn_rating"));
 					dto.setCreatedAt(rs.getTimestamp("created_at"));
@@ -324,10 +328,10 @@ public class DiaryDAO {
 		}
 	}
 
-	public void saveReviewAndLinkDiary(DiaryDTO diary, String freshYn, String content) throws Exception {
+	public boolean saveReviewAndLinkDiary(DiaryDTO diary, String freshYn, String content) throws Exception {
 		String reviewText = content == null ? "" : content.trim();
 		if (reviewText.isEmpty()) {
-			return;
+			return false;
 		}
 
 		String normalizedFreshYn = "N".equals(freshYn) ? "N" : "Y";
@@ -351,6 +355,7 @@ public class DiaryDAO {
 				}
 
 				conn.commit();
+				return reviewId != null;
 			} catch (Exception e) {
 				conn.rollback();
 				throw e;
@@ -358,6 +363,58 @@ public class DiaryDAO {
 		}
 	}
 
+	public boolean deleteDiaryReviewState(int diaryId, int memberId) throws Exception {
+		String selectSql = "SELECT review_id FROM DIARY_ENTRY WHERE diary_id = ? AND member_id = ?";
+		String deleteTagsSql = "DELETE FROM DIARY_TAG WHERE diary_id = ?";
+		String clearDiarySql = "UPDATE DIARY_ENTRY SET review_id = NULL, popcorn_rating = NULL WHERE diary_id = ? AND member_id = ?";
+		String deleteReviewSql = "DELETE FROM REVIEW WHERE review_id = ? AND member_id = ? AND public_yn = 'N' "
+				+ "AND NOT EXISTS (SELECT 1 FROM DIARY_ENTRY WHERE review_id = ?)";
+
+		try (Connection conn = getConnection()) {
+			conn.setAutoCommit(false);
+			try {
+				Integer reviewId = null;
+				try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+					ps.setInt(1, diaryId);
+					ps.setInt(2, memberId);
+					try (ResultSet rs = ps.executeQuery()) {
+						if (!rs.next()) {
+							conn.rollback();
+							return false;
+						}
+						reviewId = getNullableInt(rs, "review_id");
+					}
+				}
+
+				try (PreparedStatement ps = conn.prepareStatement(deleteTagsSql)) {
+					ps.setInt(1, diaryId);
+					ps.executeUpdate();
+				}
+
+				int updated;
+				try (PreparedStatement ps = conn.prepareStatement(clearDiarySql)) {
+					ps.setInt(1, diaryId);
+					ps.setInt(2, memberId);
+					updated = ps.executeUpdate();
+				}
+
+				if (reviewId != null) {
+					try (PreparedStatement ps = conn.prepareStatement(deleteReviewSql)) {
+						ps.setInt(1, reviewId);
+						ps.setInt(2, memberId);
+						ps.setInt(3, reviewId);
+						ps.executeUpdate();
+					}
+				}
+
+				conn.commit();
+				return updated > 0;
+			} catch (Exception e) {
+				conn.rollback();
+				throw e;
+			}
+		}
+	}
 	private Integer findLatestReviewId(Connection conn, int memberId, int movieId) throws SQLException {
 		String sql = "SELECT review_id FROM ("
 				+ "SELECT review_id FROM REVIEW WHERE member_id = ? AND movie_id = ? ORDER BY created_at DESC"
@@ -376,26 +433,16 @@ public class DiaryDAO {
 
 	private Integer insertReview(Connection conn, DiaryDTO diary, String freshYn, String content) throws SQLException {
 		String sql = "INSERT INTO REVIEW (movie_id, member_id, fresh_yn, public_yn, content) VALUES (?, ?, ?, ?, ?)";
-		Integer reviewId = null;
-		try (PreparedStatement ps = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, diary.getMovieId());
 			ps.setInt(2, diary.getMemberId());
 			ps.setString(3, freshYn);
 			ps.setString(4, "N");
 			ps.setString(5, content);
 			ps.executeUpdate();
-
-			try (ResultSet rs = ps.getGeneratedKeys()) {
-				if (rs.next()) {
-					reviewId = rs.getInt(1);
-				}
-			}
 		}
 
-		if (reviewId == null) {
-			reviewId = findLatestReviewId(conn, diary.getMemberId(), diary.getMovieId());
-		}
-		return reviewId;
+		return findLatestReviewId(conn, diary.getMemberId(), diary.getMovieId());
 	}
 
 	private void updateReview(Connection conn, DiaryDTO diary, int reviewId, String freshYn, String content)
@@ -467,6 +514,121 @@ public class DiaryDAO {
 		return 0;
 	}
 
+	private int queryCount(String sql, int memberId) throws Exception {
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countRatingEquals(int memberId, double rating) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND popcorn_rating = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setDouble(2, rating);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countRatingAtMost(int memberId, double rating) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND popcorn_rating <= ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setDouble(2, rating);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countLongReview(int memberId, int minLength) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY d "
+				+ "JOIN REVIEW rv ON d.review_id = rv.review_id "
+				+ "WHERE d.member_id = ? AND LENGTH(rv.content) >= ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setInt(2, minLength);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countDistinctTagsUsed(int memberId) throws Exception {
+		String sql = "SELECT COUNT(DISTINCT dt.tag_id) FROM DIARY_TAG dt "
+				+ "JOIN DIARY_ENTRY d ON dt.diary_id = d.diary_id WHERE d.member_id = ?";
+		return queryCount(sql, memberId);
+	}
+
+	public int countDiaryWithAtLeastTags(int memberId, int minTags) throws Exception {
+		String sql = "SELECT COUNT(*) FROM ("
+				+ "SELECT d.diary_id FROM DIARY_ENTRY d "
+				+ "JOIN DIARY_TAG dt ON d.diary_id = dt.diary_id "
+				+ "WHERE d.member_id = ? GROUP BY d.diary_id HAVING COUNT(dt.tag_id) >= ?)";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setInt(2, minTags);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countGenreLike(int memberId, String genreKeyword) throws Exception {
+		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY d "
+				+ "JOIN MOVIE m ON d.movie_id = m.movie_id "
+				+ "WHERE d.member_id = ? AND m.genre LIKE ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			ps.setString(2, "%" + genreKeyword + "%");
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public int countGenreAny(int memberId, String... genreKeywords) throws Exception {
+		if (genreKeywords == null || genreKeywords.length == 0) return 0;
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT COUNT(*) FROM DIARY_ENTRY d JOIN MOVIE m ON d.movie_id = m.movie_id ");
+		sql.append("WHERE d.member_id = ? AND (");
+		for (int i = 0; i < genreKeywords.length; i++) {
+			if (i > 0) sql.append(" OR ");
+			sql.append("m.genre LIKE ?");
+		}
+		sql.append(")");
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setInt(1, memberId);
+			for (int i = 0; i < genreKeywords.length; i++) {
+				ps.setString(i + 2, "%" + genreKeywords[i] + "%");
+			}
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getInt(1);
+			}
+		}
+		return 0;
+	}
+
+	public double sumPopcornRating(int memberId) throws Exception {
+		String sql = "SELECT NVL(SUM(NVL(popcorn_rating, 0)), 0) FROM DIARY_ENTRY WHERE member_id = ?";
+		try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, memberId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getDouble(1);
+			}
+		}
+		return 0;
+	}
 	// 팝콘 1.0점 기록 횟수 (혹평가 뱃지)
 	public int countLowRating(int memberId) throws Exception {
 		String sql = "SELECT COUNT(*) FROM DIARY_ENTRY WHERE member_id = ? AND popcorn_rating = 1.0";

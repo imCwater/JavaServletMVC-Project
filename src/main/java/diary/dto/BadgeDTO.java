@@ -11,7 +11,7 @@ package diary.dto;
 public class BadgeDTO {
 
     private String code;        // 뱃지 코드 (FIRST_MOVIE 등)
-    private String icon;        // 아이콘 이모지
+    private String icon;        // 아이콘 이미지 파일명
     private String name;        // 뱃지 이름
     private String desc;        // 달성 조건 설명
     private boolean earned;     // 달성 여부

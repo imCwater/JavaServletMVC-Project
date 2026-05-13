@@ -70,7 +70,9 @@ public class DiaryTagUpdateServlet extends HttpServlet {
         String freshYn = req.getParameter("freshYn");
         String diaryText = req.getParameter("diaryText");
 
-        try {
+		boolean saved = false;
+
+		try {
             // ── 본인 다이어리 여부 확인 후 업데이트 ─────────────
             DiaryDTO detail = diaryService.getDiaryDetail(diaryId);
             if (detail == null || detail.getMemberId() != memberId) {
@@ -78,12 +80,17 @@ public class DiaryTagUpdateServlet extends HttpServlet {
                 return;
             }
 
-            diaryService.updateTagsPopcornAndReview(detail, tagIds, popcornRating, freshYn, diaryText);
+			saved = diaryService.updateTagsPopcornAndReview(detail, tagIds, popcornRating, freshYn, diaryText);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        resp.sendRedirect(req.getContextPath() + "/diary/list.do");
-    }
+		String returnTo = req.getParameter("returnTo");
+		if ("archive".equals(returnTo)) {
+			resp.sendRedirect(req.getContextPath() + "/diary/list.do" + (saved ? "?updated=1#archive" : "#archive"));
+		} else {
+			resp.sendRedirect(req.getContextPath() + "/diary/list.do" + (saved ? "?saved=1#write" : ""));
+		}
+	}
 }

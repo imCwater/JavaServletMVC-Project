@@ -111,3 +111,4 @@ src/main/resources/config.properties
 # Claude Code internal files
 # =========================
 .sisyphus/
+.playwright-mcp/
